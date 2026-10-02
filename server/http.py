@@ -44,6 +44,8 @@ def make_handler(workspace):
                 raise Rejected('bad origin', 403)
             if self.command in {'POST', 'DELETE'} and not origins:
                 raise Rejected('bad origin', 403)
+            if self.command == 'GET' and self.headers.get('Sec-Fetch-Site') == 'cross-site':
+                raise Rejected('cross-site request', 403)
 
         def dispatch(self):
             try:

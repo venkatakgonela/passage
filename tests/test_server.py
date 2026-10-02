@@ -45,6 +45,7 @@ class ServerTests(unittest.TestCase):
         merged = {key: value for key, value in merged.items() if value is not None}
         connection.request(method, path, body=body, headers=merged)
         response = connection.getresponse()
+        self.response_headers = dict(response.getheaders())
         status, data, content_type = response.status, response.read(), response.getheader('Content-Type')
         connection.close()
         return status, data, content_type
@@ -54,6 +55,39 @@ class ServerTests(unittest.TestCase):
 
     def test_loopback_binding(self):
         self.assertEqual(self.server.server_address[0], '127.0.0.1')
+
+    def test_static_suffix_whitelist(self):
+        assets = self.base / 'assets'
+        for directory in ['web', 'vendor']:
+            (assets / directory).mkdir(parents=True)
+            for suffix in ['.md', '.txt']:
+                (assets / directory / ('private' + suffix)).write_text('synthetic private text')
+        with patch('server.http.PROJECT', assets):
+            for path in ['/private.md', '/private.txt', '/vendor/private.md', '/vendor/private.txt']:
+                self.assertEqual(self.request('GET', path)[0], 404)
+
+    def test_nosniff_responses(self):
+        for path, headers in [('/api/roots', {}), ('/missing', {}), ('/', {'Host': 'evil.invalid'})]:
+            self.request('GET', path, headers=headers)
+            self.assertEqual(self.response_headers.get('X-Content-Type-Options'), 'nosniff')
+
+    def test_settings_save_failure_rolls_back_registration(self):
+        candidate = self.home / 'new-root'
+        candidate.mkdir()
+        previous = self.workspace.roots[:]
+        with patch.object(self.workspace, 'save', side_effect=OSError('synthetic failure')):
+            self.assertEqual(self.request('POST', '/api/roots', json.dumps({'path': str(candidate)}))[0], 500)
+        self.assertEqual(self.workspace.roots, previous)
+        roots = json.loads(self.request('GET', '/api/roots')[1])
+        self.assertNotIn(str(candidate), [root['path'] for root in roots])
+        self.assertFalse(self.settings.exists())
+
+    def test_fetch_metadata(self):
+        for route in ['/', '/app.js', '/api/roots', '/api/files', '/api/file', '/api/search', '/api/browse']:
+            self.assertEqual(self.request('GET', route, headers={'Origin': None, 'Sec-Fetch-Site': 'cross-site'})[0], 403)
+        for site in [None, 'none', 'same-origin', 'same-site']:
+            self.assertEqual(self.request('GET', '/api/roots', headers={'Origin': None, 'Sec-Fetch-Site': site})[0], 200)
+            self.assertEqual(self.request('GET', '/api/roots', headers={'Origin': 'http://localhost:1', 'Sec-Fetch-Site': site})[0], 403)
 
     def test_host_and_origin_matrix(self):
         routes = ['/', '/app.js', '/vendor/marked.min.js', '/api/roots', '/api/browse', '/api/files', '/api/file', '/api/search', '/unknown']

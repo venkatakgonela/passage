@@ -67,4 +67,6 @@ Residual risks: broad home enumeration by a trusted same-origin client, concurre
 
 ## Planned / rejected
 
+GET requests explicitly marked `Sec-Fetch-Site: cross-site` are rejected as defence in depth (`test_fetch_metadata`). Missing metadata remains valid for local clients. `same-site` can include unrelated applications on other localhost ports, so Host and Origin remain the primary guards, not Fetch Metadata. Static suffix filtering, nosniff responses and failed-settings-save rollback are pinned by `test_static_suffix_whitelist`, `test_nosniff_responses` and `test_settings_save_failure_rolls_back_registration`.
+
 Dedicated diagram/image rendering and layout corrections are planned but not implemented. See [known issues](known-rendering-issues.md). A framework, bundler, database and document editing are rejected for this baseline scope. No future component is shown as implemented in the diagrams.

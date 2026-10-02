@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Reject GET requests explicitly marked cross-site while retaining Host and Origin protection.
+- Add regression coverage for static suffix filtering, nosniff responses and settings-save rollback.
+
 ## 0.1.0 — 2026-10-02
 
 - Established modular server and browser code with a dependency-free local test command and synthetic examples.
