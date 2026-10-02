@@ -1,7 +1,8 @@
 export const LIMITS = { history: 100, trail: 8, recents: 30, pins: 30 };
 export const validPath = value => typeof value === 'string' && value.length <= 1024 && !value.startsWith('/') && !value.split('/').some(part => part === '..') && value.endsWith('.md');
 export function boundedPosition(value = {}) {
-  return { heading: typeof value.heading === 'string' ? value.heading.slice(0, 200) : '', snippet: typeof value.snippet === 'string' ? value.snippet.slice(0, 160) : '', delta: Number.isFinite(value.delta) ? Math.max(-10000, Math.min(10000, value.delta)) : 0, offset: Number.isFinite(value.offset) ? Math.max(0, Math.min(10000000, value.offset)) : 0 };
+  if (!value || typeof value !== 'object') value = {};
+  return { heading: typeof value.heading === 'string' ? value.heading.slice(0, 200) : '', snippet: typeof value.snippet === 'string' ? value.snippet.slice(0, 160) : '', delta: Number.isFinite(value.delta) ? Math.max(-10000, Math.min(10000, value.delta)) : 0, snippetDelta: Number.isFinite(value.snippetDelta) ? Math.max(-10000, Math.min(10000, value.snippetDelta)) : (Number.isFinite(value.delta) ? value.delta : 0), offset: Number.isFinite(value.offset) ? Math.max(0, Math.min(10000000, value.offset)) : 0 };
 }
 export function validateSession(value, files) {
   const source = value?.version === 1 ? value : {};
@@ -16,7 +17,7 @@ export function restoreTarget(position, candidates) {
   const heading = position.heading && candidates.find(item => item.id === position.heading);
   if (heading) return { offset: Math.max(0, heading.top + position.delta), fallback: false };
   const snippet = position.snippet && candidates.find(item => item.text.includes(position.snippet));
-  if (snippet) return { offset: Math.max(0, snippet.top + position.delta), fallback: true };
+  if (snippet) return { offset: Math.max(0, snippet.top + (position.snippetDelta ?? position.delta)), fallback: true };
   return { offset: Math.max(0, position.offset || 0), fallback: true };
 }
 export function sortEntries(entries, options = {}) {

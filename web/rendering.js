@@ -28,6 +28,7 @@ export async function openDocument(preserve = false) {
   if (!path || !state.root) return;
   if (path === state.currentPath && preserve !== true && select('#doc').dataset.ready === 'true') {
     document.getElementById(hashHeading())?.scrollIntoView({ block: 'start', behavior: 'instant' });
+    document.dispatchEvent(new Event('document-ready'));
     return;
   }
   const current = ++generation;
@@ -134,4 +135,5 @@ export async function openDocument(preserve = false) {
     if (anchor) select('#scroller').scrollTop += anchor.getBoundingClientRect().top - themeOffset;
   }
   else if (hashHeading()) document.getElementById(hashHeading())?.scrollIntoView({ block: 'start', behavior: 'instant' });
+  document.dispatchEvent(new Event('document-ready'));
 }

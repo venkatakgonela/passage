@@ -69,6 +69,6 @@ export function setupNavigation() {
   select('#nav').classList.toggle('hide', narrow);
   addEventListener('resize', () => {
     const next = innerWidth <= 820;
-    if (next !== narrow) { narrow = next; select('#nav').classList.toggle('hide', next); }
+    if (next !== narrow) { narrow = next; select('#nav').classList.toggle('hide', next && activeDrawer !== select('#nav')); }
   });
 }

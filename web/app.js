@@ -6,6 +6,9 @@ import { setupWorkspace, loadRoots } from './workspace.js';
 import { setupNavigation } from './navigation.js';
 import { openDocument } from './rendering.js';
 import { setupIcons } from './icons.js';
+import { setupOrientation } from './orientation.js';
+import { setupContinuity } from './continuity.js';
+import { setupReadingTools } from './reading-tools.js';
 
 document.title = APP_NAME;
 select('#crumb').textContent = APP_NAME;
@@ -14,4 +17,7 @@ setupTheme();
 setupSearch();
 setupWorkspace();
 setupNavigation();
+setupOrientation();
+setupReadingTools();
+setupContinuity();
 loadRoots().then(openDocument);

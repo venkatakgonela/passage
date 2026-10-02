@@ -3,10 +3,15 @@ import { select, escapeHtml, requestJson } from './dom.js';
 import { state, store } from './state.js';
 import { initialFile } from './paths.js';
 import { renderList } from './tree.js';
+import { fetchCatalog } from './catalog.js';
+import { loadSession } from './session.js';
 
 async function loadFiles() {
   store.set('root', state.root);
   state.files = state.root ? await requestJson(`/api/files?root=${state.root}`) : [];
+  state.catalog = state.root ? await fetchCatalog() || [] : [];
+  const saved = loadSession();
+  document.dispatchEvent(new Event('workspace-loaded'));
   select('#q').value = '';
   state.searchSequence++;
   state.currentPath = '';
@@ -15,7 +20,7 @@ async function loadFiles() {
   select('#toc').innerHTML = '';
   select('#crumb').textContent = APP_NAME;
   renderList();
-  const first = initialFile(state.files);
+  const first = saved.path || initialFile(state.files);
   if (first) location.hash = encodeURIComponent(first);
 }
 
