@@ -14,11 +14,12 @@ export function createStore(storage) {
         storage().setItem(STORAGE_PREFIX + key, value);
       } catch {}
     },
+    remove(key) { try { storage().removeItem(STORAGE_PREFIX + key); } catch {} },
   };
 }
 
 export const store = createStore(() => window.localStorage);
 export const state = {
-  files: [], roots: [], root: store.get('root') || '',
+  files: [], catalog: [], roots: [], root: store.get('root') || '',
   browsePath: '', currentPath: '', observer: null, searchSequence: 0,
 };
