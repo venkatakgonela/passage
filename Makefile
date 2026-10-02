@@ -2,7 +2,7 @@ PYTHON ?= python3
 NODE ?= node
 export PYTHONPYCACHEPREFIX := $(CURDIR)/.state/pycache
 
-.PHONY: run test lint
+.PHONY: run test lint test-browser
 run:
 	$(PYTHON) -m server $(ARGS)
 
@@ -13,3 +13,6 @@ test:
 lint:
 	$(PYTHON) -m compileall -q server tests
 	@for file in web/*.js tests/*.test.js; do $(NODE) --check "$$file" || exit 1; done
+
+test-browser:
+	$(NODE) tests/browser.mjs
