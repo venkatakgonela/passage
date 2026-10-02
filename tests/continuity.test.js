@@ -21,6 +21,7 @@ test('session data rejects stale and hostile paths and bounds collections', () =
   const result = validateSession({ version: 1, path: 'gone.md', pins: [...files, '../secret.md'], history: files.map(path => ({ path })), navWidth: 9000 }, files);
   assert.equal(result.path, ''); assert.equal(result.pins.length, 30); assert.equal(result.history.length, 100); assert.equal(result.navWidth, 420);
   assert.equal(validateSession({ version: 99, path: '0.md' }, files).path, '');
+  assert.equal(validateSession({ version: 1, position: null, history: [{ path: '0.md', position: null }] }, files).position.offset, 0);
   assert.equal(validateSession({ version: 1, pins: ['../secret.md'] }, ['../secret.md']).pins.length, 0);
 });
 test('trail and history append retain newest bounded records', () => {
@@ -32,4 +33,5 @@ test('position restoration prefers heading then snippet then offset', () => {
   assert.deepEqual(restoreTarget(position, [{ id: 'section', text: 'other', top: 100 }]), { offset: 104, fallback: false });
   assert.equal(restoreTarget(position, [{ id: '', text: 'text passage', top: 200 }]).offset, 204);
   assert.equal(restoreTarget(position, []).offset, 50);
+  assert.equal(restoreTarget({ ...position, snippetDelta: 12 }, [{ id: '', text: 'text passage', top: 200 }]).offset, 212);
 });

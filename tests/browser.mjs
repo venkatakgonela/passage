@@ -1,17 +1,20 @@
 import assert from 'node:assert/strict';
 import { chromium } from 'playwright-core';
-import { mkdtemp, mkdir, rm, writeFile, readFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, rm, writeFile, readFile, cp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawn } from 'node:child_process';
 import { validateDiagram } from '../web/diagrams.js';
+import { checkOrientation } from './orientation-browser.mjs';
 
 const temporary = await mkdtemp(join(tmpdir(), 'reader-browser-'));
 const executablePath = process.env.BROWSER_EXECUTABLE || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const evidence = process.env.READER_EVIDENCE;
 const home = join(temporary, 'home');
 await mkdir(home);
-const server = spawn(process.env.PYTHON || 'python3', ['-m', 'server', '--port', '0', '--root', resolve('examples')], { env: { ...process.env, HOME: home, READER_SETTINGS: join(temporary, 'roots.json'), PYTHONPYCACHEPREFIX: join(temporary, 'cache') } });
+const fixtureRoot = join(temporary, 'examples');
+await cp(resolve('examples'), fixtureRoot, { recursive: true });
+const server = spawn(process.env.PYTHON || 'python3', ['-m', 'server', '--port', '0', '--root', fixtureRoot], { env: { ...process.env, HOME: home, READER_SETTINGS: join(temporary, 'roots.json'), PYTHONPYCACHEPREFIX: join(temporary, 'cache') } });
 let browser;
 try {
   const url = await new Promise((accept, reject) => {
@@ -153,8 +156,10 @@ try {
   await page.locator('#doc h2 .a').nth(1).click();
   await page.waitForFunction(() => location.hash.endsWith('#components'));
   await page.goBack();
+  await page.waitForFunction(() => location.hash.endsWith('#flow'));
   assert.ok(page.url().endsWith('#flow'));
   await page.goForward();
+  await page.waitForFunction(() => location.hash.endsWith('#components'));
   assert.ok(page.url().endsWith('#components'));
   await open('media.md');
   await page.waitForFunction(() => [...document.querySelectorAll('#doc img')].every(image => image.complete && image.naturalWidth > 0));
@@ -214,7 +219,7 @@ try {
         return channels[0] * .2126 + channels[1] * .7152 + channels[2] * .0722;
       };
       const ratio = (left, right) => { const values = [lum(left), lum(right)].sort((left, right) => right - left); return +((values[0] + .05) / (values[1] + .05)).toFixed(2); };
-      return { theme, body: ratio('--fg', '--bg'), muted: ratio('--mut', '--bg'), selected: ratio('--acc', '--accbg'), normalControl: ratio('--fg', '--surface'), hoverControl: ratio('--fg', '--hover'), activeControl: ratio('--fg', '--accbg'), focusSurface: ratio('--focus', '--surface'), focusBackground: ratio('--focus', '--bg'), controlBoundary: ratio('--control', '--surface') };
+      return { theme, body: ratio('--fg', '--bg'), muted: ratio('--mut', '--bg'), selected: ratio('--acc', '--accbg'), normalControl: ratio('--fg', '--surface'), hoverControl: ratio('--fg', '--hover'), activeControl: ratio('--fg', '--accbg'), focusSurface: ratio('--focus', '--surface'), focusBackground: ratio('--focus', '--bg'), controlBoundary: ratio('--control', '--surface'), ancestor: ratio('--acc', '--panel'), fileText: ratio('--mut', '--panel'), fileHover: ratio('--mut', '--hover'), findMatch: ratio('--fg', '--accbg'), focusMatch: ratio('--focus', '--accbg'), focusResizer: ratio('--acc', '--panel') };
     }, theme));
   }
   for (const palette of contrast) for (const [state, value] of Object.entries(palette)) if (state !== 'theme') assert.ok(value >= (state.startsWith('focus') || state === 'controlBoundary' ? 3 : 4.5), `${palette.theme} ${state}: ${value}`);
@@ -226,7 +231,10 @@ try {
     for (const format of ['A4', 'Letter']) await page.pdf({ path: join(evidence, `reading-print-${format}.pdf`), format, printBackground: true, margin: { top: '12mm', bottom: '12mm', left: '12mm', right: '12mm' } });
     await writeFile(join(evidence, 'browser-results.json'), JSON.stringify({ browser: browser.version(), results, errors, outbound, dialogs, popups, labelAgreement: 'All shared Node-accepted architecture diagrams ready in every matrix combination; hostile label inert', contrast, interactions: 'zoom, fit, source, fullscreen, fragment history, image enlargement, persistence/reset, focus, drawer keyboard, reduced motion' }, null, 2));
   }
-  console.log(`PASS ${results.length} document/theme/viewport cases; browser ${browser.version()}`);
+  await checkOrientation(page, fixtureRoot, evidence);
+  assert.deepEqual(errors, [], 'No JavaScript errors during orientation interactions');
+  assert.deepEqual(outbound, [], 'No external requests during orientation interactions');
+  console.log(`PASS ${results.length} document/theme/viewport cases and six orientation interaction configurations; browser ${browser.version()}`);
 } finally {
   await browser?.close();
   server.kill('SIGINT');
