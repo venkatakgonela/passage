@@ -1,4 +1,5 @@
 {
+  "name": "passage",
   "private": true,
   "type": "module",
   "devDependencies": {
