@@ -5,6 +5,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
 from . import policy
+from .images import read_image
 from .policy import Rejected, root_id, within
 
 PROJECT = Path(__file__).resolve().parent.parent
@@ -32,7 +33,10 @@ def make_handler(workspace):
             self.send_header('X-Content-Type-Options', 'nosniff')
             self.end_headers()
             if self.command != 'HEAD':
-                self.wfile.write(data)
+                try:
+                    self.wfile.write(data)
+                except (BrokenPipeError, ConnectionResetError):
+                    pass
 
         def guard(self):
             port = self.server.server_address[1]
@@ -80,6 +84,11 @@ def make_handler(workspace):
                 return self.send_body(200, policy.markdown_files(workspace.find(query('root'))))
             if path == '/api/file':
                 return self.send_body(200, policy.read_markdown(workspace.find(query('root')), query('path')), 'text/markdown; charset=utf-8')
+            if path in {'/api/image', '/api/image-info'}:
+                content, metadata = read_image(workspace.find(query('root')), query('path'))
+                if path == '/api/image-info':
+                    return self.send_body(200, metadata)
+                return self.send_body(200, content, metadata['type'])
             if path == '/api/search':
                 term = query('q').strip().lower()
                 try:
