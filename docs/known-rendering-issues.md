@@ -1,5 +1,25 @@
 # Known rendering issues
 
+## Current disposition
+
+The original observations below are retained as the baseline. The current real-browser matrix checks every example at 1440, 1024 and 390px in light and dark.
+
+| Baseline case | Current result |
+| --- | --- |
+| Raw sequence/ER/flow diagrams | Fixed for supported syntax: sandboxed diagrams, fit/zoom/pan/source/fullscreen. Deliberate invalid/config fixtures show errors and source. |
+| Wide tables | Contained scroll with visible hint and keyboard focus; no page overflow. |
+| Long code | Separate language/copy/wrap toolbar, reachable scrollable lines; no overlaid copy button. |
+| Long URL/heading and deep lists | Wrapping and bounded layout; browser viewport checks pass. |
+| Large local image | PNG/JPEG render in stable reserved frames. SVG remains excluded, with readable alt failure rather than an unexplained blank. |
+| Footnotes/callouts/front matter | Deferred, literal and wrapped; not falsely marked rendered. |
+| Heading targets | Scroll clearance and native fragment Back/Forward verified. No trail/history UI. |
+| Narrow panels | Keyboard drawers with close/Escape and focus return; intentional overlay, not an inaccessible clipped panel. |
+| Print | A4/Letter fit with repeated table headers; 12-column table text remains only 6pt and tall/wide diagram labels can be very small. Known readability limitation, not clipped content or a completed typography solution. |
+
+Fixed 420px image frames trade whitespace for stability and retain readable error text. Browser tests exercise delayed metadata and theme changes. Diagram source caps are not a hard execution timeout. Remote/data images retain their earlier network treatment; no new server proxy exists.
+
+## Original baseline
+
 Status: observed, intentionally unfixed. Reproduce with [synthetic stress cases](../examples/stress.md), 17px text, light theme and viewport height 1000px at widths 1440, 1024 and 390px. Browser: Chromium-family version 154 on macOS. Both the unchanged baseline and modular reader produced the same measured widths below.
 
 | Case / section | Observation | Widths | Future correction criterion |

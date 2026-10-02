@@ -1,5 +1,9 @@
 # Verified feature audit
 
+## Reading update
+
+The table below records the original baseline. Current additions: sandboxed local Mermaid for flowchart/sequence/ER; PNG/JPEG image routes; table/code containment and wrap controls; native heading Back/Forward; serif/sans/measure/focus/reset preferences; keyboard drawers; revised light/dark tokens. `web/diagrams.js`, `web/media.js`, `web/appearance.js`, `server/images.py` and `tests/browser.mjs` provide implementation and verification. Unsupported syntax and SVG remain explicitly deferred. The original baseline is retained for comparison, not presented as the current feature list.
+
 Status: implemented baseline, inspected and browser-checked on 2026-10-02. “Present” is not a claim of complete accessibility or polished rendering.
 
 | Area | Present | Partial / absent | Implementation |

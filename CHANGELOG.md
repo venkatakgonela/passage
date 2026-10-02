@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Add the calm editorial visual system, light/dark/auto, serif/sans, reading measure, focus and appearance reset.
+- Render locally vendored Mermaid lazily with isolated output and zoom/pan/source/fullscreen controls.
+- Serve bounded PNG/JPEG workspace images with alt failures and keyboard enlargement; SVG remains excluded.
+- Contain tables/code, wrap long text, preserve native heading history and provide narrow keyboard drawers.
+- Add real-browser overflow/interaction/contrast checks and A4/Letter print evidence; very wide tables remain small in print.
+
 - Reject GET requests explicitly marked cross-site while retaining Host and Origin protection.
 - Add regression coverage for static suffix filtering, nosniff responses and settings-save rollback.
 

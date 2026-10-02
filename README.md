@@ -22,7 +22,11 @@ Open `http://127.0.0.1:8765`. With no root argument the reader opens the bundled
 - Tables with horizontal scrolling, highlighted code with copy buttons, disabled task checkboxes, and print styling.
 - Auto/light/dark theme, text sizing from 13 to 24 pixels, breadcrumb and reading-time metadata.
 
-Local images remain placeholders; Mermaid remains code. Footnotes, callouts and front matter do not have dedicated rendering. Long content can overflow. See the [verified feature audit](docs/feature-audit.md) and [rendering checklist](docs/known-rendering-issues.md). This is not an editor, a hardened filesystem sandbox or an offline network firewall: rendered remote images may contact external servers.
+Mermaid flowchart, sequence and ER blocks render in an isolated frame, with zoom, fit/reset, drag/keyboard pan, source/copy and fullscreen controls. PNG/JPEG workspace images render with enlargement and alt-text failures; SVG/GIF/WebP remain unsupported. Tables scroll with a hint, code has a separate language/copy/wrap toolbar, and long text wraps. Footnotes, callouts and front matter remain literal. See the [verified feature audit](docs/feature-audit.md) and [rendering checklist](docs/known-rendering-issues.md). This is not an editor, a hardened filesystem sandbox or an offline network firewall: existing remote images may contact external servers.
+
+Appearance provides serif/sans, 13–24px type, a 65–90 character reading measure, light/dark/auto, focus mode and reset. Preferences persist; reset changes appearance only, never registered roots or source documents. Heading links use native fragment Back/Forward without a separate history interface. Narrow document/outline panels are dismissible keyboard drawers.
+
+Diagram configuration, external-resource directives and custom styles are refused. Diagram source is capped at 50,000 characters/500 lines and 300 configured edges; these limits are not a hard CPU timeout. Local images are capped at 8 MiB, 16 megapixels and 8,192px per dimension. See the [image decision](docs/decisions/0002-raster-image-boundary.md) and [diagram decision](docs/decisions/0003-isolated-diagrams.md).
 
 ## Safety and settings
 
@@ -44,6 +48,8 @@ Reader-owned root settings live in ignored `.state/roots.json` by default. To mo
 make test
 make lint
 ```
+
+For repeatable browser checks, install only the locked development package with `npm ci --ignore-scripts`, then run `make test-browser`. It uses an already-installed Chrome; set `BROWSER_EXECUTABLE` to its executable on other systems. No browser is downloaded. It creates a temporary profile/home/settings, checks every example in both themes at 1440/1024/390px, and exercises keyboard/media/history/preferences and contrast. Set `READER_EVIDENCE` to an existing output directory to retain screenshots, measured results and A4/Letter PDF checks. `make run` needs neither Node nor the development package.
 
 `make test` runs stdlib Python HTTP/filesystem/documentation tests and dependency-free Node logic tests. `make lint` checks Python and JavaScript syntax; it is not a comprehensive style or type checker. HTTP tests require local loopback sockets. CI declares the same commands, but remote execution is separate from local verification.
 

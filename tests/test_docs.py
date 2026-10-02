@@ -20,11 +20,11 @@ class DocumentationTests(unittest.TestCase):
             self.assertEqual(text.count('```mermaid'), len(re.findall(r'```mermaid\n.*?```', text, re.S)), document.name)
 
     def test_decision_structure(self):
-        decision = ROOT / 'docs/decisions/0001-folder-authority.md'
-        text = decision.read_text()
-        for heading in ['Context', 'Decision drivers', 'Options considered', 'Decision', 'Consequences', 'Revisit when', 'Sources']:
-            self.assertIn('## ' + heading, text)
-        self.assertIn(decision.name, (decision.parent / 'README.md').read_text())
+        for decision in (ROOT / 'docs/decisions').glob('[0-9]*.md'):
+            text = decision.read_text()
+            for heading in ['Context', 'Decision drivers', 'Options considered', 'Decision', 'Consequences', 'Revisit when', 'Sources']:
+                self.assertIn('## ' + heading, text)
+            self.assertIn(decision.name, (decision.parent / 'README.md').read_text())
 
     def test_examples_are_synthetic_and_stressful(self):
         for document in (ROOT / 'examples').rglob('*.md'):
