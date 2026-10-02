@@ -16,6 +16,7 @@ function loadLibrary() {
 }
 
 function diagramStatements(source, sequence) {
+  const entity = /^\s*erDiagram\b/.test(source);
   const statements = [];
   let statement = '';
   let quote = false;
@@ -35,7 +36,8 @@ function diagramStatements(source, sequence) {
       position = end < 0 ? source.length : end - 1;
       continue;
     }
-    if (!sequence && '[({'.includes(character)) {
+    const cardinality = entity && '{}'.includes(character) && /[|o.-]/.test((source[position - 1] || '') + (source[position + 1] || ''));
+    if (!sequence && !cardinality && '[({'.includes(character)) {
       if (!depth) resource = character === '{' && source[position - 1] === '@';
       depth++;
     }
@@ -44,8 +46,9 @@ function diagramStatements(source, sequence) {
     }
     if (sequence && character === ':' && !/^\s*links?\s/i.test(statement)) message = true;
     if ((!depth || resource) && !message) statement += character;
-    if (!sequence && '])}'.includes(character) && depth) depth--;
+    if (!sequence && !cardinality && '])}'.includes(character) && depth) depth--;
   }
+  if (quote || depth) throw new Error('Unterminated diagram quote or bracket');
   statements.push(statement.trim());
   return statements;
 }

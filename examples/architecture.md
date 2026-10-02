@@ -38,3 +38,13 @@ This fabricated label is data, not an instruction to execute HTML.
 flowchart LR
   Label["Hostile payload <img src='https://example.invalid/probe' onerror='parent.diagramProbe=1;alert(1)'><script>parent.diagramProbe=1;alert(1)</script> remains data"] --> Safe[Inert label]
 ```
+
+## Entity attributes
+
+```mermaid
+erDiagram
+  CUSTOMER ||--o{ ORDER : places
+  CUSTOMER {
+    string name
+  }
+```

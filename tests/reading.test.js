@@ -26,8 +26,23 @@ test('native document and heading fragments are encoded separately', () => {
 test('diagram fixture labels are accepted as data', () => {
   const markdown = readFileSync(new URL('../examples/architecture.md', import.meta.url), 'utf8');
   const diagrams = [...markdown.matchAll(/```mermaid\n([\s\S]*?)```/g)].map(match => match[1]);
-  assert.equal(diagrams.length, 4);
+  assert.equal(diagrams.length, 5);
   for (const source of diagrams) assert.doesNotThrow(() => validateDiagram(source));
+});
+
+test('ER cardinality preserves later policy statements and attribute blocks', () => {
+  for (const relationship of ['A ||--o{ B : x', 'A }o--|| B : x', 'A |{--}| B : x']) {
+    const source = `erDiagram\n${relationship}\nA {\n string name\n}`;
+    assert.doesNotThrow(() => validateDiagram(source));
+    for (const directive of ['style A fill:red', 'classDef x fill:red']) {
+      assert.throws(() => validateDiagram(`erDiagram\n${relationship}\n${directive}`), /not allowed/);
+      assert.throws(() => validateDiagram(`${source}\n${directive}`), /not allowed/);
+    }
+  }
+});
+
+test('unterminated quotes and brackets cannot hide directives', () => {
+  for (const source of ['flowchart LR\nA[unclosed\nstyle A fill:red', 'flowchart LR\nA["unclosed\nclick A "x', 'erDiagram\nA {\n string name']) assert.throws(() => validateDiagram(source), /Unterminated/);
 });
 
 test('diagram statements distinguish directives from labels and node names', () => {

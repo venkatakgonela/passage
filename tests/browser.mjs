@@ -224,7 +224,7 @@ try {
     await page.evaluate(async () => { const { setAppearance } = await import('/appearance.js'); setAppearance({ theme: 'light' }); });
     await open('stress.md');
     for (const format of ['A4', 'Letter']) await page.pdf({ path: join(evidence, `reading-print-${format}.pdf`), format, printBackground: true, margin: { top: '12mm', bottom: '12mm', left: '12mm', right: '12mm' } });
-    await writeFile(join(evidence, 'browser-results.json'), JSON.stringify({ browser: browser.version(), results, errors, outbound, dialogs, popups, labelAgreement: 'All four Node-accepted architecture diagrams ready in every matrix combination; hostile label inert', contrast, interactions: 'zoom, fit, source, fullscreen, fragment history, image enlargement, persistence/reset, focus, drawer keyboard, reduced motion' }, null, 2));
+    await writeFile(join(evidence, 'browser-results.json'), JSON.stringify({ browser: browser.version(), results, errors, outbound, dialogs, popups, labelAgreement: 'All shared Node-accepted architecture diagrams ready in every matrix combination; hostile label inert', contrast, interactions: 'zoom, fit, source, fullscreen, fragment history, image enlargement, persistence/reset, focus, drawer keyboard, reduced motion' }, null, 2));
   }
   console.log(`PASS ${results.length} document/theme/viewport cases; browser ${browser.version()}`);
 } finally {

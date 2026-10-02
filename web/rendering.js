@@ -57,7 +57,7 @@ export async function openDocument(preserve = false) {
   });
   documentBody.replaceChildren(template.content);
   const words = (text.match(/\S+/g) || []).length;
-  documentBody.insertAdjacentHTML('afterbegin', `<p class="meta">${escapeHtml(path.split('/').slice(0, -1).join(' / ') || '/')} · ${words.toLocaleString()} words · ${Math.max(1, Math.round(words / 220))} min read</p>`);
+  documentBody.insertAdjacentHTML('afterbegin', `<p class="meta">${escapeHtml(path.split('/').slice(0, -1).join(' / ') || 'Workspace')} · ${words.toLocaleString()} words · ${Math.max(1, Math.round(words / 220))} min read</p>`);
   const used = new Set();
   selectAll('#doc h1,#doc h2,#doc h3,#doc h4').forEach(heading => {
     heading.id = slug(heading.textContent, used);
