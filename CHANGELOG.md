@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Preserve ER cardinality/attribute policy checks and reject unterminated diagram strings/groups.
+- Add bounded metadata/title APIs, natural/modified sorting, labelled workspace tree, resizable panels and folder breadcrumbs.
+- Add quick open, position history, link-return trail, section Peek, document find, workspace recents/pins/session restore and visible-tab refresh.
+- Keep source documents read-only; operating-system editor/file-manager actions remain unavailable.
+
 - Accept ordinary diagram labels containing directive-like words and URL text while still refusing configuration, link/resource and style statements.
 - Pin image structure, exact PNG/JPEG MIME types and metadata JSON with focused regression tests; verify accepted and hostile labels in the browser.
 

@@ -1,6 +1,6 @@
 # Backlog
 
-- Replace the root-document `/` metadata placeholder with clearer presentation.
+- Keyboard map overlay and copy-heading-link controls remain follow-ups.
 - Reduce empty space around short diagrams without reintroducing asynchronous reading-position jumps, including at narrow widths.
 - Cancel or skip stale queued diagram work on navigation. Discarding document completion does not cancel the current serial renderer, and no hard execution timeout is implemented.
 
@@ -9,4 +9,5 @@
 - Hard CPU/time isolation for pathological diagram layouts; current source/edge caps are not a wall-clock bound.
 - More readable very wide print tables and extremely tall printed diagrams. No print-only column splitting is implemented.
 - Footnotes, callout syntax and front-matter metadata UI remain deferred; literal content must remain reachable.
-- General navigation history, trail, tabs, split view and search expansion remain separate scope.
+- Tabs, split view, comparison, document chains and search expansion remain separate scope.
+- Large-workspace catalog indexing and cache/poll efficiency beyond the current capped enumeration.

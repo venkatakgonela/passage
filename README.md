@@ -24,7 +24,17 @@ Open `http://127.0.0.1:8765`. With no root argument the reader opens the bundled
 
 Mermaid flowchart, sequence and ER blocks render in an isolated frame, with zoom, fit/reset, drag/keyboard pan, source/copy and fullscreen controls. PNG/JPEG workspace images render with enlargement and alt-text failures; SVG/GIF/WebP remain unsupported. Tables scroll with a hint, code has a separate language/copy/wrap toolbar, and long text wraps. Footnotes, callouts and front matter remain literal. See the [verified feature audit](docs/feature-audit.md) and [rendering checklist](docs/known-rendering-issues.md). This is not an editor, a hardened filesystem sandbox or an offline network firewall: existing remote images may contact external servers.
 
-Appearance provides serif/sans, 13–24px type, a 65–90 character reading measure, light/dark/auto, focus mode and reset. Preferences persist; reset changes appearance only, never registered roots or source documents. Heading links use native fragment Back/Forward without a separate history interface. Narrow document/outline panels are dismissible keyboard drawers.
+Appearance provides serif/sans, 13–24px type, a 65–90 character reading measure, light/dark/auto, focus mode and reset. Preferences persist; reset changes appearance only, never registered roots or source documents. Narrow document/outline panels are dismissible keyboard drawers.
+
+## Orientation and continuity
+
+The labelled workspace tree has root/folder/file icons, current/ancestor highlighting, a filename/title filter, reveal and collapse actions. View offers natural filename or last-modified sorting, direction, title/filename mode and extension visibility. Desktop panel widths are remembered; focus a separator and use arrows or Home/End. Breadcrumb buttons open bounded folder menus. The sticky header shows file and section context; metadata includes modification time.
+
+Navigate provides quick open, history, recents and pins. Following a document link leaves a bounded return trail; Back/Forward and reload restore positions. Restoration tries heading, then passage snippet, then scroll offset; edited/deleted targets can require an approximate fallback. Peek previews only the target section, with Open here and Return. Preview images/embedded resources are removed and diagrams remain source; previews are not a second full reader.
+
+Metadata pages contain at most 100 files from the 5,000-file cap. Title extraction reads at most 16 KiB per uncached file: simple scalar front-matter `title:`, first H1, then filename. A 1,000-entry stat-keyed cache avoids repeated reads; this is not a full YAML implementation. Visible tabs check stat metadata every four seconds; changed open files refresh in place. Large roots still cost enumeration/stat work and can churn the cache. See [metadata](docs/decisions/0004-bounded-catalog.md) and [continuity](docs/decisions/0005-reader-continuity.md) decisions.
+
+Browser state is versioned and bounded: 100 history entries, eight trail markers, 30 recents, 30 pins and ten workspace records. Missing files fall back to README or the first file. File/View/Navigate perform only reader operations: no operating-system editor or file-manager launching. No server navigation state or source edits are introduced.
 
 Diagram configuration, external-resource directives and custom styles are refused. Diagram source is capped at 50,000 characters/500 lines and 300 configured edges; these limits are not a hard CPU timeout. Local images are capped at 8 MiB, 16 megapixels and 8,192px per dimension. See the [image decision](docs/decisions/0002-raster-image-boundary.md) and [diagram decision](docs/decisions/0003-isolated-diagrams.md).
 
@@ -45,6 +55,8 @@ Reader-owned root settings live in ignored `.state/roots.json` by default. To mo
 `/` focuses search and reveals the sidebar; Escape clears focused search or closes an active drawer; `b` toggles the sidebar when not typing. Heading links participate in native fragment Back/Forward navigation. Diagram canvases support arrow-key panning; buttons support keyboard activation. Escape closes enlarged media and returns focus. The print button opens the browser print dialog.
 
 ## Development
+
+Additional shortcuts: Ctrl/Cmd+P opens quick open (type, arrows, Enter, Escape). With focus inside the reading pane, Ctrl/Cmd+F opens document find; Enter/Shift+Enter move between matches and Escape closes it. Outside that pane the browser's own find remains available. Alt+Left inside the reading pane returns along the trail; elsewhere native browser navigation is unchanged. Peek, menus, tree disclosures and actions use Tab/Enter/Space and Escape. File filtering is separate from `/` full-text search. Find caps matches at 1,000 and excludes diagram interiors and controls.
 
 ```sh
 make test

@@ -1,5 +1,7 @@
 # Verified feature audit
 
+Orientation update: labelled workspace tree, natural/modified sorting, bounded title metadata, filter/reveal/collapse, remembered panel widths, breadcrumbs, reader menus, quick open, position history/trail, section Peek, document find, recents/pins/session restore and visible-tab refresh are implemented. The original baseline table below remains historical.
+
 ## Reading update
 
 The table below records the original baseline. Current additions: sandboxed local Mermaid for flowchart/sequence/ER; PNG/JPEG image routes; table/code containment and wrap controls; native heading Back/Forward; serif/sans/measure/focus/reset preferences; keyboard drawers; revised light/dark tokens. `web/diagrams.js`, `web/media.js`, `web/appearance.js`, `server/images.py` and `tests/browser.mjs` provide implementation and verification. Unsupported syntax and SVG remain explicitly deferred. The original baseline is retained for comparison, not presented as the current feature list.

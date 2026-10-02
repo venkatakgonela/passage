@@ -4,7 +4,7 @@
 
 The original observations below are retained as the baseline. The current real-browser matrix checks every example at 1440, 1024 and 390px in light and dark.
 
-Ordinary diagram labels containing “image”, “click”, “href”, URL text and “Code style checks” now pass both the input filter and the renderer. The architecture fixture also verifies successfully rendered hostile label content remains inert. The filter is intentionally not a full grammar; unusual unquoted edge-label separators remain a documented limitation in the architecture notes. Root metadata presentation, excess space around short diagrams and stale-render cancellation are tracked in the backlog, not fixed here.
+Ordinary diagram labels containing “image”, “click”, “href”, URL text and “Code style checks” pass both the input filter and renderer. The architecture fixture also verifies hostile label content remains inert and ER cardinality/attribute blocks render. Unterminated quotes/groups are refused. The filter is not a full grammar; unusual unquoted edge-label separators remain a documented limit. Root metadata now says Workspace; excess short-diagram space and stale-render cancellation remain in the backlog.
 
 | Baseline case | Current result |
 | --- | --- |
@@ -14,7 +14,7 @@ Ordinary diagram labels containing “image”, “click”, “href”, URL tex
 | Long URL/heading and deep lists | Wrapping and bounded layout; browser viewport checks pass. |
 | Large local image | PNG/JPEG render in stable reserved frames. SVG remains excluded, with readable alt failure rather than an unexplained blank. |
 | Footnotes/callouts/front matter | Deferred, literal and wrapped; not falsely marked rendered. |
-| Heading targets | Scroll clearance and native fragment Back/Forward verified. No trail/history UI. |
+| Heading targets | Scroll clearance and native Back/Forward verified; bounded history, trail and session positions are now implemented. |
 | Narrow panels | Keyboard drawers with close/Escape and focus return; intentional overlay, not an inaccessible clipped panel. |
 | Print | A4/Letter fit with repeated table headers; 12-column table text remains only 6pt and tall/wide diagram labels can be very small. Known readability limitation, not clipped content or a completed typography solution. |
 
