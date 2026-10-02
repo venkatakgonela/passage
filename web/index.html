@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Markdown Reader</title>
+<link id="hl" rel="stylesheet" href="/vendor/hl-light.css">
+<link rel="stylesheet" href="/styles.css"></head>
+<body>
+<header>
+  <button class="ib" id="navtog" title="Toggle sidebar (b)" aria-label="Toggle sidebar">☰</button>
+  <div class="crumb" id="crumb">Markdown Reader</div>
+  <button class="ib" id="fsm" title="Smaller text" aria-label="Smaller text">A−</button>
+  <button class="ib" id="fsp" title="Larger text" aria-label="Larger text">A+</button>
+  <span class="sep"></span>
+  <button class="ib" id="theme" title="Theme" aria-label="Theme">◐</button>
+  <button class="ib" id="print" title="Print / save as PDF" aria-label="Print">⎙</button>
+</header>
+<div class="layout">
+  <nav id="nav">
+    <div class="nav-top">
+      <div class="rootrow">
+        <select id="roots" aria-label="Folder"></select>
+        <button id="add" title="Add a folder">＋</button>
+        <button id="rm" title="Remove this folder from the list (files are kept)">−</button>
+      </div>
+      <input id="q" type="search" placeholder="Search files and contents…  ( / )" autocomplete="off">
+      <div class="hint" id="hint"></div>
+    </div>
+    <div id="list"></div>
+  </nav>
+  <div class="scroller" id="scroller">
+    <div class="wrap">
+      <article id="doc"><p class="empty">Select a file from the sidebar.</p></article>
+      <aside class="toc" id="toc"></aside>
+    </div>
+  </div>
+</div>
+<dialog id="dlg"><h3>Add a folder</h3><p id="bpath"></p><div id="blist"></div>
+<div class="dact"><button id="bcancel">Cancel</button><button class="pri" id="bok">Add this folder</button></div></dialog>
+<div class="toast" id="toast"></div>
+<script src="/vendor/marked.min.js"></script><script src="/vendor/purify.min.js"></script><script src="/vendor/highlight.min.js"></script>
+<script type="module" src="/app.js"></script>
+</body></html>
