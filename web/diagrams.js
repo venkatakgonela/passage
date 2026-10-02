@@ -72,7 +72,7 @@ async function renderOne(code) {
     frame.title = 'Rendered diagram';
     frame.setAttribute('sandbox', '');
     frame.tabIndex = -1;
-    frame.srcdoc = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'"><body style="margin:0">${svg.outerHTML}</body>`;
+    frame.srcdoc = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'"><body style="margin:0;background:${dark ? '#222a25' : '#fffdf8'}">${svg.outerHTML}</body>`;
     const surface = document.createElement('div');
     surface.className = 'diagram-surface';
     surface.append(frame);

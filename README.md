@@ -40,7 +40,7 @@ Reader-owned root settings live in ignored `.state/roots.json` by default. To mo
 
 ## Keyboard
 
-`/` focuses search and reveals the sidebar; Escape clears focused search; `b` toggles the sidebar when not typing. Heading clicks scroll but do not save section positions in browser history. The print button opens the browser print dialog.
+`/` focuses search and reveals the sidebar; Escape clears focused search or closes an active drawer; `b` toggles the sidebar when not typing. Heading links participate in native fragment Back/Forward navigation. Diagram canvases support arrow-key panning; buttons support keyboard activation. Escape closes enlarged media and returns focus. The print button opens the browser print dialog.
 
 ## Development
 

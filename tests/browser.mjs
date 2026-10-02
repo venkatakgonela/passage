@@ -68,6 +68,11 @@ try {
           problems.diagramErrors = [];
         }
         assert.deepEqual(problems, { page: false, outside: [], regions: [], raw: 0, diagramErrors: [] }, `${theme} ${width} ${file}`);
+        for (const frameElement of await page.locator('.diagram-shell iframe').elementHandles()) {
+          const frame = await frameElement.contentFrame();
+          await frame.waitForSelector('svg');
+          assert.equal(await frame.locator('body').evaluate(element => getComputedStyle(element).backgroundColor), theme === 'dark' ? 'rgb(34, 42, 37)' : 'rgb(255, 253, 248)', 'Diagram canvas follows theme');
+        }
         const headings = await page.locator('#doc h1,#doc h2,#doc h3,#doc h4').evaluateAll(elements => elements.map(element => element.id));
         for (const heading of headings) {
           await page.evaluate(heading => document.getElementById(heading).scrollIntoView({ block: 'start', behavior: 'instant' }), heading);
