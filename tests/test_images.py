@@ -1,3 +1,4 @@
+import json
 import struct
 import unittest
 import zlib
@@ -21,6 +22,52 @@ class ImageTests(unittest.TestCase):
             return struct.pack('>I', len(payload)) + kind + payload + struct.pack('>I', zlib.crc32(kind + payload))
         header = struct.pack('>II', width, height) + b'\x08\x02\x00\x00\x00'
         return b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', header) + chunk(b'IDAT', zlib.compress(b'\x00\x00\x00\x00')) + chunk(b'IEND', b'')
+
+    def jpeg(self):
+        return b'\xff\xd8\xff\xc0\x00\x0b\x08' + struct.pack('>HH', 20, 30) + b'\x01\x01\x11\x00\xff\xd9'
+
+    def assert_structure_rejected(self, name, original, invalid):
+        target = self.root / name
+        target.write_bytes(original)
+        for metadata in [False, True]:
+            self.assertEqual(self.image(name, metadata)[0], 200)
+        target.write_bytes(invalid)
+        for metadata in [False, True]:
+            self.assertEqual(self.image(name, metadata)[0], 415)
+
+    def test_png_trailing_bytes_rejected(self):
+        original = self.png()
+        self.assert_structure_rejected('trailing.png', original, original + b'trailing')
+
+    def test_png_without_idat_rejected(self):
+        original = self.png()
+        self.assert_structure_rejected('empty.png', original, original[:33] + original[-12:])
+
+    def test_jpeg_without_end_marker_rejected(self):
+        original = self.jpeg()
+        self.assert_structure_rejected('unfinished.jpg', original, original[:-2])
+
+    def test_png_response_mime_and_bytes(self):
+        original = self.png()
+        (self.root / 'safe.png').write_bytes(original)
+        self.assertEqual(self.image('safe.png'), (200, original, 'image/png'))
+
+    def test_jpeg_response_mime_and_bytes(self):
+        original = self.jpeg()
+        (self.root / 'safe.jpg').write_bytes(original)
+        self.assertEqual(self.image('safe.jpg'), (200, original, 'image/jpeg'))
+
+    def test_image_info_returns_metadata_json(self):
+        for name, content, expected in [
+            ('safe.png', self.png(123, 45), {'width': 123, 'height': 45, 'type': 'image/png'}),
+            ('safe.jpg', self.jpeg(), {'width': 30, 'height': 20, 'type': 'image/jpeg'}),
+        ]:
+            with self.subTest(name=name):
+                (self.root / name).write_bytes(content)
+                status, body, content_type = self.image(name, metadata=True)
+                self.assertEqual(status, 200)
+                self.assertEqual(content_type, 'application/json')
+                self.assertEqual(json.loads(body), expected)
 
     def test_image_boundaries(self):
         (self.root / 'safe.png').write_bytes(self.png())
