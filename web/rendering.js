@@ -1,7 +1,12 @@
 import { select, selectAll, escapeHtml, toast } from './dom.js';
 import { state } from './state.js';
-import { hashPath, slug, resolvePath } from './paths.js';
+import { hashPath, hashHeading, slug, resolvePath } from './paths.js';
 import { markCurrent } from './tree.js';
+import { renderDiagrams, cleanDiagrams } from './diagrams.js';
+import { renderImages } from './media.js';
+import { appearance, setAppearance } from './appearance.js';
+
+let generation = 0;
 
 function buildToc() {
   const headings = selectAll('#doc h2,#doc h3');
@@ -18,20 +23,39 @@ function buildToc() {
   headings.forEach(heading => state.observer.observe(heading));
 }
 
-export async function openDocument() {
+export async function openDocument(preserve = false) {
   const path = hashPath();
   if (!path || !state.root) return;
+  if (path === state.currentPath && preserve !== true && select('#doc').dataset.ready === 'true') {
+    document.getElementById(hashHeading())?.scrollIntoView({ block: 'start', behavior: 'instant' });
+    return;
+  }
+  const current = ++generation;
+  const oldScroll = select('#scroller').scrollTop;
+  const themeAnchor = preserve === true ? [...selectAll('#doc h1,#doc h2,#doc h3,#doc h4')].find(element => element.getBoundingClientRect().top >= select('#scroller').getBoundingClientRect().top) : null;
+  const themeOffset = themeAnchor?.getBoundingClientRect().top;
+  const themeId = themeAnchor?.id;
+  select('#doc').dataset.ready = 'false';
+  cleanDiagrams(select('#doc'));
   state.currentPath = path;
   markCurrent();
   const response = await fetch(`/api/file?root=${state.root}&path=${encodeURIComponent(path)}`);
   if (!response.ok) {
     select('#doc').innerHTML = '<p class="empty">File not found.</p>';
     select('#toc').innerHTML = '';
+    select('#doc').dataset.ready = 'true';
     return;
   }
   const text = await response.text();
+  if (current !== generation) return;
   const documentBody = select('#doc');
-  documentBody.innerHTML = DOMPurify.sanitize(marked.parse(text, { gfm: true }));
+  const template = document.createElement('template');
+  template.innerHTML = DOMPurify.sanitize(marked.parse(text, { gfm: true }));
+  template.content.querySelectorAll('img').forEach(image => {
+    image.dataset.originalSource = image.getAttribute('src') || '';
+    image.removeAttribute('src');
+  });
+  documentBody.replaceChildren(template.content);
   const words = (text.match(/\S+/g) || []).length;
   documentBody.insertAdjacentHTML('afterbegin', `<p class="meta">${escapeHtml(path.split('/').slice(0, -1).join(' / ') || '/')} · ${words.toLocaleString()} words · ${Math.max(1, Math.round(words / 220))} min read</p>`);
   const used = new Set();
@@ -42,17 +66,43 @@ export async function openDocument() {
   selectAll('#doc table').forEach(table => {
     const wrapper = document.createElement('div');
     wrapper.className = 'tw';
+    wrapper.dataset.scrollRegion = 'table';
+    wrapper.tabIndex = 0;
+    wrapper.setAttribute('aria-label', 'Table. Scroll horizontally for more columns.');
     table.replaceWith(wrapper);
     wrapper.appendChild(table);
+    const hint = document.createElement('p');
+    hint.className = 'scroll-hint';
+    hint.textContent = 'Scroll table horizontally for more columns →';
+    wrapper.after(hint);
   });
   selectAll('#doc pre').forEach(pre => {
     const code = pre.querySelector('code');
+    if (code?.classList.contains('language-mermaid')) return;
     if (code) hljs.highlightElement(code);
+    const frame = document.createElement('div');
+    frame.className = 'code-frame';
+    const toolbar = document.createElement('div');
+    toolbar.className = 'media-toolbar';
+    const label = document.createElement('span');
+    label.textContent = code?.className.match(/language-(\S+)/)?.[1] || 'text';
+    pre.replaceWith(frame);
+    frame.append(toolbar, pre);
+    pre.dataset.scrollRegion = 'code';
+    pre.tabIndex = 0;
+    pre.setAttribute('aria-label', 'Code. Scroll horizontally or use Wrap.');
     const button = document.createElement('button');
     button.className = 'copy';
     button.textContent = 'Copy';
     button.onclick = async () => { await navigator.clipboard.writeText(code ? code.innerText : pre.innerText); toast('Copied'); };
-    pre.appendChild(button);
+    const wrap = document.createElement('button');
+    wrap.textContent = 'Wrap';
+    wrap.onclick = () => setAppearance({ wrap: !appearance.wrap });
+    toolbar.append(label, wrap, button);
+    const hint = document.createElement('p');
+    hint.className = 'scroll-hint';
+    hint.textContent = 'Scroll code horizontally or choose Wrap →';
+    frame.append(hint);
   });
   selectAll('#doc input[type=checkbox]').forEach(checkbox => { checkbox.disabled = true; });
   const directory = path.includes('/') ? path.slice(0, path.lastIndexOf('/') + 1) : '';
@@ -70,14 +120,18 @@ export async function openDocument() {
       }
     }
   });
-  selectAll('#doc img').forEach(image => {
-    if (!/^(https?:|data:)/i.test(image.getAttribute('src') || '')) {
-      image.replaceWith(Object.assign(document.createElement('em'), { textContent: `[image: ${image.alt || image.getAttribute('src')}]` }));
-    }
-  });
   const heading = documentBody.querySelector('h1');
   document.title = heading ? heading.textContent.replace(/^#/, '') : path;
   select('#crumb').innerHTML = path.split('/').map((part, index, parts) => index === parts.length - 1 ? `<b>${escapeHtml(part)}</b>` : escapeHtml(part)).join(' <span style="opacity:.5">/</span> ');
   buildToc();
-  select('#scroller').scrollTo(0, 0);
+  await Promise.all([renderDiagrams(documentBody), renderImages(documentBody, path)]);
+  if (current !== generation) return;
+  documentBody.dataset.ready = 'true';
+  if (preserve === true) {
+    select('#scroller').scrollTo({ top: oldScroll, behavior: 'instant' });
+    const anchor = document.getElementById(themeId);
+    if (anchor) select('#scroller').scrollTop += anchor.getBoundingClientRect().top - themeOffset;
+  }
+  else if (hashHeading()) document.getElementById(hashHeading())?.scrollIntoView({ block: 'start', behavior: 'instant' });
+  else select('#scroller').scrollTo({ top: 0, behavior: 'instant' });
 }

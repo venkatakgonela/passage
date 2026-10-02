@@ -21,4 +21,6 @@ export function initialFile(files) {
   return files.find(file => /^readme\.md$/i.test(file)) || files[0];
 }
 
-export const hashPath = () => decodeURIComponent(location.hash.slice(1));
+export const hashPath = () => decodeURIComponent(location.hash.slice(1).split('#')[0]);
+export const hashHeading = () => decodeURIComponent(location.hash.slice(1).split('#')[1] || '');
+export const documentHash = (path, heading = '') => `#${encodeURIComponent(path)}${heading ? '#' + encodeURIComponent(heading) : ''}`;

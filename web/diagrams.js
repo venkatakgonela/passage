@@ -1,0 +1,124 @@
+import { enlarge } from './media.js';
+import { stableChange } from './layout.js';
+
+let library;
+let serial = Promise.resolve();
+let identifier = 0;
+
+function loadLibrary() {
+  return library ??= new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = '/vendor/mermaid.min.js';
+    script.onload = () => resolve(window.mermaid);
+    script.onerror = () => { library = null; reject(new Error('Diagram library could not load')); };
+    document.head.append(script);
+  });
+}
+
+export function validateDiagram(source) {
+  if (source.length > 50000 || source.split('\n').length > 500) throw new Error('Diagram exceeds the 50,000-character / 500-line limit');
+  if (/%%\{|^\s*---|\b(click|href|image)\b|https?:|data:|classDef|style\s+\w/im.test(source)) throw new Error('Document configuration, links, images and custom styles are not allowed in diagrams');
+  if (!/^\s*(flowchart|graph|sequenceDiagram|erDiagram)\b/.test(source)) throw new Error('Supported diagrams: flowchart, sequence and ER');
+}
+
+function button(label, action) {
+  const element = document.createElement('button');
+  element.type = 'button';
+  element.textContent = label;
+  element.onclick = action;
+  return element;
+}
+
+async function renderOne(code) {
+  const source = code.textContent;
+  const shell = document.createElement('section');
+  shell.className = 'diagram-shell';
+  shell.dataset.diagram = 'loading';
+  shell.setAttribute('aria-label', 'Diagram');
+  const toolbar = document.createElement('div');
+  toolbar.className = 'media-toolbar';
+  const viewport = document.createElement('div');
+  viewport.className = 'diagram-viewport';
+  viewport.dataset.scrollRegion = 'diagram';
+  viewport.tabIndex = 0;
+  viewport.setAttribute('aria-label', 'Diagram canvas. Arrow keys pan; use zoom controls to enlarge.');
+  const hint = document.createElement('p');
+  hint.className = 'scroll-hint';
+  hint.textContent = 'Loading diagram…';
+  const sourceView = document.createElement('pre');
+  sourceView.className = 'diagram-source';
+  sourceView.textContent = source;
+  sourceView.hidden = true;
+  shell.append(toolbar, viewport, hint, sourceView);
+  stableChange(() => code.parentElement.replaceWith(shell));
+  try {
+    validateDiagram(source);
+    const mermaid = await loadLibrary();
+    const dark = document.documentElement.dataset.theme === 'dark';
+    mermaid.initialize({ startOnLoad: false, securityLevel: 'sandbox', htmlLabels: false, flowchart: { htmlLabels: false }, theme: 'base', themeVariables: { darkMode: dark, primaryColor: dark ? '#344b38' : '#dfe9dd', primaryTextColor: dark ? '#eceee5' : '#292c27', primaryBorderColor: dark ? '#b5d7a9' : '#336148', lineColor: dark ? '#b5d7a9' : '#336148', background: dark ? '#222a25' : '#fffdf8', fontFamily: 'Arial, sans-serif' }, maxTextSize: 50000, maxEdges: 300, suppressErrorRendering: true });
+    const rendered = await mermaid.render(`passage-diagram-${++identifier}`, source);
+    const envelope = new DOMParser().parseFromString(rendered.svg, 'text/html');
+    const returned = envelope.querySelector('iframe');
+    if (!returned?.src.startsWith('data:text/html;charset=UTF-8;base64,')) throw new Error('Unexpected sandbox output');
+    const decoded = new TextDecoder().decode(Uint8Array.from(atob(returned.src.split(',')[1]), character => character.charCodeAt(0)));
+    const parsed = new DOMParser().parseFromString(decoded, 'text/html');
+    const svg = parsed.querySelector('svg');
+    const box = svg?.getAttribute('viewBox')?.split(/[ ,]+/).map(Number);
+    if (!box || box.length !== 4 || !box.every(Number.isFinite) || box[2] <= 0 || box[3] <= 0) throw new Error('Invalid diagram dimensions');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
+    svg.style.maxWidth = 'none';
+    const frame = document.createElement('iframe');
+    frame.title = 'Rendered diagram';
+    frame.setAttribute('sandbox', '');
+    frame.tabIndex = -1;
+    frame.srcdoc = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'"><body style="margin:0">${svg.outerHTML}</body>`;
+    const surface = document.createElement('div');
+    surface.className = 'diagram-surface';
+    surface.append(frame);
+    viewport.append(surface);
+    let scale = 1;
+    const fitScale = () => Math.min(1, Math.max(100, viewport.clientWidth - 24) / box[2], 350 / box[3]);
+    const apply = () => { frame.style.width = `${box[2] * scale}px`; frame.style.height = `${box[3] * scale}px`; surface.style.width = `${Math.max(viewport.clientWidth - 24, box[2] * scale)}px`; };
+    const fit = () => { scale = fitScale(); apply(); viewport.scrollTo(0, 0); };
+    toolbar.append(button('Zoom in', () => { scale = Math.min(4, scale * 1.4); apply(); }), button('Zoom out', () => { scale = Math.max(.02, scale / 1.4); apply(); }), button('Fit', fit), button('Reset', fit), button('Fullscreen', () => {
+      const placeholder = document.createElement('span');
+      shell.before(placeholder);
+      enlarge(shell, 'Fullscreen diagram');
+      const dialog = shell.closest('dialog');
+      dialog.addEventListener('close', () => { placeholder.replaceWith(shell); fit(); });
+      fit();
+    }), button('Source', () => { sourceView.hidden = !sourceView.hidden; }), button('Copy source', async () => { await navigator.clipboard.writeText(source); hint.textContent = 'Source copied. Scroll or drag to pan.'; }));
+    let drag;
+    viewport.onpointerdown = event => { drag = { x: event.clientX, y: event.clientY, left: viewport.scrollLeft, top: viewport.scrollTop }; viewport.setPointerCapture(event.pointerId); };
+    viewport.onpointermove = event => { if (drag) { viewport.scrollLeft = drag.left + drag.x - event.clientX; viewport.scrollTop = drag.top + drag.y - event.clientY; } };
+    viewport.onpointerup = viewport.onpointercancel = () => { drag = null; };
+    viewport.onkeydown = event => { const delta = { ArrowLeft: [-40, 0], ArrowRight: [40, 0], ArrowUp: [0, -40], ArrowDown: [0, 40] }[event.key]; if (delta) { event.preventDefault(); viewport.scrollBy(...delta); } };
+    const observer = new ResizeObserver(() => { if (shell.isConnected && scale <= fitScale() * 1.05) fit(); });
+    observer.observe(viewport);
+    shell.cleanup = () => observer.disconnect();
+    shell.fit = fit;
+    shell.dataset.source = source;
+    stableChange(() => { viewport.style.height = `${Math.max(150, Math.min(380, box[3] + 24))}px`; fit(); });
+    shell.dataset.diagram = 'ready';
+    hint.textContent = 'Zoom for detail · scroll or drag to pan · arrow keys supported';
+  } catch (error) {
+    shell.dataset.diagram = 'error';
+    viewport.textContent = `Diagram could not render: ${error.message}`;
+    sourceView.hidden = false;
+    hint.textContent = 'Original source is shown below.';
+  }
+}
+
+export async function renderDiagrams(container) {
+  for (const code of [...container.querySelectorAll('pre > code.language-mermaid')]) {
+    serial = serial.catch(() => {}).then(() => renderOne(code));
+    await serial;
+  }
+}
+
+export function cleanDiagrams(container) {
+  container.querySelectorAll('.diagram-shell').forEach(shell => shell.cleanup?.());
+}
+
+if (typeof window !== 'undefined') window.addEventListener('beforeprint', () => document.querySelectorAll('.diagram-shell').forEach(shell => shell.fit?.()));
