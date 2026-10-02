@@ -82,6 +82,16 @@ def make_handler(workspace):
                 return self.send_body(200, workspace.browse(query('path')))
             if path == '/api/files':
                 return self.send_body(200, policy.markdown_files(workspace.find(query('root'))))
+            if path == '/api/catalog':
+                from . import catalog
+                try:
+                    offset = int(query('offset') or '0')
+                except ValueError:
+                    raise Rejected('invalid offset', 400)
+                return self.send_body(200, catalog.page(workspace.find(query('root')), offset, query('titles') != 'false'))
+            if path == '/api/metadata':
+                from . import catalog
+                return self.send_body(200, catalog.entry(workspace.find(query('root')), query('path'), True))
             if path == '/api/file':
                 return self.send_body(200, policy.read_markdown(workspace.find(query('root')), query('path')), 'text/markdown; charset=utf-8')
             if path in {'/api/image', '/api/image-info'}:

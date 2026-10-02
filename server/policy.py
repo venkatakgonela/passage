@@ -24,7 +24,7 @@ def root_id(path):
     return hashlib.sha1(str(path).encode()).hexdigest()[:10]
 
 
-def read_markdown(root, relative):
+def markdown_target(root, relative):
     path = Path(relative)
     if path.is_absolute() or '..' in path.parts or SKIP.intersection(path.parts):
         raise Rejected()
@@ -34,6 +34,11 @@ def read_markdown(root, relative):
     target = target.resolve()
     if not within(target, root) or target == root or target.suffix != '.md' or not target.is_file():
         raise Rejected()
+    return target
+
+
+def read_markdown(root, relative):
+    target = markdown_target(root, relative)
     try:
         with target.open('rb') as stream:
             content = stream.read(MAX_FILE_BYTES + 1)
