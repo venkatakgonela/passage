@@ -15,9 +15,46 @@ function loadLibrary() {
   });
 }
 
+function diagramStatements(source, sequence) {
+  const statements = [];
+  let statement = '';
+  let quote = false;
+  let depth = 0;
+  let resource = false;
+  let message = false;
+  for (let position = 0; position < source.length; position++) {
+    const character = source[position];
+    if (quote) {
+      if (character === '"' && source[position - 1] !== '\\') quote = false;
+      continue;
+    }
+    if (character === '"') { quote = true; statement += '""'; continue; }
+    if (!depth && source.startsWith('%%', position)) {
+      if (source.startsWith('%%{', position)) throw new Error('Document configuration is not allowed in diagrams');
+      const end = source.indexOf('\n', position);
+      position = end < 0 ? source.length : end - 1;
+      continue;
+    }
+    if (!sequence && '[({'.includes(character)) {
+      if (!depth) resource = character === '{' && source[position - 1] === '@';
+      depth++;
+    }
+    if (!depth && (character === '\n' || character === ';')) {
+      statements.push(statement.trim()); statement = ''; message = false; continue;
+    }
+    if (sequence && character === ':' && !/^\s*links?\s/i.test(statement)) message = true;
+    if ((!depth || resource) && !message) statement += character;
+    if (!sequence && '])}'.includes(character) && depth) depth--;
+  }
+  statements.push(statement.trim());
+  return statements;
+}
+
 export function validateDiagram(source) {
   if (source.length > 50000 || source.split('\n').length > 500) throw new Error('Diagram exceeds the 50,000-character / 500-line limit');
-  if (/%%\{|^\s*---|\b(click|href|image)\b|https?:|data:|classDef|style\s+\w/im.test(source)) throw new Error('Document configuration, links, images and custom styles are not allowed in diagrams');
+  if (/^\s*---(?:\s|$)/.test(source)) throw new Error('Document configuration is not allowed in diagrams');
+  const statements = diagramStatements(source, /^\s*sequenceDiagram\b/.test(source));
+  if (statements.some(statement => /^(?:click|style|classDef|linkStyle|link|links)\s+(?![-=<>~])[\w]/i.test(statement) || /@\{[^}]*\b(?:img|icon)\s*:/.test(statement))) throw new Error('Document links, images and custom styles are not allowed in diagrams');
   if (!/^\s*(flowchart|graph|sequenceDiagram|erDiagram)\b/.test(source)) throw new Error('Supported diagrams: flowchart, sequence and ER');
 }
 

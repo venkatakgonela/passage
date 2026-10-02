@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
 import { chromium } from 'playwright-core';
-import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, rm, writeFile, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawn } from 'node:child_process';
+import { validateDiagram } from '../web/diagrams.js';
 
 const temporary = await mkdtemp(join(tmpdir(), 'reader-browser-'));
 const executablePath = process.env.BROWSER_EXECUTABLE || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
@@ -22,6 +23,14 @@ try {
   });
   browser = await chromium.launch({ executablePath, headless: true });
   const page = await browser.newPage();
+  await page.addInitScript(() => { window.diagramProbe = 0; });
+  const dialogs = [];
+  const popups = [];
+  page.on('dialog', async dialog => { dialogs.push(dialog.message()); await dialog.dismiss(); });
+  page.on('popup', popup => { popups.push(popup.url()); });
+  const architecture = await readFile(new URL('../examples/architecture.md', import.meta.url), 'utf8');
+  const architectureDiagrams = [...architecture.matchAll(/```mermaid\n([\s\S]*?)```/g)].map(match => match[1]);
+  for (const source of architectureDiagrams) validateDiagram(source);
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   const outbound = [];
@@ -68,6 +77,37 @@ try {
           problems.diagramErrors = [];
         }
         assert.deepEqual(problems, { page: false, outside: [], regions: [], raw: 0, diagramErrors: [] }, `${theme} ${width} ${file}`);
+        if (file === 'architecture.md') {
+          const shells = page.locator('.diagram-shell');
+          assert.equal(await shells.count(), architectureDiagrams.length);
+          for (let index = 0; index < architectureDiagrams.length; index++) {
+            assert.equal(await shells.nth(index).getAttribute('data-diagram'), 'ready', 'Node-accepted fixture renders successfully');
+            assert.equal((await shells.nth(index).locator('.diagram-source').textContent()).trim(), architectureDiagrams[index].trim());
+            const element = await shells.nth(index).locator('iframe').elementHandle();
+            assert.equal(await element.getAttribute('sandbox'), '');
+            const frame = await element.contentFrame();
+            await frame.waitForSelector('svg');
+            assert.equal(await frame.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute('content'), "default-src 'none'; style-src 'unsafe-inline'");
+            const text = await frame.locator('svg').textContent();
+            const containsLabel = label => text.replace(/\s/g, '').includes(label.replace(/\s/g, ''));
+            if (index === 1) for (const label of ['Build container image', 'Code style checks', 'http://example.test', 'href is text']) assert.ok(containsLabel(label), `${label}: ${text}`);
+            if (index === 2) assert.ok(containsLabel('Click to submit'));
+            if (index === 3) {
+              assert.ok(containsLabel('Inert label'));
+              assert.ok(containsLabel('Hostile payload') && containsLabel('remains data'), `Hostile label renders surrounding text: ${text}`);
+              assert.equal(await frame.locator('svg script,svg img,svg [onerror]').count(), 0);
+            }
+          }
+          assert.equal(await page.evaluate(() => window.diagramProbe), 0);
+          assert.equal(page.url(), `${url}/#architecture.md`);
+          assert.deepEqual(dialogs, []);
+          assert.deepEqual(popups, []);
+          assert.deepEqual(outbound, []);
+          if (evidence) {
+            await shells.last().scrollIntoViewIfNeeded();
+            await shells.last().screenshot({ path: join(evidence, `inert-label-${theme}-${width}.png`) });
+          }
+        }
         for (const frameElement of await page.locator('.diagram-shell iframe').elementHandles()) {
           const frame = await frameElement.contentFrame();
           await frame.waitForSelector('svg');
@@ -184,7 +224,7 @@ try {
     await page.evaluate(async () => { const { setAppearance } = await import('/appearance.js'); setAppearance({ theme: 'light' }); });
     await open('stress.md');
     for (const format of ['A4', 'Letter']) await page.pdf({ path: join(evidence, `reading-print-${format}.pdf`), format, printBackground: true, margin: { top: '12mm', bottom: '12mm', left: '12mm', right: '12mm' } });
-    await writeFile(join(evidence, 'browser-results.json'), JSON.stringify({ browser: browser.version(), results, errors, outbound, contrast, interactions: 'zoom, fit, source, fullscreen, fragment history, image enlargement, persistence/reset, focus, drawer keyboard, reduced motion' }, null, 2));
+    await writeFile(join(evidence, 'browser-results.json'), JSON.stringify({ browser: browser.version(), results, errors, outbound, dialogs, popups, labelAgreement: 'All four Node-accepted architecture diagrams ready in every matrix combination; hostile label inert', contrast, interactions: 'zoom, fit, source, fullscreen, fragment history, image enlargement, persistence/reset, focus, drawer keyboard, reduced motion' }, null, 2));
   }
   console.log(`PASS ${results.length} document/theme/viewport cases; browser ${browser.version()}`);
 } finally {
