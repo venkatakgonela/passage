@@ -137,6 +137,26 @@ try {
   assert.equal(await page.locator('#nav').getAttribute('aria-modal'), 'true');
   await page.keyboard.press('Escape');
   assert.ok(await page.locator('#navtog').evaluate(element => document.activeElement === element));
+  await page.setViewportSize({ width: 1024, height: 1000 });
+  await open('architecture.md');
+  await page.locator('#doc h2').nth(1).scrollIntoViewIfNeeded();
+  const anchorBeforeTheme = await page.locator('#components').evaluate(element => element.getBoundingClientRect().top);
+  await page.evaluate(async () => { const { setAppearance } = await import('/appearance.js'); setAppearance({ theme: document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark' }); });
+  await page.waitForFunction(() => document.querySelector('#doc').dataset.ready === 'true');
+  const anchorAfterTheme = await page.locator('#components').evaluate(element => element.getBoundingClientRect().top);
+  assert.ok(Math.abs(anchorAfterTheme - anchorBeforeTheme) <= 2, 'Theme rerender preserves reading anchor');
+  let releaseMetadata;
+  const metadataReady = new Promise(accept => { releaseMetadata = accept; });
+  await page.route('**/api/image-info?*', async route => { await metadataReady; await route.continue(); });
+  await page.evaluate(() => { location.hash = 'media.md'; });
+  await page.locator('#return').waitFor();
+  await page.locator('#return').evaluate(element => element.scrollIntoView({ block: 'start', behavior: 'instant' }));
+  const beforeImages = await page.locator('#return').evaluate(element => element.getBoundingClientRect().top);
+  releaseMetadata();
+  await page.waitForFunction(() => document.querySelector('#doc').dataset.ready === 'true');
+  const afterImages = await page.locator('#return').evaluate(element => element.getBoundingClientRect().top);
+  assert.ok(Math.abs(afterImages - beforeImages) <= 2, `Image metadata preserves reading anchor: ${beforeImages} -> ${afterImages}`);
+  await page.unroute('**/api/image-info?*');
   const contrast = [];
   for (const theme of ['light', 'dark']) {
     await page.evaluate(async theme => { const { setAppearance } = await import('/appearance.js'); setAppearance({ theme }); }, theme);

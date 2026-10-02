@@ -9,6 +9,7 @@ export function setupTheme() {
   select('#focus').onclick = () => setAppearance({ focus: !appearance.focus });
   select('#font').onchange = event => setAppearance({ font: event.target.value });
   select('#measure').oninput = event => setAppearance({ measure: +event.target.value });
+  select('#text-size').oninput = event => setAppearance({ fs: +event.target.value });
   select('#reset').onclick = () => setAppearance(DEFAULTS);
   select('#appearance').onclick = () => select('#appearance-dialog').showModal();
   select('#appearance-close').onclick = () => select('#appearance-dialog').close();

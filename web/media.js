@@ -23,6 +23,11 @@ export async function renderImages(container, path) {
     const source = image.dataset.originalSource || image.getAttribute('src') || '';
     const frame = document.createElement('figure');
     frame.className = 'image-frame';
+    frame.style.height = '420px';
+    frame.style.display = 'flex';
+    frame.style.flexDirection = 'column';
+    image.style.maxHeight = '350px';
+    image.style.minHeight = '0';
     image.replaceWith(frame);
     const label = image.alt || 'Image';
     const caption = document.createElement('figcaption');
@@ -52,6 +57,7 @@ export async function renderImages(container, path) {
       enlarged.removeAttribute('role');
       enlarged.removeAttribute('tabindex');
       enlarged.removeAttribute('aria-label');
+      enlarged.style.maxHeight = 'none';
       enlarge(enlarged, label);
     };
     image.onclick = open;

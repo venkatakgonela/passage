@@ -124,6 +124,7 @@ export async function openDocument(preserve = false) {
   document.title = heading ? heading.textContent.replace(/^#/, '') : path;
   select('#crumb').innerHTML = path.split('/').map((part, index, parts) => index === parts.length - 1 ? `<b>${escapeHtml(part)}</b>` : escapeHtml(part)).join(' <span style="opacity:.5">/</span> ');
   buildToc();
+  if (preserve !== true) select('#scroller').scrollTo({ top: 0, behavior: 'instant' });
   await Promise.all([renderDiagrams(documentBody), renderImages(documentBody, path)]);
   if (current !== generation) return;
   documentBody.dataset.ready = 'true';
@@ -133,5 +134,4 @@ export async function openDocument(preserve = false) {
     if (anchor) select('#scroller').scrollTop += anchor.getBoundingClientRect().top - themeOffset;
   }
   else if (hashHeading()) document.getElementById(hashHeading())?.scrollIntoView({ block: 'start', behavior: 'instant' });
-  else select('#scroller').scrollTo({ top: 0, behavior: 'instant' });
 }

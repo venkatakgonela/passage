@@ -39,5 +39,6 @@ export function applyAppearance() {
   document.querySelector('#focus').textContent = appearance.focus ? 'Exit focus' : 'Focus';
   document.querySelector('#theme').setAttribute('aria-label', `Theme: ${appearance.theme}. Change theme`);
   for (const name of ['font', 'measure']) document.querySelector(`#${name}`).value = appearance[name];
+  document.querySelector('#text-size').value = appearance.fs;
   if (changed) document.dispatchEvent(new Event('reader-theme-change'));
 }
