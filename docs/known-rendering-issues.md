@@ -4,6 +4,8 @@
 
 The original observations below are retained as the baseline. The current real-browser matrix checks every example at 1440, 1024 and 390px in light and dark.
 
+Ordinary diagram labels containing “image”, “click”, “href”, URL text and “Code style checks” now pass both the input filter and the renderer. The architecture fixture also verifies successfully rendered hostile label content remains inert. The filter is intentionally not a full grammar; unusual unquoted edge-label separators remain a documented limitation in the architecture notes. Root metadata presentation, excess space around short diagrams and stale-render cancellation are tracked in the backlog, not fixed here.
+
 | Baseline case | Current result |
 | --- | --- |
 | Raw sequence/ER/flow diagrams | Fixed for supported syntax: sandboxed diagrams, fit/zoom/pan/source/fullscreen. Deliberate invalid/config fixtures show errors and source. |

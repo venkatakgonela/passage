@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Accept ordinary diagram labels containing directive-like words and URL text while still refusing configuration, link/resource and style statements.
+- Pin image structure, exact PNG/JPEG MIME types and metadata JSON with focused regression tests; verify accepted and hostile labels in the browser.
+
 - Add the calm editorial visual system, light/dark/auto, serif/sans, reading measure, focus and appearance reset.
 - Render locally vendored Mermaid lazily with isolated output and zoom/pan/source/fullscreen controls.
 - Serve bounded PNG/JPEG workspace images with alt failures and keyboard enlargement; SVG remains excluded.

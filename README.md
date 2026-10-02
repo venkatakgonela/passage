@@ -28,6 +28,8 @@ Appearance provides serif/sans, 13–24px type, a 65–90 character reading meas
 
 Diagram configuration, external-resource directives and custom styles are refused. Diagram source is capped at 50,000 characters/500 lines and 300 configured edges; these limits are not a hard CPU timeout. Local images are capped at 8 MiB, 16 megapixels and 8,192px per dimension. See the [image decision](docs/decisions/0002-raster-image-boundary.md) and [diagram decision](docs/decisions/0003-isolated-diagrams.md).
 
+Diagram labels may contain ordinary words such as “image”, “click”, “href” and “style”, including URL text. The filter checks statement forms rather than banning those words globally; it is not a complete Mermaid parser or the execution security boundary. See the [synthetic label cases](examples/architecture.md). Output sandboxing and CSP remain unchanged.
+
 ## Safety and settings
 
 The picker and root registration are limited to the resolved home directory plus folders explicitly supplied at startup. Outside-home folders must be supplied again at each launch; saved settings cannot expand that boundary. Hidden/skipped picker entries and symlink entries are excluded. Home browsing remains broad: any same-origin user of the reader can enumerate allowed folders. Use only on a trusted local machine.
