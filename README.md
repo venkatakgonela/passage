@@ -34,6 +34,8 @@ A local, read-only Markdown reader for engineers, reviewers and anyone navigatin
 
    On Windows use `py -m server`. If Make is installed, `make run` is a shortcut. Leave this terminal open; Ctrl+C stops the reader.
 
+   If the address is already in use, run `python3 -m server --port 0` (Windows: `py -m server --port 0`) to select a free port.
+
 3. **Open the printed address** in your browser. You'll see the synthetic example collection and Files panel. Open `reading-guide.md` for a first tour.
 
 For your documents, use `python3 -m server --root "/path/to/documents"` (Windows: `py -m server --root "C:\Documents"`), or **Files → workspace … → Add folder**. Choose a folder separate from the reader's settings.
