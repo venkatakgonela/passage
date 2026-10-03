@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
+import { checkDialogs } from './dialog-browser.mjs';
 
 export async function checkRelease(page, evidence) {
+  await checkDialogs(page);
   const open = async file => {
     await page.evaluate(async file => { const { visit } = await import('/continuity.js'); visit(file); }, file);
     await page.waitForFunction(file => document.querySelector('#doc').dataset.ready === 'true' && decodeURIComponent(location.hash.slice(1).split('#')[0]) === file, file);
@@ -34,7 +36,8 @@ export async function checkRelease(page, evidence) {
   for (const width of [1440, 1024, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     await open('rendering.md');
-    assert.equal(await page.locator('#doc math').count(), 3, 'Valid equations produce MathML');
+    assert.equal(await page.locator('#doc math').count(), 6, 'Valid equations produce MathML');
+    assert.match(await page.locator('#doc').textContent(), /Costs \$5 and \$10 per month\. \$1,200 or \$1,500\. cash \$ and \$ cash\. US\$20 and \$30\./);
     assert.equal(await page.locator('#doc .math-error').count(), 2);
     assert.equal(await page.locator('#doc script,#doc [onerror],#doc a[href^="javascript:"]').count(), 0);
     await page.locator('#doc .front-matter summary').click();
@@ -52,7 +55,7 @@ export async function checkRelease(page, evidence) {
       const output = new DOMParser().parseFromString(html, 'text/html');
       return { math: output.querySelectorAll('math').length, forbidden: output.querySelectorAll('script,iframe,object,embed,form,link,base,[onerror],[onclick]').length, images: [...output.images].map(image => image.src), csp: output.querySelector('meta[http-equiv="Content-Security-Policy"]').content };
     }, html);
-    assert.equal(analysis.forbidden, 0); assert.equal(analysis.math, 3);
+    assert.equal(analysis.forbidden, 0); assert.equal(analysis.math, 6);
     assert.ok(analysis.csp.includes("default-src 'none'"));
     const hostile = await page.evaluate(async () => (await import('/export.js')).exportMarkup('<script>alert(1)</script><iframe src="https://example.invalid"></iframe><svg onload="alert(1)"></svg><p style="background:url(https://example.invalid)" onclick="alert(1)">safe</p>'));
     assert.equal(hostile, '<p>safe</p>');
@@ -64,8 +67,12 @@ export async function checkRelease(page, evidence) {
     }
     if (process.env.READER_PUBLIC_IMAGES) {
       const directory = resolve('docs/images'); await mkdir(directory, { recursive: true });
+      await page.evaluate(async () => (await import('/appearance.js')).setAppearance({ theme: 'light', focus: false }));
+      if (await page.locator('nav').evaluate(element => element.classList.contains('hide'))) await page.locator('#navtog').click();
       await page.locator('#scroller').evaluate(element => { element.scrollTop = 0; });
-      await page.locator('main').screenshot({ path: join(directory, `reading-${width}.png`) });
+      await page.locator('#toast.on').waitFor({ state: 'hidden' });
+      await page.screenshot({ path: join(directory, `reading-${width}.png`) });
+      if (width < 821) await page.locator('#navtog').click();
     }
     const downloadPromise = page.waitForEvent('download');
     await page.locator('#export-document').click();

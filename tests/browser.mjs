@@ -237,6 +237,8 @@ try {
   await checkOrientation(page, fixtureRoot, evidence);
   await checkReviews(page, fixtureRoot, evidence);
   await checkRelease(page, evidence);
+  assert.deepEqual(dialogs, [], 'No native dialogs during any browser interactions');
+  assert.deepEqual(popups, [], 'No popups during any browser interactions');
   assert.deepEqual(errors, [], 'No JavaScript errors during orientation interactions');
   assert.deepEqual(outbound, [], 'No external requests during orientation interactions');
   console.log(`PASS ${results.length} document/theme/viewport cases and six orientation interaction configurations; browser ${browser.version()}`);

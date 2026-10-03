@@ -10,6 +10,10 @@ Every example on this page is synthetic.
 
 ## Mathematics
 
+Costs $5 and $10 per month. $1,200 or $1,500. cash $ and $ cash. US$20 and $30.
+
+Synthetic mixed example: $20 for $x^2$ and $E=mc^2$, with punctuation ($a+b$).
+
 Inline energy $E=mc^2$ and a display equation:
 
 $$\int_0^1 x^2\,dx = \frac{1}{3}$$

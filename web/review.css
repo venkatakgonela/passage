@@ -1,6 +1,10 @@
 #review-tools,#chain { display:flex; flex-wrap:wrap; gap:6px; padding:8px 16px; align-items:center; }
 .reading-area { display:flex; flex-direction:column; flex:1; min-width:0; min-height:0; }
 #review-tools { border-bottom:1px solid var(--bd); background:var(--bg); }
+.action-status { font:14px/1.5 -apple-system,sans-serif; overflow-wrap:anywhere; }
+.action-status:empty { display:none; }
+#review-tools .action-status { flex-basis:100%; margin:0; }
+#confirmation-dialog button { margin-right:8px; }
 #scroller { scroll-padding-top:75px; }
 #chain[hidden],#back-results[hidden] { display:none; }
 #chain button { font-size:12px; }

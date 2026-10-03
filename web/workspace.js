@@ -6,6 +6,8 @@ import { renderList } from './tree.js';
 import { fetchCatalog } from './catalog.js';
 import { loadSession } from './session.js';
 import { recovery } from './recovery.js';
+import { askConfirmation, actionStatus } from './dialogs.js';
+import { showDialog } from './orientation.js';
 
 async function loadFiles() {
   store.set('root', state.root);
@@ -47,14 +49,19 @@ export function setupWorkspace() {
   const reload = () => loadFiles().catch(() => recovery(select('#doc'), 'Workspace unavailable. Check the folder and server, or select another workspace.', reload));
   select('#roots').onchange = event => { state.root = event.target.value; reload(); };
   select('#rm').onclick = async () => {
-    if (state.root && confirm('Remove this folder from the list? Files are not deleted.')) {
-      await requestJson(`/api/roots?id=${state.root}`, { method: 'DELETE' });
-      state.root = '';
-      await loadRoots();
+    const root = state.root;
+    if (root && await askConfirmation('Remove this folder from the list? Files are not deleted.', 'Remove folder')) {
+      try {
+        actionStatus(select('.nav-top'), '');
+        await requestJson(`/api/roots?id=${root}`, { method: 'DELETE' });
+        state.root = '';
+        await loadRoots();
+      } catch (error) { actionStatus(select('.nav-top'), error.message); }
     }
   };
-  select('#blist').onclick = event => { const anchor = event.target.closest('a'); if (anchor) browse(anchor.dataset.p); };
-  select('#add').onclick = () => { select('#dlg').showModal(); browse(state.browsePath || ''); };
+  const browseSafely = path => { actionStatus(select('#dlg'), ''); return browse(path).catch(error => actionStatus(select('#dlg'), error.message)); };
+  select('#blist').onclick = event => { const anchor = event.target.closest('a'); if (anchor) browseSafely(anchor.dataset.p); };
+  select('#add').onclick = () => { showDialog(select('#dlg')); browseSafely(state.browsePath || ''); };
   select('#bcancel').onclick = () => select('#dlg').close();
   select('#bok').onclick = async () => {
     try {
@@ -62,8 +69,8 @@ export function setupWorkspace() {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path: state.browsePath }),
       });
       state.root = result.id;
-      select('#dlg').close();
       await loadRoots();
-    } catch (error) { alert(error.message); }
+      select('#dlg').close();
+    } catch (error) { actionStatus(select('#dlg'), error.message); }
   };
 }

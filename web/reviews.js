@@ -5,6 +5,7 @@ import { capturePosition, visit } from './continuity.js';
 import { moveItem, noteTarget, exportNotes } from './review-model.js';
 import { setupCompare } from './compare.js';
 import { stableChange } from './layout.js';
+import { askConfirmation, actionStatus } from './dialogs.js';
 
 let records, openedRoot, anchor;
 
@@ -83,17 +84,20 @@ export function setupReviews() {
     select(trigger).onclick = async () => {
       anchor = captureAnchor(); openedRoot = state.root;
       try {
+        actionStatus(select('#review-tools'), '');
         records = await requestJson(`/api/reviews?root=${openedRoot}`);
         if (openedRoot !== state.root) return;
         select('#note-anchor').textContent = `Anchor: ${anchor.path} — ${anchor.heading || 'passage'}`;
         select('#list-status').textContent = ''; select('#note-status').textContent = '';
         render(); showDialog(select(dialog));
       } catch (error) {
-        if (confirm(`${error.message}. If review settings are corrupt, move them aside and start empty? Valid settings will not be reset.`)) {
+        if (openedRoot !== state.root) return;
+        actionStatus(select('#review-tools'), error.message);
+        if (await askConfirmation(`${error.message}. If review settings are corrupt, move them aside and start empty? Valid settings will not be reset.`, 'Move corrupt settings aside')) {
           try {
             const response = await requestJson(`/api/reviews/reset?root=${openedRoot}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
-            toast(response.notice);
-          } catch (failure) { toast(`${failure.message}. Check the server and settings permissions, then retry.`); }
+            actionStatus(select('#review-tools'), response.notice);
+          } catch (failure) { actionStatus(select('#review-tools'), `${failure.message}. Check the server and settings permissions, then retry.`); }
         }
       }
     };

@@ -22,7 +22,7 @@ export function prepareMarkdown(text, prefix = '') {
     if (definition && definitions.size < 100) { definitions.set(definition[1], definition[2]); return ''; }
     return line;
   });
-  let body = lines.join('\n').replace(/(```[^\n]*\n[\s\S]*?```|~~~[^\n]*\n[\s\S]*?~~~|`[^`\n]*`)|\$\$([\s\S]*?)\$\$|(?<![\\\w])\$([^$\n]+)\$/g, (raw, code, display, inline) => {
+  let body = lines.join('\n').replace(/(```[^\n]*\n[\s\S]*?```|~~~[^\n]*\n[\s\S]*?~~~|`[^`\n]*`)|\$\$([\s\S]*?)\$\$|(?<![\\\w$])\$(?![\s\d$])([^$\n]*?[^\s$])\$(?!\d)/g, (raw, code, display, inline) => {
     if (code || math.length >= 200) return raw;
     const index = math.length; math.push({ source: display ?? inline, display: display !== undefined });
     return `<span data-math-slot="${index}"></span>`;

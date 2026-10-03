@@ -2,6 +2,26 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { frontMatter, prepareMarkdown } from '../web/extensions.js';
 import { reference } from '../web/actions.js';
+import { readFileSync, readdirSync } from 'node:fs';
+
+test('currency stays literal while delimited math and protected code work', () => {
+  for (const currency of ['Costs $5 and $10 per month', '$1,200 or $1,500', 'cash $ and $ cash', 'US$20 and $30', '$ x$', '$x $', '$x$2']) {
+    const result = prepareMarkdown(currency);
+    assert.equal(result.math.length, 0, currency);
+    assert.equal(result.body, currency);
+  }
+  const mixed = prepareMarkdown('Costs $5; math $x^2$ and $E=mc^2$, also ($a+b$).');
+  assert.deepEqual(mixed.math.map(item => item.source), ['x^2', 'E=mc^2', 'a+b']);
+  assert.ok(mixed.body.includes('Costs $5;'));
+  assert.equal(prepareMarkdown('`$5 and $x$`\n```text\n$x$\n```').math.length, 0);
+  assert.deepEqual(prepareMarkdown('$$5 + 10$$').math, [{ source: '5 + 10', display: true }]);
+});
+
+test('web code never invokes native alert or confirmation dialogs', () => {
+  for (const name of readdirSync(new URL('../web/', import.meta.url)).filter(name => /\.(js|html|css)$/.test(name))) {
+    assert.doesNotMatch(readFileSync(new URL('../web/' + name, import.meta.url), 'utf8'), /\b(?:alert|confirm)\s*\(/, name);
+  }
+});
 
 test('metadata is bounded, literal and removed from body', () => {
   const result = frontMatter('---\ntitle: <script>bad</script>\n---\n# Synthetic');
