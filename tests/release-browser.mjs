@@ -39,6 +39,7 @@ export async function checkRelease(page, evidence) {
     await open('rendering.md');
     assert.equal(await page.locator('#doc math').count(), 6, 'Valid equations produce MathML');
     assert.equal(await page.locator('#doc .math-inline + .math-hint').count(), 0, 'Inline equations never have helper text');
+    await page.waitForFunction(() => [...document.querySelectorAll('#doc .math-block')].every(element => element.nextElementSibling.hidden === (element.scrollWidth <= element.clientWidth + 1)));
     assert.equal(await page.locator('#doc .math-block').evaluateAll(elements => elements.every(element => element.nextElementSibling.hidden === (element.scrollWidth <= element.clientWidth + 1))), true, 'Only overflowing display equations show a hint');
     assert.match(await page.locator('#doc').textContent(), /Costs \$5 and \$10 per month\. \$1,200 or \$1,500\. cash \$ and \$ cash\. US\$20 and \$30\./);
     assert.equal(await page.locator('#doc .math-error').count(), 2);

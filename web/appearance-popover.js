@@ -31,4 +31,5 @@ export function setupAppearancePopover() {
     else if (panel.contains(event.target)) event.stopPropagation();
   }, true);
   addEventListener('resize', position);
+  new ResizeObserver(position).observe(panel);
 }

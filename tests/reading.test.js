@@ -17,6 +17,9 @@ test('appearance values are bounded and defaults are predictable', () => {
   assert.equal(normalizeAppearance({ measure: 140 }).measure, 140);
   assert.equal(normalizeAppearance({ measure: 200 }).measure, 140);
   assert.equal(normalizeAppearance({ fill: true }).fill, true);
+  assert.equal(DEFAULTS.fill, true);
+  assert.equal(normalizeAppearance({}).fill, true);
+  assert.equal(normalizeAppearance({ fill: false }).fill, false);
   assert.equal(normalizeAppearance({ fill: 'true' }).fill, false);
 });
 

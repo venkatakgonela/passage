@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { writeFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
+import { checkFill } from './fill-browser.mjs';
 
 export async function checkPolish(page, fixtureRoot, evidence) {
   const source = '# Shared reading edge\n\nSynthetic alignment fixture. A paragraph that begins at the shared left edge.\n\n- First list item\n\n```text\nshort snippet\n```\n\n```text\n' + 'wide_content_'.repeat(180) + '\n```\n\n| Small | Table |\n| --- | --- |\n| One | Two |\n\n| ' + Array.from({ length: 16 }, (unused, index) => `Column ${index}`).join(' | ') + ' |\n| ' + '--- | '.repeat(16) + '\n| ' + 'long_content_here | '.repeat(16) + '\n\n```mermaid\nflowchart LR\nA --> B\n```\n\n```mermaid\nflowchart LR\n' + Array.from({ length: 16 }, (unused, index) => `N${index}[Long synthetic stage ${index}]`).join(' --> ') + '\n```\n\n$$a+b$$\n\n$$' + 'x + '.repeat(100) + 'y$$\n';
@@ -28,7 +29,7 @@ export async function checkPolish(page, fixtureRoot, evidence) {
       const heading = doc.querySelector('h1'), text = [...heading.childNodes].find(node => node.nodeType === Node.TEXT_NODE), range = document.createRange(); range.selectNodeContents(text);
       return { container: { left: box.left, right: box.right, width: box.width }, textLeft: range.getBoundingClientRect().left, edges: elements.map(element => ({ kind: element.className || element.tagName, left: element.getBoundingClientRect().left, right: element.getBoundingClientRect().right })), short: ['.code-frame', '.tw', '.diagram-shell', '.math-block'].map(selector => { const element = doc.querySelector(selector), target = element.closest('.technical-block'); return { selector, width: target.getBoundingClientRect().width, wide: target.classList.contains('wide-block') }; }), wide: [...doc.querySelectorAll(':scope>.wide-block')].map(element => ({ right: element.getBoundingClientRect().right, kind: element.className })) };
     });
-    assert.ok(dimensions.container.width <= 1401, 'Container capped at 1400px');
+    assert.ok(dimensions.container.width <= 1801, 'Container capped at 1800px');
     assert.ok(Math.abs(dimensions.textLeft - dimensions.container.left) <= 1, `Heading text shares left edge ${width}/${focus}/${panels}`);
     for (const edge of dimensions.edges) assert.ok(Math.abs(edge.left - dimensions.container.left) <= 1, `Shared left edge ${edge.kind} ${width}/${focus}/${panels}`);
     for (const block of dimensions.short) { assert.equal(block.wide, false, `Short ${block.selector} stays measured`); assert.ok(block.width <= Math.min(720, dimensions.container.width) + 1, 'Short block follows prose width'); }
@@ -59,6 +60,7 @@ export async function checkPolish(page, fixtureRoot, evidence) {
     assert.equal(await page.locator('#size-value').textContent(), '19px', 'Text size exposes keyboard changes');
     await page.locator('[name="appearance-theme"][value="light"]').check();
     await page.locator('#text-size').fill('18');
+    await page.locator('#fill-window').uncheck();
     await page.locator('#measure').fill('140');
     assert.equal(await page.locator('#measure-value').textContent(), '140 characters');
     await page.locator('#fill-window').check();
@@ -73,7 +75,7 @@ export async function checkPolish(page, fixtureRoot, evidence) {
     assert.ok(Math.abs(filled.prose - filled.width) <= 1, 'Fill uses full container');
     await trigger.click(); await page.locator('#reset').click();
     assert.equal(await page.locator('#measure').inputValue(), '80');
-    assert.equal(await page.locator('#fill-window').isChecked(), false);
+    assert.equal(await page.locator('#fill-window').isChecked(), true);
     await page.locator('#appearance-close').focus(); await page.keyboard.press('Enter');
     await trigger.click(); await page.mouse.click(width - 4, 400);
     assert.equal(await page.locator('#appearance-dialog').evaluate(element => element.open), false, 'Outside click closes');
@@ -96,4 +98,5 @@ export async function checkPolish(page, fixtureRoot, evidence) {
   if (evidence) await writeFile(join(evidence, 'polish-results.json'), JSON.stringify(results, null, 2));
   await rm(join(fixtureRoot, 'alignment.md'));
   console.log('PASS shared edges, intrinsic widths, Fill persistence/reset, popover keyboard and narrow menu clearance');
+  await checkFill(page, evidence);
 }

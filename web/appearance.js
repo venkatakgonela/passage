@@ -1,12 +1,12 @@
 import { store } from './state.js';
 
-export const DEFAULTS = { theme: 'auto', fs: 18, measure: 80, fill: false, font: 'serif', focus: false, wrap: false };
+export const DEFAULTS = { theme: 'auto', fs: 18, measure: 80, fill: true, font: 'serif', focus: false, wrap: false };
 export function normalizeAppearance(value) {
   return {
     theme: ['auto', 'light', 'dark'].includes(value.theme) ? value.theme : 'auto',
     fs: Number.isFinite(+value.fs) ? Math.min(24, Math.max(13, +value.fs)) : 18,
     measure: Number.isFinite(+value.measure) ? Math.min(140, Math.max(60, +value.measure)) : 80,
-    fill: value.fill === true,
+    fill: value.fill === undefined ? DEFAULTS.fill : value.fill === true,
     font: value.font === 'sans' ? 'sans' : 'serif',
     focus: value.focus === true,
     wrap: value.wrap === true,
@@ -48,6 +48,7 @@ export function applyAppearance() {
   document.querySelector('#measure-value').value = `${appearance.measure} characters`;
   document.querySelector('#size-value').value = `${appearance.fs}px`;
   document.querySelector('#measure').disabled = appearance.fill;
+  document.querySelector('#measure-control').hidden = appearance.fill;
   for (const control of document.querySelectorAll('[name="appearance-theme"]')) control.checked = control.value === appearance.theme;
   if (changed) document.dispatchEvent(new Event('reader-theme-change'));
 }

@@ -1,5 +1,6 @@
-.reader-shell .wrap,.reader-shell.focus-mode .wrap{max-width:1464px;width:100%;box-sizing:border-box}
-.reader-shell #doc{max-width:1400px;width:100%;margin-inline:auto;--block-measure:var(--reading-measure,720px)}
+:root{--reading-container-cap:1800px}
+.reader-shell .wrap,.reader-shell.focus-mode .wrap{max-width:calc(var(--reading-container-cap) + 64px);width:100%;box-sizing:border-box}
+.reader-shell #doc{max-width:var(--reading-container-cap);width:100%;margin-inline:auto;--block-measure:var(--reading-measure,720px)}
 .reader-shell.fill-reading #doc{--block-measure:100%}
 .reader-shell #doc>*{margin-left:0;margin-right:0;box-sizing:border-box}
 .reader-shell #doc>:not(.wide-block){width:100%;max-width:var(--block-measure)}

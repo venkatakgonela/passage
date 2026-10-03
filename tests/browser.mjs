@@ -175,6 +175,7 @@ try {
   await page.keyboard.press('Escape');
   await page.locator('#appearance').click();
   await page.locator('#font').selectOption('sans');
+  await page.locator('#fill-window').uncheck();
   await page.locator('#measure').fill('75');
   await page.locator('#appearance-close').click();
   await page.reload();
