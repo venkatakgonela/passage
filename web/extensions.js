@@ -77,7 +77,11 @@ export async function decorateExtensions(container, prepared) {
     element.className = expression.display ? 'math-block' : 'math-inline';
     element.dataset.scrollRegion = 'math'; element.tabIndex = 0;
     element.setAttribute('aria-label', 'Equation. Scroll horizontally if needed.');
-    const hint = document.createElement('span'); hint.className = 'scroll-hint'; hint.textContent = 'Scroll equation horizontally if needed'; element.after(hint);
+    if (expression.display) {
+      const hint = document.createElement('span'); hint.className = 'scroll-hint math-hint'; hint.textContent = 'Scroll equation horizontally'; hint.hidden = true; element.after(hint);
+      const observer = new ResizeObserver(() => { if (!element.isConnected) { observer.disconnect(); return; } hint.hidden = element.scrollWidth <= element.clientWidth + 1; });
+      observer.observe(element);
+    }
     try {
       if (!renderer || expression.source.length > 4000 || /\\(?:href|url|includegraphics|html\w*|def|gdef|edef|xdef|newcommand)\b/.test(expression.source)) throw new Error('Unsupported or unavailable math');
       const output = renderer.renderToString(expression.source, { output: 'mathml', displayMode: expression.display, trust: false, strict: 'error', maxExpand: 100, maxSize: 20, throwOnError: true });
