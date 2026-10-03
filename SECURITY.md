@@ -6,6 +6,8 @@ Source documents are read-only. Reader settings are separate, local and unencryp
 
 Residual risks include malicious local filesystem races, slow filesystem calls, resource-intensive diagram/math layout within caps, unknown vendor vulnerabilities, and network requests from remote images in the live reader. Offline export omits those images. Never treat a passing scan or dependency audit as a security certification.
 
+Automated checks include CodeQL code scanning alongside the security regression tests.
+
 Report suspected vulnerabilities privately through this repository's **Security → Report a vulnerability** route. Include the Passage version or commit, operating system, Python/browser versions, expected versus actual behavior, impact, and a minimal synthetic reproducer. Never include private documents, secrets or personal filesystem paths. There is no response-time guarantee.
 
 If the button is unavailable, do not disclose exploit details publicly; a public issue may ask only for a private reporting route.

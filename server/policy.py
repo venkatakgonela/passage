@@ -1,5 +1,6 @@
 import hashlib
 import json
+import os
 from pathlib import Path
 
 SKIP = {'.git', 'node_modules', 'vendor', '.venv', '__pycache__', '.state'}
@@ -24,15 +25,31 @@ def root_id(path):
     return hashlib.sha1(str(path).encode()).hexdigest()[:10]
 
 
-def markdown_target(root, relative):
+def confined_target(root, relative, skipped=()):
     path = Path(relative)
-    if path.is_absolute() or '..' in path.parts or SKIP.intersection(path.parts):
+    if path.is_absolute() or '..' in path.parts or set(skipped).intersection(path.parts):
         raise Rejected()
-    target = root / path
-    if any(part.is_symlink() for part in [target, *target.parents] if part != root and within(part, root)):
+    if root.is_symlink():
         raise Rejected()
-    target = target.resolve()
-    if not within(target, root) or target == root or target.suffix != '.md' or not target.is_file():
+    canonical_root = os.path.realpath(root)
+    prefix = canonical_root.rstrip(os.sep) + os.sep
+    joined = os.path.abspath(os.path.join(canonical_root, path))
+    if joined == canonical_root or not joined.startswith(prefix):
+        raise Rejected()
+    target = Path(joined)
+    while target != Path(canonical_root):
+        if target.is_symlink():
+            raise Rejected()
+        target = target.parent
+    canonical = os.path.realpath(joined)
+    if canonical == canonical_root or not canonical.startswith(prefix):
+        raise Rejected()
+    return Path(canonical)
+
+
+def markdown_target(root, relative):
+    target = confined_target(root, relative, SKIP)
+    if target.suffix != '.md' or not target.is_file():
         raise Rejected()
     return target
 

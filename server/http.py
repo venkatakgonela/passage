@@ -7,7 +7,7 @@ from urllib.parse import parse_qs, unquote, urlparse
 from . import policy
 from . import reviews, search, chain
 from .images import read_image
-from .policy import Rejected, root_id, within
+from .policy import Rejected, root_id
 
 PROJECT = Path(__file__).resolve().parent.parent
 BIND_HOST = '127.0.0.1'
@@ -24,6 +24,13 @@ def make_handler(workspace):
         def setup(self):
             super().setup()
             self.connection.settimeout(5)
+
+        def send_header(self, keyword, value):
+            value = str(value)
+            if '\r' in value or '\n' in value:
+                self._headers_buffer = []
+                raise Rejected('invalid response header', 500)
+            super().send_header(keyword, value)
 
         def send_body(self, status, body, content_type='application/json'):
             data = body if isinstance(body, bytes) else (body if isinstance(body, str) else json.dumps(body)).encode()
@@ -131,11 +138,8 @@ def make_handler(workspace):
                 relative = Path(*relative.parts[1:])
             if path == '/':
                 relative = Path('index.html')
-            target = root / relative
-            if any(part.is_symlink() for part in [target, *target.parents] if within(part, root)):
-                raise Rejected()
-            target = target.resolve()
-            if not within(target, root) or not target.is_file() or target.suffix not in {'.html', '.css', '.js'}:
+            target = policy.confined_target(root, relative)
+            if target.suffix not in {'.html', '.css', '.js'} or not target.is_file():
                 raise Rejected()
             content_type = 'text/javascript; charset=utf-8' if target.suffix == '.js' else mimetypes.guess_type(target.name)[0]
             return self.send_body(200, target.read_bytes(), content_type)

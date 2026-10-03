@@ -89,6 +89,20 @@ Caption: implemented shell composition. Legend: solid arrows are existing UI cal
 
 ## Implemented: threat model
 
+### Shared path and response-header boundaries
+
+`policy.confined_target` is the shared validation boundary for static assets, Markdown targets and review anchors. It rejects absolute paths, traversal components and caller-specified skipped directories; checks the normalized joined path against the canonical root plus a separator before inspecting candidate components; rejects symlink components (including in-root and dangling links); then checks the canonical path against the same separator-aware boundary. Root equality is rejected. Markdown and static suffix whitelists, bounded document reads and safe missing review anchors remain caller policies. Static vendor assets deliberately do not use the document skipped-directory list. The explicit normalized prefix checks replace duplicated custom containment checks, not the protections themselves. Descriptor-relative opening was not introduced: malicious concurrent local filesystem replacement remains outside the trusted-local threat model.
+
+All response header values pass through `Handler.send_header`, which rejects CR or LF before the standard-library writer receives the value. Rejection discards buffered, unsent response headers so error handling cannot append a second status line to a partial success response. This applies to inherited Server/Date headers as well as Content-Type and future headers.
+
+| Boundary | Regression evidence |
+| --- | --- |
+| Reject traversal/absolute/skipped components before candidate probes; separator-aware lexical and canonical confinement; reject root itself | `ConfinedPathTests.test_relative_rules_before_filesystem_probes`, `test_lexical_boundary_before_component_probes`, `test_canonical_separator_boundary`, `test_root_separator_and_safe_missing_targets` in [boundary tests](../tests/test_path_headers.py) |
+| Reject symlink components while preserving normal static and vendor assets, and safe missing anchors | `test_symlink_components_even_when_target_is_inside`, `test_anchor_lists_and_notes_share_confinement`, `test_static_assets_and_symlinks` in [boundary tests](../tests/test_path_headers.py); existing server/review confinement tests |
+| Reject CR/LF in every header value without sending buffered success or injected headers | `HeaderSinkTests` and `StaticBoundaryTests.test_bad_mime_returns_clean_error_response` in [boundary tests](../tests/test_path_headers.py) |
+
+CodeQL supplements these executable regressions; passing tests do not establish that a hosted analysis recognizes a validation barrier or certify the absence of vulnerabilities.
+
 Default startup resolves user-scoped settings and performs a non-overwriting legacy copy before constructing the workspace. Explicit overrides bypass copying. [ADR 0009](decisions/0009-user-settings.md) records location compatibility and migration limits; [settings](../server/settings.py) uses streamed temporary copies and exclusive hard links. Settings stay outside registered document roots. The browser's [dialog helper](../web/dialogs.js) uses the existing modal lifecycle and text-only action status, with no new rendering injection path.
 
 | Invariant / behavior | Regression evidence |

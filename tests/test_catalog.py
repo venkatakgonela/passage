@@ -72,12 +72,12 @@ class CatalogTests(unittest.TestCase):
 
     def test_metadata_shared_target_confinement(self):
         from pathlib import Path
-        original = Path.resolve
+        original = policy.os.path.realpath
         def redirect(path, *arguments, **options):
-            if path == self.root / 'hello.md':
-                return self.outside / 'secret.md'
+            if Path(path) == self.root / 'hello.md':
+                return str(self.outside / 'secret.md')
             return original(path, *arguments, **options)
-        with patch.object(Path, 'resolve', redirect):
+        with patch('server.policy.os.path.realpath', redirect):
             self.assertEqual(self.metadata()[0], 404)
 
     def test_metadata_caps_and_source_immutability(self):

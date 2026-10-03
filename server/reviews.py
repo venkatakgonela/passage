@@ -29,11 +29,12 @@ def anchor(root, value):
     if type(value['offset']) not in {int, float} or not 0 <= value['offset'] <= 10000000:
         raise policy.Rejected('invalid offset', 400)
     path = Path(value['path'])
-    if path.is_absolute() or '..' in path.parts or policy.SKIP.intersection(path.parts) or '\\' in value['path'] or path.suffix != '.md':
+    if '\\' in value['path'] or path.suffix != '.md':
         raise policy.Rejected('invalid anchor path', 400)
-    target = root / path
-    if any(part.is_symlink() for part in [target, *target.parents] if policy.within(part, root)) or not policy.within(target.resolve(), root):
-        raise policy.Rejected('invalid anchor path', 400)
+    try:
+        target = policy.confined_target(root, value['path'], policy.SKIP)
+    except policy.Rejected as error:
+        raise policy.Rejected('invalid anchor path', 400) from error
     if target.exists():
         policy.markdown_target(root, value['path'])
 

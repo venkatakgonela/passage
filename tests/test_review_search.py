@@ -1,6 +1,7 @@
 import copy
 import json
 import unittest
+from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 from unittest.mock import patch
 from urllib.parse import urlencode
@@ -122,11 +123,10 @@ class ReviewSearchTests(unittest.TestCase):
         target.symlink_to(self.root / 'hello.md')
         self.assertEqual(self.write()[0], 403)
         target.unlink()
-        from pathlib import Path
-        original = Path.resolve
+        original = reviews.os.path.realpath
         def redirect(path, *arguments, **options):
-            return self.outside / 'secret.md' if path == self.root / 'hello.md' else original(path, *arguments, **options)
-        with patch.object(Path, 'resolve', redirect):
+            return str(self.outside / 'secret.md') if Path(path) == self.root / 'hello.md' else original(path, *arguments, **options)
+        with patch('server.policy.os.path.realpath', redirect):
             self.assertEqual(self.write()[0], 400)
 
     def test_search_semantics_scopes_ranking_and_budgets(self):
