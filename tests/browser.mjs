@@ -7,6 +7,7 @@ import { spawn } from 'node:child_process';
 import { validateDiagram } from '../web/diagrams.js';
 import { checkOrientation } from './orientation-browser.mjs';
 import { checkReviews } from './review-browser.mjs';
+import { checkRelease } from './release-browser.mjs';
 
 const temporary = await mkdtemp(join(tmpdir(), 'reader-browser-'));
 const executablePath = process.env.BROWSER_EXECUTABLE || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
@@ -49,6 +50,7 @@ try {
   await page.goto(url);
   await page.waitForFunction(() => document.querySelector('#doc').dataset.ready === 'true');
   assert.ok(!requested.some(request => request.includes('mermaid.min.js')), 'Mermaid remains unloaded for prose');
+  assert.ok(!requested.some(request => request.includes('katex.min.js')), 'Math remains unloaded for prose');
   const roots = await page.evaluate(async () => (await fetch('/api/roots')).json());
   const files = await page.evaluate(async root => (await fetch(`/api/files?root=${root}`)).json(), roots[0].id);
   const results = [];
@@ -234,6 +236,7 @@ try {
   }
   await checkOrientation(page, fixtureRoot, evidence);
   await checkReviews(page, fixtureRoot, evidence);
+  await checkRelease(page, evidence);
   assert.deepEqual(errors, [], 'No JavaScript errors during orientation interactions');
   assert.deepEqual(outbound, [], 'No external requests during orientation interactions');
   console.log(`PASS ${results.length} document/theme/viewport cases and six orientation interaction configurations; browser ${browser.version()}`);

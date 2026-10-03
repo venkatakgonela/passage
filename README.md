@@ -1,80 +1,90 @@
 # Passage
 
-A local, read-only Markdown reader for folders of technical documents. No account, build step or runtime package installation is required.
+A local, read-only Markdown reader for technical documents. Follow references, compare related sections and return to your place without editing the source or creating an account.
 
 ## Run
 
-Requires Python 3.9 or later. Node 22 or later is needed only for tests and syntax checks.
+Requires Python 3.9+. No runtime package installation or build step.
 
 ```sh
 make run
 make run ARGS="--root /path/to/documents --port 8765"
 ```
 
-Open `http://127.0.0.1:8765`. With no root argument the reader opens the bundled [synthetic examples](examples/README.md). Repeat `--root` for multiple startup folders. The server binds only to the IPv4 loopback address.
+Open `http://127.0.0.1:8765`. Repeat `--root` for multiple startup folders; Ctrl+C stops the server. Default content is [synthetic examples](examples/README.md). This source distribution has not been published to a package registry.
 
-## Existing features
+## Demo
 
-- Folder selection, in-page folder picker, removal from the reader without deleting documents, and persisted root selection.
-- Collapsible folders, folders-first alphabetical tree, ancestor reveal and current-file highlight.
-- Scoped full-text/path search with snippets, phrase/case/whole-word options and up to 60 results. Queries need 2–200 characters.
-- Relative Markdown links, heading fragments, duplicate-safe heading identifiers, heading navigation and a scroll-aware table of contents on wide screens.
-- Tables with horizontal scrolling, highlighted code with copy buttons, disabled task checkboxes, and print styling.
-- Auto/light/dark theme, text sizing from 13 to 24 pixels, breadcrumb and reading-time metadata.
+Open `rendering.md` for equations, footnotes and callouts. Follow the Chain from `SAMPLE-plan.md` to its report, compare Evidence sections, add a reading-list reference and export a local note. Commands lists reader controls.
 
-Mermaid flowchart, sequence and ER blocks render in an isolated frame, with zoom, fit/reset, drag/keyboard pan, source/copy and fullscreen controls. PNG/JPEG workspace images render with enlargement and alt-text failures; SVG/GIF/WebP remain unsupported. Tables scroll with a hint, code has a separate language/copy/wrap toolbar, and long text wraps. Footnotes, callouts and front matter remain literal. See the [verified feature audit](docs/feature-audit.md) and [rendering checklist](docs/known-rendering-issues.md). This is not an editor, a hardened filesystem sandbox or an offline network firewall: existing remote images may contact external servers.
+![Synthetic desktop reading](docs/images/reading-1440.png)
 
-Appearance provides serif/sans, 13–24px type, a 65–90 character reading measure, light/dark/auto, focus mode and reset. Preferences persist; reset changes appearance only, never registered roots or source documents. Narrow document/outline panels are dismissible keyboard drawers.
+![Synthetic narrow reading](docs/images/reading-390.png)
 
-## Orientation and continuity
+These browser-generated images contain only synthetic examples, including deliberately hostile text displayed inertly to demonstrate escaping.
 
-The labelled workspace tree has root/folder/file icons, current/ancestor highlighting, a filename/title filter, reveal and collapse actions. View offers natural filename or last-modified sorting, direction, title/filename mode and extension visibility. Desktop panel widths are remembered; focus a separator and use arrows or Home/End. Breadcrumb buttons open bounded folder menus. The sticky header shows file and section context; metadata includes modification time.
+## Find and follow
 
-Navigate provides quick open, history, recents and pins. Following a document link leaves a bounded return trail; Back/Forward and reload restore positions. Restoration tries heading, then passage snippet, then scroll offset; edited/deleted targets can require an approximate fallback. Peek previews only the target section, with Open here and Return. Preview images/embedded resources are removed and diagrams remain source; previews are not a second full reader.
+The workspace tree offers natural filename/modified sorting, title filtering, breadcrumbs, reveal/collapse and resizable panels. Quick open, history, return Trail, recents/pins, session restore and live refresh preserve context. Position restoration tries heading, snippet, then offset; edits can require an approximate fallback. Peek is a resource-free section preview, not a full second reader.
 
-Metadata pages contain at most 100 files from the 5,000-file cap. Title extraction reads at most 16 KiB per uncached file: simple scalar front-matter `title:`, first H1, then filename. A 1,000-entry stat-keyed cache avoids repeated reads; this is not a full YAML implementation. Visible tabs check stat metadata every four seconds; changed open files refresh in place. Large roots still cost enumeration/stat work and can churn the cache. See [metadata](docs/decisions/0004-bounded-catalog.md) and [continuity](docs/decisions/0005-reader-continuity.md) decisions.
+Search scopes include workspace, current folder/descendants and current document. Terms use AND matching unless Exact phrase is enabled; case and whole-word options are available. Ranking prioritizes filename matches, content count, then path. Results survive visits via Back to results. Search scans sorted eligible files up to 5,000, retaining a 16 MiB byte budget and 60-hit cap. “Scanned N of M files” and truncation expose incomplete coverage. Enumeration stops after 10,000 filesystem entries; totals describe enumerated eligible files, not an uncapped census.
 
-Browser state is versioned and bounded: 100 history entries, eight trail markers, 30 recents, 30 pins and ten workspace records. Missing files fall back to README or the first file. File/View/Navigate perform only reader operations: no operating-system editor or file-manager launching. No server navigation state or source edits are introduced.
+Chain recognizes same-folder `PREFIX-kind.md` families and simple front-matter `related: [file.md, other.md]` or an indented dash list. It reads up to 20 heads of 16 KiB for status/verdict chips. Parent traversal is refused. Compare uses complete sanitized documents, normalized heading text/occurrence matching and proportional fallback. Narrow panes stack with a section selector. This is not a semantic text diff.
 
-Diagram configuration, external-resource directives and custom styles are refused. Diagram source is capped at 50,000 characters/500 lines and 300 configured edges; these limits are not a hard CPU timeout. Local images are capped at 8 MiB, 16 megapixels and 8,192px per dimension. See the [image decision](docs/decisions/0002-raster-image-boundary.md) and [diagram decision](docs/decisions/0003-isolated-diagrams.md).
+## Render and export
 
-Diagram labels may contain ordinary words such as “image”, “click”, “href” and “style”, including URL text. The filter checks statement forms rather than banning those words globally; it is not a complete Mermaid parser or the execution security boundary. See the [synthetic label cases](examples/architecture.md). Output sandboxing and CSP remain unchanged.
+Tables/code scroll locally with hints and keyboard focus. Flowchart/sequence/ER diagrams have isolated output, zoom/pan, source and fullscreen. Local PNG/JPEG images are bounded; SVG/GIF/WebP remain unsupported. Appearance offers light/dark/auto, serif/sans, text size, reading measure and focus mode.
 
-## Safety and settings
+Math uses `$inline$` or `$$display$$`, with lazy vendored KaTeX producing native MathML and no remote fonts. Limits: 200 expressions, 4,000 characters each, 100 expansions and size 20. Resource/definition commands are refused; invalid/unavailable math shows source. Browser math appearance varies. These are not hard CPU timeouts.
 
-Search options select workspace, current folder (including descendants), or current document. Terms use AND semantics unless Exact phrase is enabled. Ranking puts paths matching all terms first, then content occurrence count, then path. Each query examines at most 300 eligible files, 10,000 filesystem entries and 16 MiB of candidate content; results show a truncation notice when a work or hit budget stops the query. Ranking covers only the examined subset. Back to results keeps the original query results and list position while visiting files; switching workspace clears them.
+Footnotes use `[^key]` and single-line `[^key]: text`, with repeated-reference backlinks. Bodies are escaped plain text, not nested Markdown. Blockquote callouts support `[!NOTE]`, `[!TIP]`, `[!WARNING]`, `[!IMPORTANT]`, `[!CAUTION]`. Native details/summary are styled. Leading front matter becomes a collapsible escaped key/value panel, limited to 16 KiB/100 lines; complex YAML is not interpreted.
 
-Chain shows up to 20 same-folder siblings sharing a filename prefix before the final hyphen, for example the [synthetic plan](examples/SAMPLE-plan.md) and [report](examples/SAMPLE-report.md). Simple front-matter `related: [file.md, other.md]` or an indented dash list adds relative references. Parent traversal is refused. Status chips use `status:` or `verdict:` from the first 16 KiB. This is not general YAML. Chain visits try to keep the current heading.
+Copy heading link and Copy reference produce Markdown file/heading references, optionally including selection. Export HTML downloads a self-contained sanitized file capped at 8 MiB. Trusted styles and eligible local PNG/JPEG images are embedded; remote/oversized images are omitted. Sandboxed diagrams become explicit source placeholders rather than weakening isolation. No scripts, remote resources, settings or server write destination are exported. Print/PDF remain native; wide tables and large diagrams may be too small in print.
 
-Compare opens two complete sanitized documents. Choose each file and Compare selected; matching normalized headings align scrolling with proportional fallback. Repeated headings match by occurrence, not meaning. Narrow panes stack; the Section selector is keyboard-operable. Exit Compare or Escape returns to the main reader. This is not a text diff or editor.
+## Lists, notes and recovery
 
-Reading lists support create/rename/delete, add current section, move up/down, remove and jump. Review notes capture the current heading and passage (or selected text), never edit source, and retain orphaned anchors after edits. Open a note's document to check its heading/snippet; other documents show an unchecked-anchor label. Missing documents are labelled. Export selected notes displays inert Markdown text and offers Copy notes; no whole-document export or AI is involved.
+Lists support create/rename/delete, add section, keyboard reorder, remove and jump. Notes capture heading/snippet/offset without source edits. Missing files and current-document orphan anchors stay listed; other-document anchors are checked when opened. Selected notes export as copyable Markdown, without AI.
 
-Review records use fixed per-root JSON files beside root settings, with 20 lists, 200 total references, 200 notes and a 256 KiB cap. They are local, unencrypted and not synchronized. Concurrent windows use revision checks: conflicts require reopening before retrying. One server process is supported. Failed replacement leaves previous saved data intact. See [storage](docs/decisions/0006-review-storage.md) and [Compare](docs/decisions/0007-heading-aligned-compare.md) decisions. POST/DELETE require an Origin exactly matching Host and reject supplied Fetch Metadata other than `same-origin`.
+Review settings are local unencrypted per-root JSON: 20 lists, 200 references, 200 notes, 4,000 characters per note, 256 KiB total. Atomic replacement preserves previous bytes on failure; stale revisions require reopening/retry. One server process is supported. Corrupt settings can explicitly be moved aside and reset, retaining original bytes in a sibling backup. Valid settings are not reset.
 
-The picker and root registration are limited to the resolved home directory plus folders explicitly supplied at startup. Outside-home folders must be supplied again at each launch; saved settings cannot expand that boundary. Hidden/skipped picker entries and symlink entries are excluded. Home browsing remains broad: any same-origin user of the reader can enumerate allowed folders. Use only on a trusted local machine.
+Server/document failures show an explanation and Retry or another-workspace guidance. Storage failure shows a notice; reading works but preferences may not persist. No automatic backup or synchronization is provided.
 
-Document access rejects absolute paths, parent traversal, symlinks, skipped directories and non-`.md` files. Uppercase `.MD` files are not enumerated. Reads are capped at 2 MiB, searches at 60 returned hits, enumeration at 5,000 Markdown files, folder listings at 1,000 entries, and registration bodies at 16 KiB. Oversized files are rejected on direct read and skipped in search. These output caps do not bound all filesystem traversal cost.
+## Safety
 
-Host checks apply to every method. A supplied Origin must match a permitted local origin; POST/DELETE also require it. Ordinary GET navigation without Origin is allowed. The server serves only intended web/vendor assets, not arbitrary repository files. Markdown HTML passes through DOMPurify before insertion; retained dependency versions are documented, not represented as the newest or immune to vulnerabilities.
+IPv4 loopback only. Browsing authority is resolved home plus explicit startup roots; outside-home roots must be supplied at every launch. Markdown paths reject traversal, symlinks, skipped directories and non-`.md` suffixes. Reads are capped at 2 MiB. Metadata reads at most 16 KiB and uses a locked bounded cache. Large roots still cost enumeration/stat work.
 
-Reader-owned root settings live in ignored `.state/roots.json` by default. To move them, set `READER_SETTINGS` to a JSON-file path **outside all displayed document roots**. A folder containing that settings file cannot be registered. This means selecting the entire checkout with default settings is rejected; put settings outside it first. The read-only guarantee covers displayed documents, not reader settings. Browser preferences use an application prefix; previous unprefixed preferences are not imported.
+Host and supplied Origin are checked on all routes. Writes require Origin exactly matching Host and same-origin Fetch Metadata when supplied. Source documents never change; reader-owned settings are writable outside displayed roots. Defaults live in ignored `.state/roots.json`; `READER_SETTINGS` can relocate them. A folder containing settings cannot be registered.
 
-## Keyboard
+Markdown and generated math pass through DOMPurify; diagram frames have no permissions. This is a trusted-local reader, not an Internet server, hostile-filesystem sandbox or offline firewall: remote images in the live reader may contact external servers. Export omits them. See [security](SECURITY.md), [threat model/tests](docs/ARCHITECTURE.md), [known limits](docs/known-rendering-issues.md), [third-party notices](THIRD-PARTY-NOTICES.md).
 
-`/` focuses search and reveals the sidebar; Escape clears focused search or closes an active drawer; `b` toggles the sidebar when not typing. Heading links participate in native fragment Back/Forward navigation. Diagram canvases support arrow-key panning; buttons support keyboard activation. Escape closes enlarged media and returns focus. The print button opens the browser print dialog.
+## Keyboard map
 
-## Development
+| Action | Shortcut |
+| --- | --- |
+| Commands | Ctrl/Cmd+K; type, arrows, Enter |
+| Quick open | Ctrl/Cmd+P |
+| Search/reveal sidebar | `/` outside inputs |
+| Document find | Ctrl/Cmd+F in reading pane |
+| Next/previous find result | Enter / Shift+Enter in find input |
+| Trail return | Alt+Left in reading pane |
+| Toggle documents | `b` outside inputs |
+| Close dialog/drawer | Escape |
+| Activate controls | Tab, then Enter/Space as appropriate |
+| Resize focused separator | Arrows, Home/End |
+| Pan focused diagram | Arrows |
 
-Additional shortcuts: Ctrl/Cmd+P opens quick open (type, arrows, Enter, Escape). With focus inside the reading pane, Ctrl/Cmd+F opens document find; Enter/Shift+Enter move between matches and Escape closes it. Outside that pane the browser's own find remains available. Alt+Left inside the reading pane returns along the trail; elsewhere native browser navigation is unchanged. Peek, menus, tree disclosures and actions use Tab/Enter/Space and Escape. File filtering is separate from `/` full-text search. Find caps matches at 1,000 and excludes diagram interiors and controls.
+Actions without direct shortcuts use labelled controls or Commands. File/View/Navigate open their menus. Accessibility checks cover landmarks, labels, keyboard flows, focus return, reduced motion and measured palette contrast—not screen-reader certification.
+
+## Development and release checks
 
 ```sh
+npm ci --ignore-scripts
 make test
 make lint
+make test-browser
+python3 tools/pre-publish-check
 ```
 
-For repeatable browser checks, install only the locked development package with `npm ci --ignore-scripts`, then run `make test-browser`. It uses an already-installed Chrome; set `BROWSER_EXECUTABLE` to its executable on other systems. No browser is downloaded. It creates a temporary profile/home/settings, checks every example in both themes at 1440/1024/390px, and exercises keyboard/media/history/preferences and contrast. Set `READER_EVIDENCE` to an existing output directory to retain screenshots, measured results and A4/Letter PDF checks. `make run` needs neither Node nor the development package.
+Tests need Node 22+ and installed Chrome (`BROWSER_EXECUTABLE` override). No browser download. Browser tests copy synthetic examples into temporary workspaces, test 1440/1024/390px in both themes and exercise interactions. `READER_EVIDENCE` saves logs/screenshots. `READER_PUBLIC_IMAGES=1` explicitly regenerates demo pictures. `node tests/performance.mjs` measures a disposable 2,003-file workspace.
 
-`make test` runs stdlib Python HTTP/filesystem/documentation tests and dependency-free Node logic tests. `make lint` checks Python and JavaScript syntax; it is not a comprehensive style or type checker. HTTP tests require local loopback sockets. CI declares the same commands, but remote execution is separate from local verification.
-
-[Architecture and threat model](docs/ARCHITECTURE.md) · [Decisions](docs/decisions/README.md) · [Changelog](CHANGELOG.md) · [Third-party notices](THIRD-PARTY-NOTICES.md) · [Licence](LICENSE)
+The release checker scans tracked tree/full reachable history for private identifiers/paths, secret patterns, oversized files, identity, licence and link coverage. Upstream vendor provenance is an explicit exception. Passing checks do not publish, tag, prove hosted CI or certify security. [Contributing](CONTRIBUTING.md) · [Decisions](docs/decisions/README.md) · [Changelog](CHANGELOG.md) · [MIT licence](LICENSE).

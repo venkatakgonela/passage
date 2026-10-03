@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 0.1.0 — release preparation (not published)
+
+- Restore sorted search through 5,000 files with scanned/total counts and explicit byte/hit truncation.
+- Add guarded corrupt-review recovery that retains original settings bytes.
+- Add lazy sanitized math, footnotes/backlinks, callouts, metadata/details panels, heading/reference copy and inert HTML download.
+- Add command discovery, error recovery, synthetic demo images and local publication checks. No release tag or hosted publication is created.
+
 - Add bounded scoped phrase/case/whole-word search with retained results and explicit truncation.
 - Add workflow document chains, full-rendering heading-aligned Compare and narrow stacked panes.
 - Add ordered reading lists and anchored local review notes with selected-note Markdown export.

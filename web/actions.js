@@ -30,8 +30,24 @@ export function setupActions() {
   const show = () => {
     const input = select('#palette-query'); input.value = '';
     const actions = [...document.querySelectorAll('header button,#review-tools button,#chain button,#nav button,#trail-bar button')].filter(button => button !== trigger && !button.hidden && !button.disabled);
+    const menuActions = [
+      ['file-menu', 'Add workspace'], ['file-menu', 'Remove workspace from reader'], ['file-menu', 'Print'],
+      ['view-menu', 'Sort by name'], ['view-menu', 'Sort by last modified'], ['view-menu', 'Ascending order', 'Descending order'],
+      ['view-menu', 'Filename-only mode', 'Show titles'], ['view-menu', 'Hide extensions', 'Show extensions'],
+      ['view-menu', 'Reading appearance'], ['view-menu', 'Focus mode'],
+      ['navigate-menu', 'Back'], ['navigate-menu', 'Forward'], ['navigate-menu', 'History'],
+      ['navigate-menu', 'Pin current file', 'Unpin current file'], ['navigate-menu', 'Pins'], ['navigate-menu', 'Recents'],
+    ];
     const render = () => {
       const list = select('#palette-actions'); list.replaceChildren();
+      for (const [menu, label, alternate] of menuActions) {
+        if (!(label + ' ' + (alternate || '')).toLowerCase().includes(input.value.toLowerCase())) continue;
+        const button = document.createElement('button'); button.textContent = alternate ? `${label} / ${alternate}` : label;
+        button.onclick = () => {
+          palette.close(); select('#' + menu).click();
+          [...select('#reader-menu-items').querySelectorAll('button')].find(item => [label, alternate].includes(item.textContent))?.click();
+        }; list.append(button);
+      }
       for (const source of actions.filter(button => `${button.textContent} ${button.getAttribute('aria-label')}`.toLowerCase().includes(input.value.toLowerCase()))) {
         const button = document.createElement('button'); button.textContent = `${source.getAttribute('aria-label') || source.textContent} ${shortcuts[source.id] || ''}`;
         button.onclick = () => { palette.close(); source.click(); }; list.append(button);

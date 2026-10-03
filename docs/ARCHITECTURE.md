@@ -99,7 +99,7 @@ Print is native browser printing, not an export feature. Wide tables wrap at 6pt
 
 ## Implemented: search and review records
 
-Search scans at most 300 eligible files, 10,000 directory entries and 16 MiB per query; file reads retain the 2 MiB cap and results the 60-hit cap. These are work bounds, not a wall-clock guarantee for a stalled filesystem. AND terms, literal phrases, case and word options compile escaped patterns. Filename matches rank before occurrence count then path. Truncation makes partial ranking explicit. Legacy search returns an array; `format=details` adds `hits`, `truncated` and `scanned`. Chain reads 16 KiB heads of at most 20 siblings after capped file enumeration; its family and small related-list parser never grants filesystem authority.
+Search scans sorted eligible paths up to 5,000 files, 10,000 directory entries and 16 MiB per query; file reads retain the 2 MiB cap and results the 60-hit cap. These are work bounds, not a wall-clock guarantee for a stalled filesystem. AND terms, literal phrases, case and word options compile escaped patterns. Filename matches rank before occurrence count then path. Truncation makes partial ranking explicit. Legacy search returns an array; `format=details` adds `hits`, `truncated`, `scanned` and enumerated eligible `total`. Chain reads 16 KiB heads of at most 20 siblings after capped file enumeration; its family and small related-list parser never grants filesystem authority.
 
 `reviews.py` validates versioned whole-record replacements, registered roots and safe Markdown anchor paths, including missing paths. Settings names are fixed from a validated root ID. Strict shapes, string/count/body caps and exact-origin writes protect the new persistence boundary. One process-wide lock plus expected revision prevents lost updates. Temporary-file flush/fsync and atomic replacement preserve the previous file on failure. Multiple server processes and hostile local filesystem races remain unsupported. See [storage decision](decisions/0006-review-storage.md).
 
@@ -137,4 +137,35 @@ Caption: implemented review-state write flow. Legend: solid calls and dashed res
 
 GET requests explicitly marked `Sec-Fetch-Site: cross-site` are rejected as defence in depth (`test_fetch_metadata`). Missing metadata remains valid for local clients. `same-site` can include unrelated applications on other localhost ports, so Host and Origin remain the primary guards, not Fetch Metadata. Static suffix filtering, nosniff responses and failed-settings-save rollback are pinned by `test_static_suffix_whitelist`, `test_nosniff_responses` and `test_settings_save_failure_rolls_back_registration`.
 
-SVG/GIF/WebP, dedicated footnotes/callouts/front matter, stronger layout CPU isolation and broader navigation remain planned or deferred. A framework, bundler, database and document editing remain rejected for this scope. No future component is shown as implemented in the diagrams.
+SVG/GIF/WebP, rich nested footnotes/general YAML and stronger layout CPU isolation remain deferred. A framework, bundler, database and document editing remain rejected for this scope. No future component is shown as implemented in the diagrams.
+
+## Implemented: rendering, recovery and release preparation
+
+`extensions.js` implements bounded front matter, plain-text footnotes and callouts, and lazy MathML-only KaTeX 0.19.0. Both generated Markdown HTML and math output pass DOMPurify. No remote fonts, stylesheet dependencies, trusted commands or static suffix expansion are added. Invalid expressions remain source. `export.js` applies a stricter sanitizer, drops active elements and remote resources, embeds eligible bounded local raster images and trusted CSS, and creates a client download with restrictive CSP. Opaque diagram frames become honest source placeholders. [Decision 0008](decisions/0008-safe-math-and-export.md) records alternatives and trade-offs.
+
+```mermaid
+flowchart LR
+  Source[Read-only Markdown] --> Extensions[Bounded syntax preparation]
+  Extensions --> Sanitize[DOMPurify]
+  Math[Lazy native math output] --> Sanitize
+  Sanitize --> Reader[Safe article]
+  Reader --> Export[Stricter export sanitizer]
+  Export --> Download[Inert browser download]
+```
+
+Caption: implemented rendering/export flow. Legend: solid arrows are existing processing; no source write is present.
+
+| Invariant / behavior | Regression evidence |
+| --- | --- |
+| Late sorted search coverage, actual byte limit, whole word/scope semantics | `test_search_late_hit_and_deterministic_total`, `test_search_options_and_actual_byte_boundary` in [release tests](../tests/test_release.py) |
+| Version/list count and relative Chain resolution/cap | `test_review_version_and_list_cap`, `test_related_folder_and_chain_limit` |
+| Corrupt reset preserves backup, refuses valid/unsafe state and enforces write guards | `test_corrupt_reset_guards_rollback_and_source_immutability` |
+| Protected code, bounded metadata, footnote escaping and reference destinations | [extension unit tests](../tests/extensions.test.js) |
+| No math load for prose, valid MathML, hostile metadata/math/details/footnotes inert, overflow retained | [browser matrix](../tests/browser.mjs), [release interactions](../tests/release-browser.mjs) |
+| Export lacks active elements, embeds CSP, provides diagram placeholder and actual download | [release interactions](../tests/release-browser.mjs) |
+| Server failure explains recovery and Retry works; palette and backlinks keyboard reachable | [release interactions](../tests/release-browser.mjs) |
+| Release scanner rejects sample private paths, credentials and personal mailboxes | [scanner tests](../tests/prepublish.test.js) |
+
+Corrupt review recovery is an explicit POST with an empty schema under the existing write guards. It moves only the fixed root-ID settings file to a random sibling backup while holding the review lock; GET never performs recovery. Failed rename retains original bytes; valid settings refuse reset. Backup files stay outside documents. This is not an automated retention/backup system.
+
+Recovery UI covers failed initial workspace loading, document requests, render exceptions and browser-storage writes. Media/math retain source/alt failures. Commands enumerates reader controls and delegates File/View/Navigate submenus; not every context-specific media action has a direct shortcut. Accessibility verification is keyboard/landmark/label/contrast/reduced-motion testing in installed Chrome, not assistive-technology certification. `tools/pre-publish-check` scans tracked content and reachable history with explicit vendor exceptions and invokes documentation checks; local verification is not a hosted CI run.

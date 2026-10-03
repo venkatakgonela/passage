@@ -15,6 +15,7 @@ test('math recognizes inline/display but preserves fenced and inline code', () =
   assert.match(result.body, /\$code\$/);
   assert.match(result.body, /\$raw\$/);
   assert.equal(prepareMarkdown('no math').math.length, 0);
+  assert.equal(prepareMarkdown('$x$ '.repeat(201)).math.length, 200);
 });
 test('footnote content escaped, repeated references return separately', () => {
   const result = prepareMarkdown('Example[^one] again[^one]\n\n[^one]: <img src=x onerror=bad()>', 'pane-');

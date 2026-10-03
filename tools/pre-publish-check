@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+
+
+def git(*arguments):
+    return subprocess.check_output(['git', *arguments], cwd=ROOT).decode()
+
+
+def violations(text):
+    patterns = {
+        'private path': r'/(?:Users|home)/[\w.-]+/',
+        'personal mailbox': r'[\w.+-]+@gmail\.com',
+        'internal identifier': r'\bM' + r'R0\d[a-z]?\b',
+        'internal name': r'portfolio' + r'-workbench|capability' + r'-backlog|rag' + r'-audit-demo|\bClau' + r'de\b|\bCo' + r'dex\b',
+        'product comparison': r'\bObsi' + r'dian\b|\bTyp' + r'ora\b|\bChat' + r'GPT\b',
+        'secret': r'-----BEGIN (?:RSA |OPENSSH )?PRIVATE KEY-----|\bAKIA[A-Z0-9]{16}\b|\bghp_[A-Za-z0-9]{30,}\b',
+    }
+    return [name for name, pattern in patterns.items() if re.search(pattern, text, re.IGNORECASE)]
+
+
+def main():
+    failures = []
+    files = git('ls-files').splitlines()
+    for required in ['LICENSE', 'THIRD-PARTY-NOTICES.md', 'SECURITY.md', 'CONTRIBUTING.md']:
+        if required not in files:
+            failures.append('missing ' + required)
+    for filename in files:
+        path = ROOT / filename
+        if path.stat().st_size > 6 * 1024 * 1024:
+            failures.append('large tracked file: ' + filename)
+        if filename.startswith('vendor/'):
+            continue
+        if path.suffix not in {'.png', '.jpg', '.jpeg'}:
+            for finding in violations(path.read_text(errors='replace')):
+                failures.append(f'{filename}: {finding}')
+    for component in ['katex', 'marked', 'purify', 'highlight', 'mermaid']:
+        if not (ROOT / 'vendor' / (component + '-LICENSE.txt')).is_file():
+            failures.append('missing vendor licence: ' + component)
+    seen = set()
+    for commit in git('rev-list', 'HEAD').splitlines():
+        identity = git('show', '-s', '--format=%ae%n%ce%n%B', commit)
+        lines = identity.splitlines()
+        if any(address != '60929222+venkatakgonela@users.noreply.github.com' for address in lines[:2]):
+            failures.append('identity: ' + commit)
+        if violations('\n'.join(lines[2:])):
+            failures.append('commit message: ' + commit)
+        for record in git('ls-tree', '-r', commit).splitlines():
+            metadata, filename = record.split('\t', 1)
+            blob = metadata.split()[2]
+            if blob in seen or filename.startswith('vendor/') or filename.endswith(('.png', '.jpg', '.jpeg')):
+                continue
+            seen.add(blob)
+            content = git('cat-file', '-p', blob)
+            if violations(content):
+                failures.append(f'history {commit[:7]} {filename}: {", ".join(violations(content))}')
+    docs = subprocess.run([sys.executable, '-m', 'unittest', 'discover', '-s', 'tests', '-p', 'test_docs.py'], cwd=ROOT)
+    if docs.returncode:
+        failures.append('documentation links/decision checks')
+    print('Vendor provenance exception: vendor/ only; verbatim upstream headers and licences retained.')
+    print('First-party licence coverage: root MIT LICENSE; no per-file copyright header requirement.')
+    print(f'Scanned {len(files)} tracked files and {len(seen)} distinct historical first-party text blobs.')
+    print('\n'.join(failures) if failures else 'PASS pre-publish checks. This does not publish, tag or certify security.')
+    return bool(failures)
+
+
+if __name__ == '__main__':
+    sys.exit(main())

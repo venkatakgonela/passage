@@ -5,6 +5,7 @@ import { initialFile } from './paths.js';
 import { renderList } from './tree.js';
 import { fetchCatalog } from './catalog.js';
 import { loadSession } from './session.js';
+import { recovery } from './recovery.js';
 
 async function loadFiles() {
   store.set('root', state.root);
@@ -43,7 +44,8 @@ async function browse(path) {
 }
 
 export function setupWorkspace() {
-  select('#roots').onchange = event => { state.root = event.target.value; loadFiles(); };
+  const reload = () => loadFiles().catch(() => recovery(select('#doc'), 'Workspace unavailable. Check the folder and server, or select another workspace.', reload));
+  select('#roots').onchange = event => { state.root = event.target.value; reload(); };
   select('#rm').onclick = async () => {
     if (state.root && confirm('Remove this folder from the list? Files are not deleted.')) {
       await requestJson(`/api/roots?id=${state.root}`, { method: 'DELETE' });

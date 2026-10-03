@@ -13,7 +13,7 @@ Ordinary diagram labels containing “image”, “click”, “href”, URL tex
 | Long code | Separate language/copy/wrap toolbar, reachable scrollable lines; no overlaid copy button. |
 | Long URL/heading and deep lists | Wrapping and bounded layout; browser viewport checks pass. |
 | Large local image | PNG/JPEG render in stable reserved frames. SVG remains excluded, with readable alt failure rather than an unexplained blank. |
-| Footnotes/callouts/front matter | Deferred, literal and wrapped; not falsely marked rendered. |
+| Footnotes/callouts/front matter | Minimal documented grammar implemented with escaped metadata and plain-text notes; complex YAML/nested footnote Markdown remain unsupported. |
 | Heading targets | Scroll clearance and native Back/Forward verified; bounded history, trail and session positions are now implemented. |
 | Narrow panels | Keyboard drawers with close/Escape and focus return; intentional overlay, not an inaccessible clipped panel. |
 | Print | A4/Letter fit with repeated table headers; 12-column table text remains only 6pt and tall/wide diagram labels can be very small. Known readability limitation, not clipped content or a completed typography solution. |
