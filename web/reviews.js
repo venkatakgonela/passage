@@ -79,7 +79,6 @@ async function notes() {
 
 export function setupReviews() {
   setupCompare();
-  new ResizeObserver(entries => select('#scroller').style.setProperty('--review-bar-height', `${entries[0].target.getBoundingClientRect().height}px`)).observe(select('#review-tools'));
   for (const [trigger, dialog, render] of [['#lists-open', '#lists-dialog', lists], ['#notes-open', '#notes-dialog', notes]]) {
     select(trigger).onclick = async () => {
       anchor = captureAnchor(); openedRoot = state.root;

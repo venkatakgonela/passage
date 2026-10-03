@@ -73,7 +73,12 @@ export async function checkReviews(page, fixtureRoot, evidence) {
     await close('#lists-dialog');
     await open('SAMPLE-plan.md');
     await page.locator('#evidence').evaluate(element => element.scrollIntoView({ block: 'start', behavior: 'instant' }));
-    await page.locator('#notes-open').click(); await page.locator('#note-text').fill(`Synthetic review note ${width}`); await page.locator('#note-add').click();
+    const expectedAnchor = await page.evaluate(async () => (await import('/continuity.js')).capturePosition());
+    await page.locator('#notes-open').click();
+    await page.locator('#notes-dialog[open]').waitFor();
+    assert.ok(expectedAnchor.heading, 'Scrolled passage has a heading');
+    assert.ok((await page.locator('#note-anchor').textContent()).endsWith(expectedAnchor.heading), 'Opening notes preserves the passage anchor');
+    await page.locator('#note-text').fill(`Synthetic review note ${width}`); await page.locator('#note-add').click();
     await page.waitForFunction(width => document.querySelector('#note-items').textContent.includes(`Synthetic review note ${width}`), width);
     await page.locator('#notes-export').click();
     assert.match(await page.locator('#export-text').inputValue(), /Synthetic review note/);

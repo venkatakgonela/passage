@@ -35,8 +35,9 @@
     <div id="list"></div>
   </nav>
   <div id="nav-resizer" class="resizer" role="separator" aria-label="Documents width" aria-orientation="vertical" tabindex="0"></div>
-  <div class="scroller" id="scroller" tabindex="-1">
+  <div class="reading-area">
     <div id="review-tools"><button id="back-results" hidden>Back to results</button><button id="compare-open">Compare</button><button id="lists-open">Reading lists</button><button id="notes-open">Review notes</button></div>
+  <div class="scroller" id="scroller" tabindex="-1">
     <div id="chain" aria-label="Related documents" hidden></div>
     <div id="trail-bar" hidden><button id="trail-return"></button><button id="trail-list">Trail</button></div>
     <div id="find-bar" hidden><input id="find-query" aria-label="Find in document"><button id="find-prev">Previous</button><button id="find-next">Next</button><span id="find-count" role="status"></span><button id="find-close">Close find</button></div>
@@ -44,6 +45,7 @@
       <article id="doc"><p class="empty">Select a file from the sidebar.</p></article>
       <aside class="toc" id="toc"></aside>
     </div>
+  </div>
   </div>
 </div>
 <dialog id="results-dialog" aria-label="Search results"><h2>Search results</h2><div id="search-results"></div><button data-close-dialog>Close</button></dialog>
