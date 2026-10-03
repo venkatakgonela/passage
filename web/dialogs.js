@@ -18,6 +18,7 @@ export function askConfirmation(message, label = 'Continue') {
     cancel.onclick = () => dialog.close();
     accept.onclick = () => { accepted = true; dialog.close(); };
     dialog.addEventListener('keydown', event => {
+      if (event.key === 'Escape') event.stopPropagation();
       if (event.key === 'Tab' && event.shiftKey && document.activeElement === cancel) { event.preventDefault(); accept.focus(); }
       else if (event.key === 'Tab' && !event.shiftKey && document.activeElement === accept) { event.preventDefault(); cancel.focus(); }
     });

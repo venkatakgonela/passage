@@ -1,6 +1,17 @@
 import assert from 'node:assert/strict';
 
 export async function checkDialogs(page) {
+  await page.setViewportSize({ width: 390, height: 1000 });
+  await page.evaluate(async () => (await import('/appearance.js')).setAppearance({ focus: false }));
+  await page.locator('#scroller').focus();
+  await page.keyboard.press('/');
+  await page.locator('#rm').click();
+  await page.locator('#confirmation-dialog').waitFor({ state: 'visible' });
+  await page.keyboard.press('Escape');
+  await page.locator('#confirmation-dialog').waitFor({ state: 'detached' });
+  assert.equal(await page.locator('#rm').isVisible(), true, 'Escape closes only the confirmation, not its invoking drawer');
+  assert.equal(await page.locator('#rm').evaluate(element => element === document.activeElement), true);
+  await page.keyboard.press('Escape');
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.waitForFunction(() => innerWidth === 1440);
   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
