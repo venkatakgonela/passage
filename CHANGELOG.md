@@ -1,5 +1,12 @@
 # Changelog
 
+## Shared reading edge and visual polish
+
+- Centred 1400px reading container with one left edge, measured prose and intrinsic short/wide technical blocks; heading anchors no longer indent heading text.
+- Reading width 60–140/default 80, remembered Fill window, live appearance values and nonmodal anchored keyboard controls with focus restoration.
+- Safe narrow-screen menu strip, compact hidden-on-narrow hint, icon Peek, full-title tree tooltips and 280px default panel.
+- Added geometry/persistence/dismissal browser checks and refreshed synthetic guide screenshots. Existing sandbox and read-only boundaries are unchanged.
+
 - Replace stacked toolbars with a full-height section rail, compact resizable Files/Search/Lists/Notes panel, in-document action header and tabbed page tools.
 - Add remembered rail labels, a dismissible shortcut hint, keyboard menus and roving tree focus; use drawers below 1024px and an outline drawer below 1280px.
 - Make Focus return the window to reading, with a non-shifting revealable header and Escape exit; centre 68-character text with wider technical blocks.

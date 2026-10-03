@@ -1,5 +1,18 @@
 # Architecture
 
+## Implemented: shared reading layout
+
+`reading-layout.js` coalesces document-ready, appearance and article-resize changes into one animation-frame measurement. Existing technical DOM is measured and restored synchronously, without cloning frames or re-running document scripts. Validated diagram viewBox width and image metadata avoid depending on fitted display size. The 1400px container bounds all main-document blocks; measured prose and short blocks align left, while intrinsically wide content spans the container. Image/math-only paragraph wrappers participate in the same rule. `stableChange` preserves the visible reading anchor during reclassification. Compare retains its independent pane sizing.
+
+Appearance normalization preserves valid stored measures, clamps to 60–140, defaults to 80, and stores a strict Fill boolean in reader-owned browser storage. `appearance-popover.js` uses a nonmodal anchored dialog, existing controls and explicit outside/Escape dismissal. A reserved narrow bottom strip keeps the menu outside the document viewport. See [layout decision](decisions/0011-shared-reading-edge.md) for alternatives, measurement cost and compatibility effects.
+
+| Invariant / mitigation | Regression evidence |
+| --- | --- |
+| Heading text and prose/technical boxes share a left edge within 1px; wide blocks reach the right edge | [Polish browser checks](../tests/polish-browser.mjs): 1920/1440/1024, normal/focus, panels open/closed |
+| Short code/table/diagram/math remain measured; Fill persists, expands prose and resets | Same browser checks, plus [normalization tests](../tests/reading.test.js) |
+| Menu cannot cover visible document content at 390/768; Appearance is nonmodal with keyboard and outside dismissal | Same browser checks |
+| Read-only files and isolated diagram authority remain unchanged | [Server tests](../tests/test_server.py), [image tests](../tests/test_images.py), [browser security matrix](../tests/browser.mjs) |
+
 ## Implemented: overview
 
 One loopback Python HTTP process serves a static browser application and read-only Markdown APIs. The browser renders sanitized HTML and keeps preferences in localStorage. Reader settings persist registered paths separately from documents. There is no database, hosted service, build pipeline or document-write API.

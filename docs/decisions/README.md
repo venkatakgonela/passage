@@ -11,7 +11,8 @@
 | [0007: Heading-aligned comparison](0007-heading-aligned-compare.md) | Accepted | 2026-10-03 |
 | [0008: Sanitized math and inert export](0008-safe-math-and-export.md) | Accepted | 2026-10-03 |
 | [0009: User-scoped settings](0009-user-settings.md) | Accepted | 2026-10-03 |
-| [0010: Reading-first section shell](0010-reading-shell.md) | Accepted | 2026-10-03 |
+| [0010: Reading-first section shell](0010-reading-shell.md) | Width/Appearance superseded by 0011; otherwise accepted | 2026-10-03 |
+| [0011: Shared reading edge](0011-shared-reading-edge.md) | Accepted | 2026-10-03 |
 
 ## Pending decisions
 

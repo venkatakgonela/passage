@@ -17,7 +17,9 @@ Open `http://127.0.0.1:8765`. Repeat `--root` for multiple startup folders; Ctrl
 
 Passage uses a full-height icon rail, a compact section panel and a page header inside the reading column—not a stacked toolbar. Files, content Search, Lists, Notes and Compare are on the rail. Show rail labels if you prefer text. Below 1024px, the floating menu button opens these sections as a drawer.
 
-Open `reading-guide.md` for the clean synthetic tour. Text defaults to 68 characters (adjustable 60–75); tables, code, diagrams and display equations can use up to 1,100px of available width. The Outline/Notes/Lists panel collapses below 1280px. Search or jump opens Quick open or Commands with their shortcuts. Appearance groups theme, size, measure, font and Focus; More actions holds export, print, references and navigation.
+Open `reading-guide.md` for the clean synthetic tour. One centred container, up to 1,400px, gives headings, prose and technical blocks a shared left edge. Text defaults to 80 nominal characters (adjustable 60–140), with a persisted Fill window option. Short technical blocks stay at prose width; intrinsically wide code, tables, diagrams, images and display equations use the full container. Existing valid width preferences survive; Reset restores 80 and turns Fill off. The measure is a proportional-font estimate, not an exact character count.
+
+The Outline/Notes/Lists panel collapses below 1280px. Search or jump opens Quick open or Commands with their shortcuts. Appearance is an anchored, no-scrim popover with Light/Dark/Auto, typeface, live size/width values and Focus. Escape, Close and outside click return focus to its trigger. Below 1024px, a bottom control strip keeps the menu clear of document text. The first-run hint is hidden there. More actions holds export, print, references and navigation.
 
 Open `rendering.md` for equations, footnotes and callouts. Follow the Chain from `SAMPLE-plan.md` to its report, compare Evidence sections, add a reading-list reference and export a local note. Commands lists reader controls.
 
