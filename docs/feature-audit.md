@@ -1,6 +1,6 @@
 # Verified feature audit
 
-Launch preparation: short newcomer README with clone/ZIP and Windows instructions, full reference, ten-step synthetic tutorial, reproducible captioned media, release metadata/templates and manual hosted-setting checklist. Platform claims distinguish recorded testing from untested Windows/Firefox/Safari. Version 0.1.0 is prepared, not published. See [media](media.md) and [release checklist](RELEASE-CHECKLIST.md).
+Launch preparation: short newcomer README with clone/ZIP and Windows instructions, full reference, ten-step synthetic tutorial, reproducible captioned media, release metadata and templates. Platform claims distinguish recorded testing from untested Windows/Firefox/Safari. Version 0.1.0 is released. See [media](media.md).
 
 Fill-first update: new/unset/reset preferences fill the reading container, normal and Focus alike; saved explicit off remains off. Maximum line length appears only with Fill off. One centred 1800px cap replaces the earlier 1400px cap. [Default and persistence checks](../tests/fill-browser.mjs) supplement existing alignment/keyboard/rendering coverage. Earlier entries below describe historical defaults.
 

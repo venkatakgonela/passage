@@ -39,9 +39,6 @@ class DocumentationTests(unittest.TestCase):
         self.assertIn('Report a vulnerability', security)
         self.assertNotIn('person who supplied', security)
         self.assertIn('## 0.1.0 — 2026-10-03', (ROOT / 'CHANGELOG.md').read_text())
-        checklist = (ROOT / 'docs/RELEASE-CHECKLIST.md').read_text()
-        for block in re.findall(r'```sh\n(.*?)```', checklist, re.S):
-            self.assertTrue(all(not line.strip() or line.lstrip().startswith('#') for line in block.splitlines()))
         for extension, limit in [('mp4', 6000000), ('gif', 5000000)]:
             media = ROOT / f'docs/media/passage-demo.{extension}'
             self.assertGreater(media.stat().st_size, 1000)

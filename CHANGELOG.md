@@ -6,7 +6,7 @@
 - **Keep context:** file/title filtering, scoped content search, Quick open, Peek, history and return Trail.
 - **Review together:** heading-aligned Compare, separate passage notes and reading lists, text export and inert HTML export.
 - **Choose your view:** Light/Dark/Auto, fill-first reading with optional line limit, Focus mode and narrow drawers.
-- **Get started:** newcomer quick start, ten-step tutorial, captioned demo, platform limitations, private-reporting guidance and release checklist.
+- **Get started:** newcomer quick start, ten-step tutorial, captioned demo, platform limitations, and private-reporting guidance.
 
 See the [release notes](docs/release-notes-0.1.0.md).
 

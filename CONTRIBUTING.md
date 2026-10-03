@@ -8,4 +8,4 @@ Add failure-path and hostile-input tests for security boundaries. Significant de
 
 Publication, hosted CI and release tags are separate maintainer actions, not side effects of local verification.
 
-Start with [AGENTS.md](AGENTS.md) for repository engineering rules, regardless of which editor you use. `tools/pre-publish-check` is a local privacy/licence/history check, not a publishing command. Use the issue and pull-request templates, including a synthetic reproducer rather than private documents. [Media generation](docs/media.md) uses dev-only Chrome, Playwright and ffmpeg; it is not part of CI or the reader runtime. Follow the [manual release checklist](docs/RELEASE-CHECKLIST.md) only with maintainer authorization.
+Start with [AGENTS.md](AGENTS.md) for repository engineering rules, regardless of which editor you use. `tools/pre-publish-check` is a local privacy/licence/history check, not a publishing command. Use the issue and pull-request templates, including a synthetic reproducer rather than private documents. [Media generation](docs/media.md) uses dev-only Chrome, Playwright and ffmpeg; it is not part of CI or the reader runtime.

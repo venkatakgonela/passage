@@ -35,4 +35,4 @@ Passage is a local, read-only Markdown reader for technical document sets. This 
 9. [Contributing](../CONTRIBUTING.md): engineering rules and checks.
 10. [Changelog](../CHANGELOG.md) and [third-party notices](../THIRD-PARTY-NOTICES.md): what changed and which libraries are bundled.
 
-11. [Media regeneration](media.md), [prepared 0.1.0 notes](release-notes-0.1.0.md) and [manual release checklist](RELEASE-CHECKLIST.md): maintain the assets and complete hosted settings separately.
+11. [Media regeneration](media.md) and [0.1.0 release notes](release-notes-0.1.0.md): maintain the demo assets and see what the first release contains.

@@ -4,7 +4,7 @@
 
 The runtime remains Python standard library plus existing vanilla modules/vendor assets. Version 0.1.0 is package metadata and a tested overflow-menu label, not a published tag. The quick start, tutorial and full reference separate introduction from detailed limits. `tools/make-demo` explicitly drives a fresh Chrome context over copied synthetic examples, captures captioned stills and encodes a silent edited tour with installed ffmpeg. These are development-only assets; neither ffmpeg nor Node is needed to run the reader, and media generation is not in CI.
 
-Documentation checks validate links, tutorial steps, version agreement, release-command comments and media signatures/size limits. The media generator asserts no page errors/outbound requests and performs full decodes; visual inspection still checks pixels for private text. The history scanner uses replacement decoding for non-UTF-8 media and retains textual checks without a new media exception. [Media instructions](media.md) record exact encoding commands; [manual launch checklist](RELEASE-CHECKLIST.md) separates hosted security settings, tagging and visibility from local verification. Existing source-write and sandbox boundaries are unchanged.
+Documentation checks validate links, tutorial steps, version agreement and media signatures/size limits. The media generator asserts no page errors/outbound requests and performs full decodes; visual inspection still checks pixels for private text. The history scanner uses replacement decoding for non-UTF-8 media and retains textual checks without a new media exception. [Media instructions](media.md) record exact encoding commands; Existing source-write and sandbox boundaries are unchanged.
 
 ## Implemented: shared reading layout
 

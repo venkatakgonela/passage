@@ -8,4 +8,4 @@ Residual risks include malicious local filesystem races, slow filesystem calls, 
 
 Report suspected vulnerabilities privately through this repository's **Security → Report a vulnerability** route. Include the Passage version or commit, operating system, Python/browser versions, expected versus actual behavior, impact, and a minimal synthetic reproducer. Never include private documents, secrets or personal filesystem paths. There is no response-time guarantee.
 
-Private vulnerability reporting must be enabled by the maintainer before public launch; these source files do not enable the hosted setting. If the button is unavailable, do not disclose exploit details publicly. A public issue may ask only for the private reporting route to be enabled. The [release checklist](docs/RELEASE-CHECKLIST.md) makes verification of that route a launch prerequisite.
+If the button is unavailable, do not disclose exploit details publicly; a public issue may ask only for a private reporting route.
