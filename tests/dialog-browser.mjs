@@ -2,6 +2,9 @@ import assert from 'node:assert/strict';
 
 export async function checkDialogs(page) {
   await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.waitForFunction(() => innerWidth === 1440);
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  await page.evaluate(async () => (await import('/appearance.js')).setAppearance({ focus: false }));
   if (await page.locator('nav').evaluate(element => element.classList.contains('hide'))) await page.locator('#navtog').click();
   for (const dismissal of ['Escape', 'Cancel']) {
     await page.locator('#rm').click();
