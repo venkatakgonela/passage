@@ -38,3 +38,13 @@ Large-document profiling identifies excessive measurement costs, wider assistive
 ## Sources
 
 [Layout implementation](../../web/reading-layout.js), [appearance normalization](../../web/appearance.js), [popover behavior](../../web/appearance-popover.js), [layout and keyboard checks](../../tests/polish-browser.mjs), [appearance unit checks](../../tests/reading.test.js).
+
+## Addendum — 2026-10-03: Fill by default
+
+The original decision above is retained. New/reset appearance and previously unset Fill now use **on**, in both normal and Focus modes. Explicit stored boolean choices remain unchanged, including off. Invalid nonboolean data is still rejected as false rather than accepted as an explicit setting. The Fill window switch precedes a Maximum line length control, visible only when Fill is off; its 60–140 range/default 80 and proportional-font estimate are unchanged.
+
+The centred container cap increases to 1800px, defined once by `--reading-container-cap` in [polish styles](../../web/polish.css) and reused by article and wrapper. Below that cap it follows the available reading area after panels and padding. The existing intrinsic technical-block rule is unchanged; when filling, prose and technical block boxes use the container width.
+
+Keeping measured prose as default would retain shorter lines but leave the available right-hand space unused. Automatically filling only Focus would produce different mode-dependent behavior. Filling by default in both modes is selected for predictable resizing; readers preferring shorter lines can explicitly turn it off. The generous cap prevents unbounded ultrawide lines but is not a readability or accessibility guarantee. No dependency, sandbox, source-write or media-rendering change is involved. Revisit if user feedback calls for a different default or cap.
+
+[Fill browser checks](../../tests/fill-browser.mjs) exercise four desktop widths, normal/Focus and panel combinations, ultrawide centring/cap, unset migration, explicit-off persistence, conditional control visibility and reset. Existing alignment and rendering checks remain active.

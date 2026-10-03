@@ -1,5 +1,11 @@
 # Changelog
 
+## Fill-first reading
+
+- New, unset and reset appearance preferences fill the reading area by default, in normal and Focus modes. Saved explicit Fill off/on choices remain respected.
+- Maximum line length (60–140, default 80) is shown only when Fill window is off. One shared 1800px cap bounds the centred reading container on ultrawide screens.
+- Added responsive default/persistence/reset checks and refreshed clean-guide screenshots; other reading and security behavior is unchanged.
+
 ## Shared reading edge and visual polish
 
 - Centred 1400px reading container with one left edge, measured prose and intrinsic short/wide technical blocks; heading anchors no longer indent heading text.
