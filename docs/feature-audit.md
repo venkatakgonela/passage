@@ -1,5 +1,7 @@
 # Verified feature audit
 
+Search/review update: scoped search, phrase/case/whole-word matching, retained results, bounded Chain metadata, full-rendered heading-aligned Compare, ordered lists and anchored notes are implemented. Review data writes only to bounded reader-owned settings with conflict and rollback checks. Export is selected-note text, not whole documents. See [usage and limits](../README.md) and [threat-to-test mapping](ARCHITECTURE.md).
+
 Orientation update: labelled workspace tree, natural/modified sorting, bounded title metadata, filter/reveal/collapse, remembered panel widths, breadcrumbs, reader menus, quick open, position history/trail, section Peek, document find, recents/pins/session restore and visible-tab refresh are implemented. The original baseline table below remains historical.
 
 ## Reading update

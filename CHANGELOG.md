@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Add bounded scoped phrase/case/whole-word search with retained results and explicit truncation.
+- Add workflow document chains, full-rendering heading-aligned Compare and narrow stacked panes.
+- Add ordered reading lists and anchored local review notes with selected-note Markdown export.
+- Persist bounded review settings with exact-origin writes, revision conflicts and atomic replacement; sources stay immutable.
+- Serialize the title cache and pin title truncation, bad-entry skipping and filename-only catalog reads.
+
 - Preserve ER cardinality/attribute policy checks and reject unterminated diagram strings/groups.
 - Add bounded metadata/title APIs, natural/modified sorting, labelled workspace tree, resizable panels and folder breadcrumbs.
 - Add quick open, position history, link-return trail, section Peek, document find, workspace recents/pins/session restore and visible-tab refresh.

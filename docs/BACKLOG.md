@@ -9,5 +9,5 @@
 - Hard CPU/time isolation for pathological diagram layouts; current source/edge caps are not a wall-clock bound.
 - More readable very wide print tables and extremely tall printed diagrams. No print-only column splitting is implemented.
 - Footnotes, callout syntax and front-matter metadata UI remain deferred; literal content must remain reachable.
-- Tabs, split view, comparison, document chains and search expansion remain separate scope.
+- Tabs, semantic comparison and cross-device review synchronization remain outside scope.
 - Large-workspace catalog indexing and cache/poll efficiency beyond the current capped enumeration.

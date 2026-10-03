@@ -17,7 +17,7 @@ Open `http://127.0.0.1:8765`. With no root argument the reader opens the bundled
 
 - Folder selection, in-page folder picker, removal from the reader without deleting documents, and persisted root selection.
 - Collapsible folders, folders-first alphabetical tree, ancestor reveal and current-file highlight.
-- Case-insensitive full-text/path search with snippets and up to 60 results. Queries need two characters.
+- Scoped full-text/path search with snippets, phrase/case/whole-word options and up to 60 results. Queries need 2–200 characters.
 - Relative Markdown links, heading fragments, duplicate-safe heading identifiers, heading navigation and a scroll-aware table of contents on wide screens.
 - Tables with horizontal scrolling, highlighted code with copy buttons, disabled task checkboxes, and print styling.
 - Auto/light/dark theme, text sizing from 13 to 24 pixels, breadcrumb and reading-time metadata.
@@ -41,6 +41,16 @@ Diagram configuration, external-resource directives and custom styles are refuse
 Diagram labels may contain ordinary words such as “image”, “click”, “href” and “style”, including URL text. The filter checks statement forms rather than banning those words globally; it is not a complete Mermaid parser or the execution security boundary. See the [synthetic label cases](examples/architecture.md). Output sandboxing and CSP remain unchanged.
 
 ## Safety and settings
+
+Search options select workspace, current folder (including descendants), or current document. Terms use AND semantics unless Exact phrase is enabled. Ranking puts paths matching all terms first, then content occurrence count, then path. Each query examines at most 300 eligible files, 10,000 filesystem entries and 16 MiB of candidate content; results show a truncation notice when a work or hit budget stops the query. Ranking covers only the examined subset. Back to results keeps the original query results and list position while visiting files; switching workspace clears them.
+
+Chain shows up to 20 same-folder siblings sharing a filename prefix before the final hyphen, for example the [synthetic plan](examples/SAMPLE-plan.md) and [report](examples/SAMPLE-report.md). Simple front-matter `related: [file.md, other.md]` or an indented dash list adds relative references. Parent traversal is refused. Status chips use `status:` or `verdict:` from the first 16 KiB. This is not general YAML. Chain visits try to keep the current heading.
+
+Compare opens two complete sanitized documents. Choose each file and Compare selected; matching normalized headings align scrolling with proportional fallback. Repeated headings match by occurrence, not meaning. Narrow panes stack; the Section selector is keyboard-operable. Exit Compare or Escape returns to the main reader. This is not a text diff or editor.
+
+Reading lists support create/rename/delete, add current section, move up/down, remove and jump. Review notes capture the current heading and passage (or selected text), never edit source, and retain orphaned anchors after edits. Open a note's document to check its heading/snippet; other documents show an unchecked-anchor label. Missing documents are labelled. Export selected notes displays inert Markdown text and offers Copy notes; no whole-document export or AI is involved.
+
+Review records use fixed per-root JSON files beside root settings, with 20 lists, 200 total references, 200 notes and a 256 KiB cap. They are local, unencrypted and not synchronized. Concurrent windows use revision checks: conflicts require reopening before retrying. One server process is supported. Failed replacement leaves previous saved data intact. See [storage](docs/decisions/0006-review-storage.md) and [Compare](docs/decisions/0007-heading-aligned-compare.md) decisions. POST/DELETE require an Origin exactly matching Host and reject supplied Fetch Metadata other than `same-origin`.
 
 The picker and root registration are limited to the resolved home directory plus folders explicitly supplied at startup. Outside-home folders must be supplied again at each launch; saved settings cannot expand that boundary. Hidden/skipped picker entries and symlink entries are excluded. Home browsing remains broad: any same-origin user of the reader can enumerate allowed folders. Use only on a trusted local machine.
 

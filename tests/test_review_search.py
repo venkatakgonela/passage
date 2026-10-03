@@ -54,6 +54,30 @@ class ReviewSearchTests(unittest.TestCase):
         self.assertEqual(self.request('GET', '/api/reviews?root=unknown')[0], 404)
         self.assertEqual(self.request('GET', self.endpoint(), headers={'Sec-Fetch-Site': 'cross-site'})[0], 403)
 
+    def test_new_read_routes_share_guards_and_caps(self):
+        routes = [self.endpoint(), '/api/chain?' + urlencode({'root': self.identifier, 'path': 'hello.md'}),
+                  '/api/search?' + urlencode({'root': self.identifier, 'q': 'needle', 'format': 'details'})]
+        for route in routes:
+            for headers in [{'Host': 'evil.invalid'}, {'Origin': 'https://evil.invalid'}, {'Sec-Fetch-Site': 'cross-site'}]:
+                self.assertEqual(self.request('GET', route, headers=headers)[0], 403)
+            self.assertEqual(self.request('GET', route)[0], 200)
+            self.assertEqual(self.response_headers['X-Content-Type-Options'], 'nosniff')
+        with patch.object(policy, 'MAX_FILE_BYTES', 2):
+            self.assertEqual(search.search(self.root, 'needle')['hits'], [])
+        with self.assertRaises(policy.Rejected):
+            search.search(self.root, 'x' * 201)
+
+    def test_review_boundary_values_and_restart(self):
+        value = self.payload()
+        value['notes'][0]['text'] = 'x' * 4000
+        value['notes'][0]['anchor']['heading'] = 'x' * 200
+        value['notes'][0]['anchor']['snippet'] = 'x' * 300
+        value['lists'][0]['name'] = 'x' * 100
+        value['lists'][0]['items'] *= 200
+        self.assertEqual(self.write(value)[0], 200)
+        fresh = policy.Workspace(self.home, [self.root], self.settings)
+        self.assertEqual(reviews.load(fresh, self.identifier)['notes'][0]['text'], 'x' * 4000)
+
     def test_schema_limits_and_confinement(self):
         original = self.payload()
         bad_values = [[], {}, {**original, 'unknown': 1}, {**original, 'version': True},

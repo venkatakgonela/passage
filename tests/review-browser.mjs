@@ -33,6 +33,12 @@ export async function checkReviews(page, fixtureRoot, evidence) {
     await page.locator('#chain button').filter({ hasText: 'SAMPLE-report.md' }).click();
     await page.waitForFunction(() => location.hash.startsWith('#SAMPLE-report.md') && document.querySelector('#doc').dataset.ready === 'true');
     await page.locator('#compare-open').click();
+    await page.locator('#compare-left').selectOption('SAMPLE-plan.md');
+    await page.locator('#compare-right').selectOption('SAMPLE-report.md');
+    await page.locator('#compare-load').click();
+    await page.waitForFunction(() => document.querySelector('#compare-status').textContent.startsWith('Aligned') && document.querySelector('.compare-article').textContent.includes('reading plan'));
+    await page.locator('#compare-section').selectOption('evidence:0');
+    assert.equal(await page.locator('.compare-article h2').filter({ hasText: 'Evidence' }).count(), 2);
     await page.locator('#compare-left').selectOption('stress.md');
     await page.locator('#compare-right').selectOption('stress.md');
     await page.locator('#compare-load').click();

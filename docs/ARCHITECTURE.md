@@ -39,9 +39,9 @@ Caption: implemented document request flow. Legend: solid calls and dashed respo
 | [Policy](../server/policy.py) | canonical boundaries, caps, root state and settings | Path resolution is not race-proof against a malicious local filesystem actor |
 | [Entry point](../server/__main__.py) | CLI roots/port and environment-selected settings | A startup root is an intentional filesystem capability |
 | [State](../web/state.js), [workspace](../web/workspace.js) | browser preference storage and picker lifecycle | No shared account or synchronization |
-| [Tree](../web/tree.js), [search](../web/search.js) | folder rendering and asynchronous search | No natural-sort controls or contextual search tree |
+| [Tree](../web/tree.js), [search](../web/search.js) | natural/modified sorting, folder rendering and bounded scoped search | No persistent search index |
 | [Rendering](../web/rendering.js), [paths](../web/paths.js) | marked, DOMPurify, highlight.js and local link/slug handling | Preserved renderer limitations and pinned older vendor versions |
-| [Navigation](../web/navigation.js), [theme](../web/theme.js) | keyboard, hash navigation, theme, font, print | Section positions are not restored |
+| [Navigation](../web/navigation.js), [theme](../web/theme.js) | keyboard, hash navigation, theme, font, print | Position restoration after edits is best-effort |
 | [Configuration](../web/config.js) | one display-name/storage-prefix source | Documentation titles remain static text |
 | [Tests](../tests/test_server.py) | unittest and node:test without dependencies | Real-browser layout and clipboard/print behaviour require browser verification |
 
@@ -97,7 +97,43 @@ Pure model tests pin natural sort, filter paths, fuzzy caps, validated storage, 
 
 Print is native browser printing, not an export feature. Wide tables wrap at 6pt with repeated headers; 12-column print readability remains a stated limitation. Large diagrams fit a bounded frame and may have tiny labels. See [rendering checklist](known-rendering-issues.md).
 
-## Planned / rejected
+## Implemented: search and review records
+
+Search scans at most 300 eligible files, 10,000 directory entries and 16 MiB per query; file reads retain the 2 MiB cap and results the 60-hit cap. These are work bounds, not a wall-clock guarantee for a stalled filesystem. AND terms, literal phrases, case and word options compile escaped patterns. Filename matches rank before occurrence count then path. Truncation makes partial ranking explicit. Legacy search returns an array; `format=details` adds `hits`, `truncated` and `scanned`. Chain reads 16 KiB heads of at most 20 siblings after capped file enumeration; its family and small related-list parser never grants filesystem authority.
+
+`reviews.py` validates versioned whole-record replacements, registered roots and safe Markdown anchor paths, including missing paths. Settings names are fixed from a validated root ID. Strict shapes, string/count/body caps and exact-origin writes protect the new persistence boundary. One process-wide lock plus expected revision prevents lost updates. Temporary-file flush/fsync and atomic replacement preserve the previous file on failure. Multiple server processes and hostile local filesystem races remain unsupported. See [storage decision](decisions/0006-review-storage.md).
+
+`renderArticle` shares sanitation, heading/table/code decoration, safe image routes and isolated diagram output between main reading and Compare. Compare interpolates common heading geometry and uses proportional fallback, with stacked panes on narrow screens. `review-model.js` implements matching, ordering, anchor fallback and text export; `reviews.js` integrates local notes/lists. Off-document note anchors are checked when that document is opened; missing documents and current-document orphan anchors remain listed. See [alignment decision](decisions/0007-heading-aligned-compare.md).
+
+```mermaid
+sequenceDiagram
+  participant Browser
+  participant Handler
+  participant Reviews
+  participant Settings
+  Browser->>Handler: POST bounded records with expected revision
+  Handler->>Handler: Host, exact Origin and Fetch Metadata checks
+  Handler->>Reviews: Validate registered root, schema and anchors
+  Reviews->>Reviews: Lock and compare persisted revision
+  Reviews->>Settings: Write temporary file, flush, replace
+  Settings-->>Browser: New revision or failure through handler
+```
+
+Caption: implemented review-state write flow. Legend: solid calls and dashed responses; no operation targets source documents.
+
+| Invariant / mitigation | Regression evidence |
+| --- | --- |
+| Catalog truncates titles, skips bad entries, avoids uncached content reads when titles disabled, and locks shared cache | Four focused tests in [catalog tests](../tests/test_catalog.py) |
+| Review writes require exact Host/Origin and same-origin supplied Fetch Metadata | `test_write_guards` in [review/search tests](../tests/test_review_search.py) |
+| Strict bounded records, traversal/symlink/canonical confinement and fixed settings location | `test_schema_limits_and_confinement`, `test_settings_location_and_canonical_confinement` |
+| Concurrent stale writers cannot overwrite accepted revisions; failed replacement rolls back | `test_atomic_failure_and_concurrent_revision_conflict` |
+| Accepted/rejected list and note operations do not modify Markdown bytes | `write` helper and `test_review_roundtrip_missing_and_immutable_operations` |
+| Scoped query semantics, ranking, file/entry/byte/hit budgets | `test_search_semantics_scopes_ranking_and_budgets` |
+| Chain family/related grammar and bounded head reads | `test_chain_pure_rules_head_limit_and_route` |
+| Heading alignment, immutable list reordering, heading/snippet/offset fallbacks and inert export | [pure review tests](../tests/review.test.js) |
+| Search survival, Chain visit, full Compare frames/overflow, keyboard reorder, note export/orphaning | [review browser checks](../tests/review-browser.mjs), plus unchanged original matrix and orientation checks |
+
+## Planned / rejected follow-ups
 
 GET requests explicitly marked `Sec-Fetch-Site: cross-site` are rejected as defence in depth (`test_fetch_metadata`). Missing metadata remains valid for local clients. `same-site` can include unrelated applications on other localhost ports, so Host and Origin remain the primary guards, not Fetch Metadata. Static suffix filtering, nosniff responses and failed-settings-save rollback are pinned by `test_static_suffix_whitelist`, `test_nosniff_responses` and `test_settings_save_failure_rolls_back_registration`.
 
