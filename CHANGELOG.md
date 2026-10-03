@@ -1,12 +1,26 @@
 # Changelog
 
-## Fill-first reading
+## 0.1.0 — 2026-10-03 (prepared; not yet published)
+
+- **Read locally:** read-only source documents, loopback server, no account or runtime package install; modern Markdown, isolated diagrams and sanitized math.
+- **Keep context:** file/title filtering, scoped content search, Quick open, Peek, history and return Trail.
+- **Review together:** heading-aligned Compare, separate passage notes and reading lists, text export and inert HTML export.
+- **Choose your view:** Light/Dark/Auto, fill-first reading with optional line limit, Focus mode and narrow drawers.
+- **Get started:** newcomer quick start, ten-step tutorial, captioned demo, platform limitations, private-reporting guidance and release checklist.
+
+See [prepared release notes](docs/release-notes-0.1.0.md). Hosted settings, tag and publication remain maintainer actions.
+
+## Development history
+
+The entries below preserve the pre-release development record; later entries supersede earlier default choices.
+
+### Fill-first reading
 
 - New, unset and reset appearance preferences fill the reading area by default, in normal and Focus modes. Saved explicit Fill off/on choices remain respected.
 - Maximum line length (60–140, default 80) is shown only when Fill window is off. One shared 1800px cap bounds the centred reading container on ultrawide screens.
 - Added responsive default/persistence/reset checks and refreshed clean-guide screenshots; other reading and security behavior is unchanged.
 
-## Shared reading edge and visual polish
+### Shared reading edge and visual polish
 
 - Centred 1400px reading container with one left edge, measured prose and intrinsic short/wide technical blocks; heading anchors no longer indent heading text.
 - Reading width 60–140/default 80, remembered Fill window, live appearance values and nonmodal anchored keyboard controls with focus restoration.
@@ -24,9 +38,9 @@
 - Replace native alert/confirmation boxes with keyboard-accessible in-page confirmations and action-local errors.
 - Pin truncated-search ordering and non-corruption reset refusal with adversarial tests; refresh full-window synthetic screenshots.
 
-## Unreleased
+### Unreleased
 
-## 0.1.0 — release preparation (not published)
+### 0.1.0 — release preparation (not published)
 
 - Restore sorted search through 5,000 files with scanned/total counts and explicit byte/hit truncation.
 - Add guarded corrupt-review recovery that retains original settings bytes.
@@ -56,7 +70,7 @@
 - Reject GET requests explicitly marked cross-site while retaining Host and Origin protection.
 - Add regression coverage for static suffix filtering, nosniff responses and settings-save rollback.
 
-## 0.1.0 — 2026-10-02
+### 0.1.0 — 2026-10-02
 
 - Established modular server and browser code with a dependency-free local test command and synthetic examples.
 - Restricted directory browsing and registration to resolved home plus startup-authorized roots; persisted settings cannot authorize outside roots on later launches.

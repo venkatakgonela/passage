@@ -4,7 +4,7 @@ Passage is a local, read-only Markdown reader for technical document sets. This 
 
 ## Start here
 
-1. [README](../README.md): what Passage is, how to run it, the keyboard map, and the safety summary.
+1. [README](../README.md): what Passage is, a 60-second quick start and safety summary. Continue with the [ten-minute tutorial](getting-started.md), [captioned demo](media/passage-demo.mp4) and [full reference / keyboard map](reference.md).
 2. [Examples](../examples/README.md): a synthetic task, standard, plan, architecture note, report and review you can open in the reader to see every feature.
 
 ## Understand how it works
@@ -21,6 +21,7 @@ Passage is a local, read-only Markdown reader for technical document sets. This 
    - [0008 Safe math and export](decisions/0008-safe-math-and-export.md): math rendering and HTML export.
    - [0009 User-scoped settings](decisions/0009-user-settings.md): default location, legacy migration and confirmation behavior.
    - [0010 Reading-first shell](decisions/0010-reading-shell.md): section rail, shared panels and focus geometry.
+   - [0011 Shared reading edge](decisions/0011-shared-reading-edge.md): intrinsic block widths and the fill-first addendum.
 
 ## What works, what does not
 
@@ -33,3 +34,5 @@ Passage is a local, read-only Markdown reader for technical document sets. This 
 8. [Security policy](../SECURITY.md): the local-only threat model and how to report a problem.
 9. [Contributing](../CONTRIBUTING.md): engineering rules and checks.
 10. [Changelog](../CHANGELOG.md) and [third-party notices](../THIRD-PARTY-NOTICES.md): what changed and which libraries are bundled.
+
+11. [Media regeneration](media.md), [prepared 0.1.0 notes](release-notes-0.1.0.md) and [manual release checklist](RELEASE-CHECKLIST.md): maintain the assets and complete hosted settings separately.

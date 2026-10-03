@@ -1,5 +1,11 @@
 # Architecture
 
+## Implemented: newcomer and release assets
+
+The runtime remains Python standard library plus existing vanilla modules/vendor assets. Version 0.1.0 is package metadata and a tested overflow-menu label, not a published tag. The quick start, tutorial and full reference separate introduction from detailed limits. `tools/make-demo` explicitly drives a fresh Chrome context over copied synthetic examples, captures captioned stills and encodes a silent edited tour with installed ffmpeg. These are development-only assets; neither ffmpeg nor Node is needed to run the reader, and media generation is not in CI.
+
+Documentation checks validate links, tutorial steps, version agreement, release-command comments and media signatures/size limits. The media generator asserts no page errors/outbound requests and performs full decodes; visual inspection still checks pixels for private text. The history scanner uses replacement decoding for non-UTF-8 media and retains textual checks without a new media exception. [Media instructions](media.md) record exact encoding commands; [manual launch checklist](RELEASE-CHECKLIST.md) separates hosted security settings, tagging and visibility from local verification. Existing source-write and sandbox boundaries are unchanged.
+
 ## Implemented: shared reading layout
 
 `reading-layout.js` coalesces document-ready, appearance and article-resize changes into one animation-frame measurement. Existing technical DOM is measured and restored synchronously, without cloning frames or re-running document scripts. Validated diagram viewBox width and image metadata avoid depending on fitted display size. The 1800px container bounds all main-document blocks; measured prose and short blocks align left, while intrinsically wide content spans the container. Image/math-only paragraph wrappers participate in the same rule. `stableChange` preserves the visible reading anchor during reclassification. Compare retains its independent pane sizing.

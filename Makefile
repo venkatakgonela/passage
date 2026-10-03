@@ -12,7 +12,7 @@ test:
 
 lint:
 	$(PYTHON) -m compileall -q server tests
-	@for file in web/*.js tests/*.test.js tests/*.mjs; do $(NODE) --check "$$file" || exit 1; done
+	@for file in web/*.js tests/*.test.js tests/*.mjs tools/*.mjs; do $(NODE) --check "$$file" || exit 1; done
 
 test-browser:
 	$(NODE) tests/browser.mjs

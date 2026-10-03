@@ -5,6 +5,7 @@ import { showMenu, showDialog } from './orientation.js';
 import { session, saveSession } from './session.js';
 import { renderList } from './tree.js';
 import { setupAppearancePopover } from './appearance-popover.js';
+import { APP_VERSION } from './config.js';
 
 const paths = {
   files: 'M3 6h7l2 3h9v11H3Z', search: 'M10 3a7 7 0 1 0 0 14 7 7 0 0 0 0-14Zm5 12 6 6',
@@ -107,7 +108,7 @@ export function setupShell() {
   const toggle = select('#navtog'); document.body.append(toggle); toggle.title = 'Files and sections · b'; toggle.setAttribute('aria-label', 'Toggle documents'); toggle.onclick = () => openPanel('files', true);
   const appearanceButton = select('#appearance'); appearanceButton.innerHTML = glyph('appearance'); appearanceButton.title = 'Appearance';
   const jump = button('search-jump', 'Search or jump · Ctrl/Cmd+P', 'search', () => showMenu('Search or jump', [['Quick open · Ctrl/Cmd+P', quickOpen], ['Commands · Ctrl/Cmd+K', () => select('#commands-open').click()]]));
-  const overflow = button('overflow', 'More actions', 'more', () => showMenu('Document actions', [['Export HTML', () => select('#export-document').click()], ['Print', () => select('#print').click()], ['Copy reference', () => select('#copy-reference').click()], ['History and navigation', () => select('#navigate-menu').click()], ['Trail', () => select('#trail-list').click()], ['Commands and keyboard map · Ctrl/Cmd+K', () => select('#commands-open').click()], ['Compare', () => select('#compare-open').click()]]));
+  const overflow = button('overflow', 'More actions', 'more', () => showMenu(`Document actions · Passage ${APP_VERSION}`, [['Export HTML', () => select('#export-document').click()], ['Print', () => select('#print').click()], ['Copy reference', () => select('#copy-reference').click()], ['History and navigation', () => select('#navigate-menu').click()], ['Trail', () => select('#trail-list').click()], ['Commands and keyboard map · Ctrl/Cmd+K', () => select('#commands-open').click()], ['Compare', () => select('#compare-open').click()]]));
   const cluster = document.createElement('div'); cluster.className = 'page-actions'; cluster.append(jump, appearanceButton, select('#toctog'), overflow); header.append(cluster);
   select('#toctog').innerHTML = glyph('outline'); select('#toctog').onclick = openOutline;
   select('.context').append(select('#trail-bar')); bank.append(select('#trail-list'));

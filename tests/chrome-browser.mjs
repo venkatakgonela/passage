@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { writeFile, mkdir } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { section, workspaceAction } from './shell-access.mjs';
+import { APP_VERSION } from '../web/config.js';
 
 export async function checkChrome(page, evidence) {
   const results = [];
@@ -48,7 +49,9 @@ export async function checkChrome(page, evidence) {
       await page.keyboard.press('Escape');
     }
     await page.locator('#appearance').click(); await bounds(`Appearance ${width}/${theme}`); await page.keyboard.press('Escape');
-    await page.locator('#overflow').click(); await bounds(`Overflow ${width}/${theme}`); await page.keyboard.press('Escape');
+    await page.locator('#overflow').click(); await bounds(`Overflow ${width}/${theme}`);
+    assert.ok((await page.locator('#reader-menu').textContent()).includes(`Passage ${APP_VERSION}`), 'Overflow exposes release version');
+    await page.keyboard.press('Escape');
     await section(page, 'search'); await bounds(`Search ${width}/${theme}`);
     await section(page, 'lists'); await page.locator('#lists-dialog[open]').waitFor(); await bounds(`Lists ${width}/${theme}`);
     await section(page, 'notes'); await page.locator('#notes-dialog[open]').waitFor(); await bounds(`Notes ${width}/${theme}`);

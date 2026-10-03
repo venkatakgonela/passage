@@ -1,5 +1,7 @@
 # Verified feature audit
 
+Launch preparation: short newcomer README with clone/ZIP and Windows instructions, full reference, ten-step synthetic tutorial, reproducible captioned media, release metadata/templates and manual hosted-setting checklist. Platform claims distinguish recorded testing from untested Windows/Firefox/Safari. Version 0.1.0 is prepared, not published. See [media](media.md) and [release checklist](RELEASE-CHECKLIST.md).
+
 Fill-first update: new/unset/reset preferences fill the reading container, normal and Focus alike; saved explicit off remains off. Maximum line length appears only with Fill off. One centred 1800px cap replaces the earlier 1400px cap. [Default and persistence checks](../tests/fill-browser.mjs) supplement existing alignment/keyboard/rendering coverage. Earlier entries below describe historical defaults.
 
 Visual polish: implemented shared left edge in a centred 1400px container; 80-character nominal default, 60–140 range and persisted/resettable Fill window; intrinsic short/wide block selection; margin heading anchors; no-scrim anchored Appearance with grouped controls and focus restoration; bottom menu clearance on narrow screens; icon Peek and full-title tooltips. The panel defaults to 280px. [Geometry and keyboard checks](../tests/polish-browser.mjs) cover desktop/focus/panel combinations and 390/768px clearance. The older entries below are historical; [decision 0011](decisions/0011-shared-reading-edge.md) supersedes the earlier measure and Appearance choices.
