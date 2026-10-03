@@ -151,7 +151,7 @@ export function setupContinuity() {
     if (event.key === 'Enter' && document.activeElement === select('#quick-query')) { event.preventDefault(); buttons[0]?.click(); }
   });
   addEventListener('keydown', event => {
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'p' && !select('dialog[open]')) { event.preventDefault(); openQuick(); }
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'p' && !select('dialog:modal')) { event.preventDefault(); openQuick(); }
     if (event.altKey && event.key === 'ArrowLeft' && document.activeElement.closest('#scroller')) { event.preventDefault(); returnTrail(); }
   });
   document.addEventListener('visibilitychange', () => { if (!document.hidden) poll(); else saveCurrent(); });

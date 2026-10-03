@@ -91,6 +91,7 @@ export function setupReviews() {
         select('#list-status').textContent = ''; select('#note-status').textContent = '';
         render(); showDialog(select(dialog));
       } catch (error) {
+        document.dispatchEvent(new Event('review-open-failed'));
         if (openedRoot !== state.root) return;
         actionStatus(select('#review-tools'), error.message);
         if (await askConfirmation(`${error.message}. If review settings are corrupt, move them aside and start empty? Valid settings will not be reset.`, 'Move corrupt settings aside')) {

@@ -71,7 +71,7 @@ export function setupReadingTools() {
   select('#find-next').onclick = () => nextMatch(1); select('#find-prev').onclick = () => nextMatch(-1);
   select('#find-close').onclick = () => { clearMatches(); select('#find-bar').hidden = true; select('#scroller').focus(); };
   addEventListener('keydown', event => {
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'f' && document.activeElement.closest('#scroller') && !select('dialog[open]')) { event.preventDefault(); select('#find-bar').hidden = false; select('#find-query').focus(); }
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'f' && document.activeElement.closest('#scroller') && !select('dialog:modal')) { event.preventDefault(); select('#find-bar').hidden = false; select('#find-query').focus(); }
     if (event.key === 'Escape' && document.activeElement.closest('#find-bar')) { event.preventDefault(); select('#find-close').click(); }
     if (event.key === 'Enter' && document.activeElement === select('#find-query')) { event.preventDefault(); nextMatch(event.shiftKey ? -1 : 1); }
   });

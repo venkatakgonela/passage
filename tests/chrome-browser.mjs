@@ -52,12 +52,17 @@ export async function checkChrome(page, evidence) {
     await section(page, 'search'); await bounds(`Search ${width}/${theme}`);
     await section(page, 'lists'); await page.locator('#lists-dialog[open]').waitFor(); await bounds(`Lists ${width}/${theme}`);
     await section(page, 'notes'); await page.locator('#notes-dialog[open]').waitFor(); await bounds(`Notes ${width}/${theme}`);
+    await page.keyboard.press('Control+k'); await page.locator('#palette[open]').waitFor(); await page.keyboard.press('Escape');
+    await page.keyboard.press('Control+p'); await page.locator('#quick-dialog[open]').waitFor(); await page.keyboard.press('Escape');
     await page.locator('#panel-close').click();
     await page.locator('#toctog').click(); await bounds(`Outline ${width}/${theme}`);
     assert.equal(await page.locator('#toc').textContent().then(text => text.includes('↗')), false, 'Plain outline entries');
     await page.locator('[data-right="notes"]').click();
     await page.locator('#right-panel #notes-dialog[open]').waitFor();
     await bounds(`Right notes ${width}/${theme}`);
+    await page.locator('[data-right="lists"]').click();
+    await page.locator('#right-panel #lists-dialog[open]').waitFor();
+    assert.equal(await page.locator('#right-panel dialog[open]').count(), 1, 'Right tabs show a single review view');
     await page.locator('[data-right="outline"]').click();
     assert.equal(await page.locator('#toc').isVisible(), true);
     await page.locator('#outline-close').click();

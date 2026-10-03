@@ -119,7 +119,7 @@ export function setupShell() {
       select('#toc').hidden = section !== 'outline';
       rightTabs.querySelectorAll('[data-right]').forEach(item => item.setAttribute('aria-selected', String(item === tab)));
       if (section === 'outline') { for (const dialog of right.querySelectorAll('dialog[open]')) dialog.close(); }
-      else { rightView = true; select(`#${section}-open`).click(); }
+      else { for (const dialog of right.querySelectorAll('dialog[open]')) dialog.close(); rightView = true; select(`#${section}-open`).click(); }
     }; tab.setAttribute('role', 'tab'); tab.setAttribute('aria-selected', String(section === 'outline')); rightTabs.append(tab);
   }
   rightTabs.setAttribute('role', 'tablist'); rightTabs.setAttribute('aria-label', 'Page tools');
@@ -144,6 +144,7 @@ export function setupShell() {
     if (rightView) { rightView = false; const dialog = select(`#${event.detail}-dialog`); right.append(dialog); right.classList.add('open'); dialog.querySelector('[data-close-dialog]').onclick = () => { dialog.close(); rightTabs.querySelector('[data-right="outline"]').click(); }; }
     else openPanel(event.detail);
   });
+  document.addEventListener('review-open-failed', () => { rightView = false; });
   document.addEventListener('reader-panel', event => openPanel(event.detail));
   select('#back-results').hidden = true;
   const status = document.createElement('p'); status.id = 'shell-status'; status.setAttribute('role', 'status'); nav.append(status);

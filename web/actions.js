@@ -67,5 +67,5 @@ export function setupActions() {
     if (event.key === 'Enter' && document.activeElement === select('#palette-query')) { event.preventDefault(); buttons[0]?.click(); }
     else if (event.key !== 'Enter') { event.preventDefault(); const index = buttons.indexOf(document.activeElement); buttons[(index + (event.key === 'ArrowDown' ? 1 : -1) + buttons.length) % buttons.length]?.focus(); }
   };
-  window.addEventListener('keydown', event => { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); if (!document.querySelector('dialog[open]')) show(); } });
+  window.addEventListener('keydown', event => { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); if (!document.querySelector('dialog:modal')) show(); } });
 }
