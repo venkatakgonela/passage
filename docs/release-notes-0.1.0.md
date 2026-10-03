@@ -1,6 +1,6 @@
-# Passage 0.1.0 — prepared 2026-10-03
+# Passage 0.1.0 — 2026-10-03
 
-First source release, pending maintainer publication.
+First source release.
 
 - Read technical Markdown locally without editing source documents or creating an account.
 - Navigate folders with title filtering, content search, Quick open, reference Peek and a return Trail.

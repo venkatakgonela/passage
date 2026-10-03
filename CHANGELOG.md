@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 — 2026-10-03 (prepared; not yet published)
+## 0.1.0 — 2026-10-03
 
 - **Read locally:** read-only source documents, loopback server, no account or runtime package install; modern Markdown, isolated diagrams and sanitized math.
 - **Keep context:** file/title filtering, scoped content search, Quick open, Peek, history and return Trail.
@@ -8,7 +8,7 @@
 - **Choose your view:** Light/Dark/Auto, fill-first reading with optional line limit, Focus mode and narrow drawers.
 - **Get started:** newcomer quick start, ten-step tutorial, captioned demo, platform limitations, private-reporting guidance and release checklist.
 
-See [prepared release notes](docs/release-notes-0.1.0.md). Hosted settings, tag and publication remain maintainer actions.
+See the [release notes](docs/release-notes-0.1.0.md).
 
 ## Development history
 

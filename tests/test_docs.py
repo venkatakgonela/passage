@@ -23,7 +23,7 @@ class DocumentationTests(unittest.TestCase):
     def test_launch_docs_version_and_media(self):
         readme = (ROOT / 'README.md').read_text()
         self.assertLess(len(readme.split()), 600)
-        for phrase in ['<repository-url>', 'Download ZIP', 'python3 -m server', 'py -m server', '60-second quick start', 'Windows', 'untested']:
+        for phrase in ['github.com/venkatakgonela/passage.git', 'Download ZIP', 'python3 -m server', 'py -m server', '60-second quick start', 'Windows', 'untested']:
             self.assertIn(phrase, readme)
         tutorial = (ROOT / 'docs/getting-started.md').read_text()
         self.assertEqual(re.findall(r'^## (\d+)\.', tutorial, re.M), [str(number) for number in range(1, 11)])

@@ -17,10 +17,10 @@ A local, read-only Markdown reader for engineers, reviewers and anyone navigatin
 
 **Requirements:** Python 3.9+ and a modern Chromium, Firefox or Safari browser. Prefer a maintained Python release: 3.9 is end-of-life. No runtime packages, Node or build step required.
 
-1. **Get the code.** Copy this repository's clone URL into `<repository-url>`:
+1. **Get the code.** Clone the repository:
 
    ```sh
-   git clone <repository-url> passage
+   git clone https://github.com/venkatakgonela/passage.git
    cd passage
    ```
 
@@ -50,4 +50,4 @@ Tested: macOS with Python 3.9/3.14 and Chrome; Linux CI with Python 3.12. This t
 
 ![A captioned synthetic tour of Passage](docs/media/passage-demo.gif)
 
-The demo is an edited, silent 60-second tour of real browser states. [Regenerate the media](docs/media.md). Version 0.1.0 is prepared locally; see [release notes](CHANGELOG.md) and the [maintainer checklist](docs/RELEASE-CHECKLIST.md).
+The demo is an edited, silent 60-second tour of real browser states. [Regenerate the media](docs/media.md). Version 0.1.0; see the [release notes](CHANGELOG.md).
