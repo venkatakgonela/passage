@@ -75,6 +75,10 @@ Markdown and generated math pass through DOMPurify; diagram frames have no permi
 
 Actions without direct shortcuts use labelled controls or Commands. File/View/Navigate open their menus. Accessibility checks cover landmarks, labels, keyboard flows, focus return, reduced motion and measured palette contrast—not screen-reader certification.
 
+## Documentation
+
+See the [documentation index](docs/index.md) for a reading order.
+
 ## Development and release checks
 
 ```sh
