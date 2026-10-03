@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Consolidate static, Markdown and review-anchor path checks with explicit canonical, separator-aware confinement while preserving traversal, symlink, suffix and size protections.
+- Reject carriage returns and line feeds at the response-header writer, with regression coverage for safe error responses and existing path boundaries.
+
 ## 0.1.0 — 2026-10-03
 
 - **Read locally:** read-only source documents, loopback server, no account or runtime package install; modern Markdown, isolated diagrams and sanitized math.
