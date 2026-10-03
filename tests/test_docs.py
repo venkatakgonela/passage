@@ -31,13 +31,14 @@ class DocumentationTests(unittest.TestCase):
             self.assertTrue((ROOT / f'docs/images/{filename}.png').is_file())
         package = json.loads((ROOT / 'package.json').read_text())
         lock = json.loads((ROOT / 'package-lock.json').read_text())
-        self.assertEqual(package['version'], '0.1.0')
+        self.assertEqual(package['version'], '0.1.1')
         self.assertEqual(lock['version'], package['version'])
         self.assertEqual(lock['packages']['']['version'], package['version'])
         self.assertIn(f"APP_VERSION = '{package['version']}'", (ROOT / 'web/config.js').read_text())
         security = (ROOT / 'SECURITY.md').read_text()
         self.assertIn('Report a vulnerability', security)
         self.assertNotIn('person who supplied', security)
+        self.assertIn('## 0.1.1 — 2026-10-03', (ROOT / 'CHANGELOG.md').read_text())
         self.assertIn('## 0.1.0 — 2026-10-03', (ROOT / 'CHANGELOG.md').read_text())
         for extension, limit in [('mp4', 6000000), ('gif', 5000000)]:
             media = ROOT / f'docs/media/passage-demo.{extension}'

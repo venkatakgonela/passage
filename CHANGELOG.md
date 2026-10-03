@@ -1,6 +1,16 @@
 # Changelog
 
-## Unreleased
+## 0.1.1 — 2026-10-03
+
+Security hardening and maintenance release. No change to how the reader looks or behaves.
+
+- **Hardening:** one audited path-confinement helper now guards static assets, Markdown targets and review anchors (canonical root plus separator check, symlink-component rejection), and response headers can no longer carry CR or LF; the Content-Type is chosen from a fixed list of the types the server sends. This resolves eight findings from automated code scanning; no exploit was demonstrated against 0.1.0.
+- **Supply chain:** GitHub Actions are pinned by commit and updated to current major versions, the workflow token is read-only, and dependency updates, secret scanning and code scanning are enabled for the repository.
+- **Release check:** `tools/pre-publish-check` accepts the identities that pull-request merges legitimately record, and still rejects every other address.
+
+See the [release notes](docs/release-notes-0.1.1.md).
+
+### Development history for 0.1.1
 
 - Permit exact approved hosted-merge and dependency-update identities in the history checker without relaxing author, message or content validation.
 
