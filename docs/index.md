@@ -20,6 +20,7 @@ Passage is a local, read-only Markdown reader for technical document sets. This 
    - [0007 Heading-aligned compare](decisions/0007-heading-aligned-compare.md): how two documents line up.
    - [0008 Safe math and export](decisions/0008-safe-math-and-export.md): math rendering and HTML export.
    - [0009 User-scoped settings](decisions/0009-user-settings.md): default location, legacy migration and confirmation behavior.
+   - [0010 Reading-first shell](decisions/0010-reading-shell.md): section rail, shared panels and focus geometry.
 
 ## What works, what does not
 

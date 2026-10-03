@@ -33,6 +33,28 @@ Caption: implemented document request flow. Legend: solid calls and dashed respo
 
 ## Implemented: responsibilities and technology
 
+The [shell](../web/shell.js) composes existing controls into a section rail, reusable panel hosts and an in-document page header. It owns panel visibility, drawer keyboard handling, remembered labels and focus-header geometry; existing modules still own navigation, search, review records and rendering. [Shell CSS](../web/shell.css) provides neutral chrome and responsive layout. [ADR 0010](decisions/0010-reading-shell.md) records alternatives and compatibility changes.
+
+```mermaid
+flowchart LR
+  Rail[Section rail or drawer tabs] --> Panel[Shared panel host]
+  Panel --> Files[Tree and content search]
+  Panel --> Reviews[Existing review records]
+  Page[In-document actions] --> Menus[Keyboard menus and palette]
+  Page --> Reading[Sanitized document]
+  Outline[Tabbed page tools] --> Reviews
+```
+
+Caption: implemented shell composition. Legend: solid arrows are existing UI calls; no source-write route is introduced.
+
+| Behavior / boundary | Regression evidence |
+| --- | --- |
+| Six-width chrome, compact rows, one filter, menu keys, panel access and roving tree focus | [chrome browser tests](../tests/chrome-browser.mjs) |
+| Focus hides side chrome; overlay does not move the heading; focused actions stay on screen | Chrome browser tests, existing anchor/refresh browser assertions |
+| Browse eligibility uses registration policy and retains Host/Origin/Fetch Metadata checks | [shell policy tests](../tests/test_shell.py) |
+| Currency inline helper suppression and overflow-only display hints | [release browser tests](../tests/release-browser.mjs) |
+| Public images use isolated state and exclude attack fixtures/stale controls | `publicScreenshots` in chrome browser tests |
+
 | Component | Responsibility / choice | Trade-off |
 | --- | --- | --- |
 | [HTTP](../server/http.py) | stdlib HTTP routing, exact request guards, explicit static MIME types | Suitable for a trusted local reader, not a production Internet server |

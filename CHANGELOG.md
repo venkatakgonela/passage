@@ -1,5 +1,11 @@
 # Changelog
 
+- Replace stacked toolbars with a full-height section rail, compact resizable Files/Search/Lists/Notes panel, in-document action header and tabbed page tools.
+- Add remembered rail labels, a dismissible shortcut hint, keyboard menus and roving tree focus; use drawers below 1024px and an outline drawer below 1280px.
+- Make Focus return the window to reading, with a non-shifting revealable header and Escape exit; centre 68-character text with wider technical blocks.
+- Show equation helper text only for overflowing display math. Generate clean synthetic screenshots from isolated browser contexts.
+- Expose folder registration eligibility through the existing guarded browse response and disable invalid Add actions with an explanation.
+
 - Keep currency amounts literal while rendering properly delimited inline and display math.
 - Move default reader settings outside the checkout, retaining legacy files in a non-overwriting one-time migration; preserve explicit settings overrides.
 - Replace native alert/confirmation boxes with keyboard-accessible in-page confirmations and action-local errors.

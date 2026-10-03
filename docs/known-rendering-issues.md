@@ -2,7 +2,7 @@
 
 ## Current disposition
 
-Currency amounts now remain literal: inline math cannot start with whitespace or a digit, end with whitespace, or close before a digit. Display math and protected code are unchanged. MathML layout remains browser-dependent, and inline equations retain the existing scroll hints. Narrow screenshots show the existing sidebar overlay obscuring part of the document; this task does not redesign it.
+Currency amounts remain literal: inline math cannot start with whitespace or a digit, end with whitespace, or close before a digit. Display math and protected code are unchanged. MathML layout remains browser-dependent. Inline helper text is removed; only overflowing display equations show a visible hint. Narrow section drawers overlay the document intentionally; close the drawer for full-width reading.
 
 The original observations below are retained as the baseline. The current real-browser matrix checks every example at 1440, 1024 and 390px in light and dark.
 

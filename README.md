@@ -15,13 +15,17 @@ Open `http://127.0.0.1:8765`. Repeat `--root` for multiple startup folders; Ctrl
 
 ## Demo
 
+Passage uses a full-height icon rail, a compact section panel and a page header inside the reading column—not a stacked toolbar. Files, content Search, Lists, Notes and Compare are on the rail. Show rail labels if you prefer text. Below 1024px, the floating menu button opens these sections as a drawer.
+
+Open `reading-guide.md` for the clean synthetic tour. Text defaults to 68 characters (adjustable 60–75); tables, code, diagrams and display equations can use up to 1,100px of available width. The Outline/Notes/Lists panel collapses below 1280px. Search or jump opens Quick open or Commands with their shortcuts. Appearance groups theme, size, measure, font and Focus; More actions holds export, print, references and navigation.
+
 Open `rendering.md` for equations, footnotes and callouts. Follow the Chain from `SAMPLE-plan.md` to its report, compare Evidence sections, add a reading-list reference and export a local note. Commands lists reader controls.
 
 ![Synthetic desktop reading](docs/images/reading-1440.png)
 
 ![Synthetic narrow reading](docs/images/reading-390.png)
 
-These browser-generated images contain only synthetic examples, including deliberately hostile text displayed inertly to demonstrate escaping.
+These browser-generated images use a clean synthetic reading guide and fresh browser contexts, without attack-string fixtures or retained search/drawer state.
 At narrow widths the existing sidebar drawer overlays part of the document; close it to read the full width.
 
 ## Find and follow
@@ -79,7 +83,7 @@ Markdown and generated math pass through DOMPurify; diagram frames have no permi
 | Resize focused separator | Arrows, Home/End |
 | Pan focused diagram | Arrows |
 
-Actions without direct shortcuts use labelled controls or Commands. File/View/Navigate open their menus. Accessibility checks cover landmarks, labels, keyboard flows, focus return, reduced motion and measured palette contrast—not screen-reader certification.
+Actions without direct shortcuts use section buttons or Commands. Tree preferences are beside the filter; workspace actions are beside the folder switcher. Menus support arrows and Home/End, and the tree uses a single roving tab stop. Focus hides the rail and panels; move to the top edge or scroll up to reveal the overlay page header, or press Escape/use Exit focus to return. Overlay reveal does not move the document. Accessibility checks cover landmarks, labels, keyboard flows, focus return, reduced motion and measured palette contrast—not screen-reader certification.
 
 ## Documentation
 
