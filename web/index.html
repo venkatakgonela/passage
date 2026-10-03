@@ -2,7 +2,7 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Markdown Reader</title>
 <link id="hl" rel="stylesheet" href="/vendor/hl-light.css">
-<link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/orientation.css"><link rel="stylesheet" href="/review.css"></head>
+<link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/orientation.css"><link rel="stylesheet" href="/review.css"><link rel="stylesheet" href="/release.css"></head>
 <body>
 <header>
   <button class="ib" id="navtog" title="Toggle sidebar (b)" aria-label="Toggle sidebar">☰</button>
@@ -18,7 +18,7 @@
   <button id="toctog" aria-label="Toggle outline">Outline</button>
 </header>
 <div class="layout">
-  <nav id="nav">
+  <nav id="nav" aria-label="Documents">
     <div class="nav-top">
       <strong>Workspace</strong>
       <div class="rootrow">
@@ -35,7 +35,7 @@
     <div id="list"></div>
   </nav>
   <div id="nav-resizer" class="resizer" role="separator" aria-label="Documents width" aria-orientation="vertical" tabindex="0"></div>
-  <div class="reading-area">
+  <main class="reading-area" aria-label="Document reader">
     <div id="review-tools"><button id="back-results" hidden>Back to results</button><button id="compare-open">Compare</button><button id="lists-open">Reading lists</button><button id="notes-open">Review notes</button></div>
   <div class="scroller" id="scroller" tabindex="-1">
     <div id="chain" aria-label="Related documents" hidden></div>
@@ -46,7 +46,7 @@
       <aside class="toc" id="toc"></aside>
     </div>
   </div>
-  </div>
+  </main>
 </div>
 <dialog id="results-dialog" aria-label="Search results"><h2>Search results</h2><div id="search-results"></div><button data-close-dialog>Close</button></dialog>
 <dialog id="compare-dialog" aria-label="Compare documents"><div class="compare-toolbar"><label>Left document <select id="compare-left"></select></label><label>Right document <select id="compare-right"></select></label><button id="compare-load">Compare selected</button><label>Section <select id="compare-section"></select></label><button data-close-dialog>Exit Compare</button></div><p id="compare-status" role="status"></p><div id="compare-panes"><section class="compare-pane" tabindex="0" aria-label="Left reading pane"><article class="compare-article"></article></section><section class="compare-pane" tabindex="0" aria-label="Right reading pane"><article class="compare-article"></article></section></div></dialog>

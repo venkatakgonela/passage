@@ -1,0 +1,17 @@
+.math-block,.math-inline { max-width:100%; overflow-x:auto; overflow-y:hidden; vertical-align:middle; padding:4px; }
+.math-block { display:block; margin:20px 0; }
+.math-inline { display:inline-block; }
+.math-error { white-space:pre-wrap; overflow-wrap:anywhere; color:var(--mut); }
+math { color:var(--fg); }
+article details { padding:12px; border:1px solid var(--bd); border-radius:8px; margin:16px 0; }
+article summary { cursor:pointer; font-family:system-ui,sans-serif; }
+.front-matter dl { font:13px/1.6 system-ui,sans-serif; }
+.front-matter dt { font-weight:700; }
+.front-matter dd { margin:0 0 8px; overflow-wrap:anywhere; }
+.callout { border-left-width:5px; }
+.footnotes { border-top:1px solid var(--bd); margin-top:32px; font-size:.85em; }
+.heading-copy { font:11px system-ui,sans-serif; padding:3px 6px; margin-left:8px; }
+#palette-actions button { display:block; width:100%; text-align:left; margin:4px 0; }
+#palette-query { width:100%; padding:10px; }
+.recovery { border:1px solid var(--control); padding:20px; border-radius:8px; }
+@media print { .heading-copy { display:none!important; } }

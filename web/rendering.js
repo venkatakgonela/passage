@@ -5,6 +5,9 @@ import { markCurrent } from './tree.js';
 import { renderDiagrams, cleanDiagrams } from './diagrams.js';
 import { renderImages } from './media.js';
 import { appearance, setAppearance } from './appearance.js';
+import { prepareMarkdown, decorateExtensions } from './extensions.js';
+import { recovery } from './recovery.js';
+import { reference } from './actions.js';
 
 let generation = 0;
 
@@ -40,9 +43,14 @@ export async function openDocument(preserve = false) {
   cleanDiagrams(select('#doc'));
   state.currentPath = path;
   markCurrent();
-  const response = await fetch(`/api/file?root=${state.root}&path=${encodeURIComponent(path)}`);
+  let response;
+  try { response = await fetch(`/api/file?root=${state.root}&path=${encodeURIComponent(path)}`); }
+  catch {
+    recovery(select('#doc'), 'Server unreachable. Start the local reader and retry.', () => openDocument(true));
+    select('#doc').dataset.ready = 'true'; return;
+  }
   if (!response.ok) {
-    select('#doc').innerHTML = '<p class="empty">File not found.</p>';
+    recovery(select('#doc'), response.status === 413 ? 'Document exceeds the 2 MiB reading limit. Choose a smaller file.' : 'Document or workspace is missing or unavailable.', () => openDocument(true));
     select('#toc').innerHTML = '';
     select('#doc').dataset.ready = 'true';
     return;
@@ -56,7 +64,9 @@ export async function openDocument(preserve = false) {
   select('#crumb').innerHTML = path.split('/').map((part, index, parts) => index === parts.length - 1 ? `<b>${escapeHtml(part)}</b>` : escapeHtml(part)).join(' <span style="opacity:.5">/</span> ');
   buildToc();
   if (preserve !== true) select('#scroller').scrollTo({ top: 0, behavior: 'instant' });
-  await rendering;
+  try { await rendering; } catch {
+    recovery(documentBody, 'Document could not be rendered. Check its Markdown syntax and retry.', () => openDocument(true));
+  }
   if (current !== generation) return;
   documentBody.dataset.ready = 'true';
   if (preserve === true) {
@@ -69,8 +79,9 @@ export async function openDocument(preserve = false) {
 }
 
 export async function renderArticle(documentBody, text, path, prefix = '') {
+  const prepared = prepareMarkdown(text, prefix);
   const template = document.createElement('template');
-  template.innerHTML = DOMPurify.sanitize(marked.parse(text, { gfm: true }));
+  template.innerHTML = DOMPurify.sanitize(marked.parse(prepared.body, { gfm: true }) + prepared.notes);
   template.content.querySelectorAll('img').forEach(image => {
     image.dataset.originalSource = image.getAttribute('src') || '';
     image.removeAttribute('src');
@@ -82,6 +93,9 @@ export async function renderArticle(documentBody, text, path, prefix = '') {
   documentBody.querySelectorAll('h1,h2,h3,h4').forEach(heading => {
     heading.id = prefix + slug(heading.textContent, used);
     heading.insertAdjacentHTML('afterbegin', `<a class="a" href="#${heading.id}" data-h="${heading.id}" aria-label="Link to section">#</a>`);
+    const copy = document.createElement('button'); copy.className = 'heading-copy'; copy.textContent = '↗'; copy.setAttribute('aria-label', 'Copy heading link');
+    copy.onclick = async () => { try { await navigator.clipboard.writeText(reference(path, heading.id.replace(prefix, ''))); toast('Heading reference copied'); } catch { toast('Clipboard unavailable; use Copy reference from the toolbar'); } };
+    heading.append(copy);
   });
   documentBody.querySelectorAll('table').forEach(table => {
     const wrapper = document.createElement('div');
@@ -140,5 +154,5 @@ export async function renderArticle(documentBody, text, path, prefix = '') {
       }
     }
   });
-  await Promise.all([renderDiagrams(documentBody), renderImages(documentBody, path)]);
+  await Promise.all([renderDiagrams(documentBody), renderImages(documentBody, path), decorateExtensions(documentBody, prepared)]);
 }

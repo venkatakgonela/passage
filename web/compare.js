@@ -6,7 +6,10 @@ import { cleanDiagrams } from './diagrams.js';
 import { alignedOffset, headingKeys } from './review-model.js';
 
 function geometry(pane) {
-  return [...pane.querySelectorAll('h1,h2,h3,h4')].map(element => ({ text: element.textContent, top: element.getBoundingClientRect().top - pane.getBoundingClientRect().top + pane.scrollTop, element }));
+  return [...pane.querySelectorAll('h1,h2,h3,h4')].map(element => {
+    const clone = element.cloneNode(true); clone.querySelectorAll('button,.a').forEach(control => control.remove());
+    return { text: clone.textContent, top: element.getBoundingClientRect().top - pane.getBoundingClientRect().top + pane.scrollTop, element };
+  });
 }
 
 export function setupCompare() {

@@ -10,6 +10,8 @@ import { setupOrientation } from './orientation.js';
 import { setupContinuity } from './continuity.js';
 import { setupReadingTools } from './reading-tools.js';
 import { setupReviews } from './reviews.js';
+import { setupActions } from './actions.js';
+import { recovery } from './recovery.js';
 
 document.title = APP_NAME;
 select('#crumb').textContent = APP_NAME;
@@ -22,4 +24,6 @@ setupOrientation();
 setupReadingTools();
 setupContinuity();
 setupReviews();
-loadRoots().then(openDocument);
+setupActions();
+const start = () => loadRoots().then(openDocument).catch(() => recovery(select('#doc'), 'Workspace unavailable or server unreachable.', start));
+start();

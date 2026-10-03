@@ -12,7 +12,7 @@ export function createStore(storage) {
     set(key, value) {
       try {
         storage().setItem(STORAGE_PREFIX + key, value);
-      } catch {}
+      } catch { if (typeof document !== 'undefined') document.dispatchEvent(new Event('storage-unavailable')); }
     },
     remove(key) { try { storage().removeItem(STORAGE_PREFIX + key); } catch {} },
   };

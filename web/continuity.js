@@ -16,9 +16,9 @@ export function capturePosition() {
   const scroller = select('#scroller');
   const boundary = scroller.getBoundingClientRect().top;
   const elements = selectAll('#doc h1,#doc h2,#doc h3,#doc h4,#doc p,#doc li');
-  const visible = elements.find(element => element.getBoundingClientRect().bottom > boundary + 30);
+  const visible = elements.find(element => !element.closest('.front-matter') && !element.classList.contains('meta') && element.getBoundingClientRect().bottom > boundary + 30);
   const headings = elements.filter(element => /^H[1-4]$/.test(element.tagName));
-  const heading = headings.filter(element => element.getBoundingClientRect().top <= (visible?.getBoundingClientRect().top || boundary)).at(-1);
+  const heading = headings.filter(element => element.getBoundingClientRect().top <= (visible?.getBoundingClientRect().top || boundary)).at(-1) || headings[0];
   const anchor = heading || visible;
   const passage = elements.find(element => /^(P|LI)$/.test(element.tagName) && !element.classList.contains('meta') && element.getBoundingClientRect().bottom > boundary + 30) || visible;
   return { heading: heading?.id || '', snippet: passage?.textContent.trim().slice(0, 160) || '', delta: anchor ? boundary - anchor.getBoundingClientRect().top : 0, snippetDelta: passage ? boundary - passage.getBoundingClientRect().top : 0, offset: scroller.scrollTop };

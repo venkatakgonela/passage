@@ -9,6 +9,7 @@
 | [0005: Local reading continuity](0005-reader-continuity.md) | Accepted | 2026-10-03 |
 | [0006: Reader-owned review records](0006-review-storage.md) | Accepted | 2026-10-03 |
 | [0007: Heading-aligned comparison](0007-heading-aligned-compare.md) | Accepted | 2026-10-03 |
+| [0008: Sanitized math and inert export](0008-safe-math-and-export.md) | Accepted | 2026-10-03 |
 
 ## Pending decisions
 

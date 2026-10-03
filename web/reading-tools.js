@@ -50,7 +50,7 @@ function find() {
     const walker = document.createTreeWalker(select('#doc'), NodeFilter.SHOW_TEXT);
     const nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
     for (const node of nodes) {
-      if (node.parentElement.closest('.diagram-shell,button,script,style,.meta') || matches.length >= 1000) continue;
+      if (node.parentElement.closest('.diagram-shell,math,button,script,style,.meta') || matches.length >= 1000) continue;
       const text = node.textContent; const lower = text.toLowerCase(); const fragment = document.createDocumentFragment(); let start = 0; let found;
       while ((found = lower.indexOf(query, start)) >= 0 && matches.length < 1000) {
         fragment.append(text.slice(start, found)); const mark = document.createElement('mark'); mark.className = 'find-match'; mark.textContent = text.slice(found, found + query.length); fragment.append(mark); matches.push(mark); start = found + query.length;

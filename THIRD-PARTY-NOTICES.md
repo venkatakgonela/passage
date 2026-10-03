@@ -1,5 +1,11 @@
 # Third-party notices
 
+## KaTeX 0.19.0
+
+Prebuilt `vendor/katex.min.js` (272,868 bytes), MIT; [verbatim licence](vendor/katex-LICENSE.txt), 1,107 bytes. Retrieved 2026-10-03 from the [official npm metadata](https://registry.npmjs.org/katex/0.19.0) and declared archive. Archive size 1,499,743 bytes; verified SHA-512 SRI `sha512-v6Tznz3zJ7u3niRCoDTsumM2+HA2XXcCu+WAacCeHD2z3p9A9Ks987o5FzfTGBN0e8A0vjEgIDvLbICrXpdw/Q==`. No package lifecycle script or build ran; only browser JS and licence are shipped. MathML-only output requires no bundled or remote font. Original upstream headers are preserved.
+
+The [upstream advisories](https://github.com/KaTeX/KaTeX/security/advisories) were checked on retrieval: the prototype-pollution trust-gadget advisory GHSA-238p-pmpm-9mq7 is patched in 0.18.2; the earlier htmlData/includegraphics/protocol/expansion advisories are also reviewed against the pinned version. Independent sanitation, trust=false and bounded expansion remain required. This is a dated advisory check, not a guarantee against unknown vulnerabilities.
+
 ## Mermaid 12.1.0
 
 Vendored `vendor/mermaid.min.js`, MIT; [licence](vendor/mermaid-LICENSE.txt). Retrieved from the official npm package. The archive integrity is `sha512-wlVCp+8eTupfCeeFvoZNNiTuHrvag0P2jz/ILgb/f/6jkVokUefOcujefi8qUe/j2asHiSePncVsz/xzzA80LQ==`. The extracted JS SHA-512 is `32bd67f9b79c5870bf95ea89e7e5cdf27e1b0469382451a276d04ab6ff77ffcc1c4b68db5cc18378134c1c751d4437aa0343843b0f26e6ccecb3e095e9c9428d`. Archive integrity and file hash refer to different objects. Sources: `https://registry.npmjs.org/mermaid/12.1.0` and its declared tarball. The 5,493,176-byte standalone browser build loads only for diagrams; the server does not gzip it. The full package is not shipped.
