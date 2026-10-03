@@ -7,6 +7,8 @@
 | [0003: Isolated diagram rendering](0003-isolated-diagrams.md) | Accepted | 2026-10-02 |
 | [0004: Bounded document metadata](0004-bounded-catalog.md) | Accepted | 2026-10-03 |
 | [0005: Local reading continuity](0005-reader-continuity.md) | Accepted | 2026-10-03 |
+| [0006: Reader-owned review records](0006-review-storage.md) | Accepted | 2026-10-03 |
+| [0007: Heading-aligned comparison](0007-heading-aligned-compare.md) | Accepted | 2026-10-03 |
 
 ## Pending decisions
 

@@ -5,6 +5,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
 from . import policy
+from . import reviews, search, chain
 from .images import read_image
 from .policy import Rejected, root_id, within
 
@@ -48,6 +49,12 @@ def make_handler(workspace):
                 raise Rejected('bad origin', 403)
             if self.command in {'POST', 'DELETE'} and not origins:
                 raise Rejected('bad origin', 403)
+            if self.command in {'POST', 'DELETE'}:
+                if origins != [f'http://{self.headers.get("Host")}']:
+                    raise Rejected('origin does not match host', 403)
+                sites = self.headers.get_all('Sec-Fetch-Site', [])
+                if len(sites) > 1 or (sites and sites != ['same-origin']):
+                    raise Rejected('cross-origin write', 403)
             if self.command == 'GET' and self.headers.get('Sec-Fetch-Site') == 'cross-site':
                 raise Rejected('cross-site request', 403)
 
@@ -76,6 +83,11 @@ def make_handler(workspace):
 
         def get(self):
             path, query = self.request_parts()
+            if path == '/api/reviews':
+                with reviews.lock:
+                    return self.send_body(200, reviews.load(workspace, query('root')))
+            if path == '/api/chain':
+                return self.send_body(200, chain.chain(workspace.find(query('root')), query('path')))
             if path == '/api/roots':
                 return self.send_body(200, [{'id': root_id(root), 'path': str(root), 'name': root.name or str(root)} for root in workspace.roots])
             if path == '/api/browse':
@@ -100,29 +112,15 @@ def make_handler(workspace):
                     return self.send_body(200, metadata)
                 return self.send_body(200, content, metadata['type'])
             if path == '/api/search':
-                term = query('q').strip().lower()
+                term = query('q').strip()
                 try:
                     root = workspace.find(query('root'))
                 except Rejected:
                     return self.send_body(200, [])
                 if len(term) < 2:
                     return self.send_body(200, [])
-                hits = []
-                for relative in policy.markdown_files(root):
-                    try:
-                        text = policy.read_markdown(root, relative)
-                    except Rejected:
-                        continue
-                    lower = text.lower()
-                    position = lower.find(term)
-                    if position < 0 and term not in relative.lower():
-                        continue
-                    snippet = ' '.join(text[max(0, position - 50):position + 110].split()) if position >= 0 else ''
-                    hits.append({'path': relative, 'snippet': snippet, 'count': lower.count(term)})
-                    if len(hits) >= policy.MAX_HITS:
-                        break
-                hits.sort(key=lambda hit: -hit['count'])
-                return self.send_body(200, hits)
+                result = search.search(root, term, query('scope') or 'workspace', query('path'), query('phrase') == 'true', query('case') == 'true', query('word') == 'true')
+                return self.send_body(200, result if query('format') == 'details' else result['hits'])
             if path.startswith('/api/'):
                 raise Rejected()
             relative = Path(unquote(path).lstrip('/'))
@@ -143,19 +141,21 @@ def make_handler(workspace):
             return self.send_body(200, target.read_bytes(), content_type)
 
         def post(self):
-            path, unused_query = self.request_parts()
-            if path != '/api/roots':
+            path, query = self.request_parts()
+            if path not in {'/api/roots', '/api/reviews'}:
                 raise Rejected()
             lengths = self.headers.get_all('Content-Length', [])
             if self.headers.get('Transfer-Encoding') or len(lengths) != 1 or not lengths[0].isascii() or not lengths[0].isdigit():
                 raise Rejected('invalid content length', 400)
             length = int(lengths[0])
-            if length > policy.MAX_BODY_BYTES:
+            if length > (reviews.MAX_BYTES if path == '/api/reviews' else policy.MAX_BODY_BYTES):
                 raise Rejected('request too large', 413)
             raw = self.rfile.read(length)
             if len(raw) != length:
                 raise Rejected('incomplete request', 400)
             payload = json.loads(raw)
+            if path == '/api/reviews':
+                return self.send_body(200, reviews.save(workspace, query('root'), payload))
             if not isinstance(payload, dict) or not isinstance(payload.get('path'), str):
                 raise Rejected('bad request', 400)
             root = workspace.folder(payload['path'])
