@@ -1,5 +1,10 @@
 # Changelog
 
+- Keep currency amounts literal while rendering properly delimited inline and display math.
+- Move default reader settings outside the checkout, retaining legacy files in a non-overwriting one-time migration; preserve explicit settings overrides.
+- Replace native alert/confirmation boxes with keyboard-accessible in-page confirmations and action-local errors.
+- Pin truncated-search ordering and non-corruption reset refusal with adversarial tests; refresh full-window synthetic screenshots.
+
 ## Unreleased
 
 ## 0.1.0 — release preparation (not published)

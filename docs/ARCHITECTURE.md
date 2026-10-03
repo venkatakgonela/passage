@@ -47,6 +47,17 @@ Caption: implemented document request flow. Legend: solid calls and dashed respo
 
 ## Implemented: threat model
 
+Default startup resolves user-scoped settings and performs a non-overwriting legacy copy before constructing the workspace. Explicit overrides bypass copying. [ADR 0009](decisions/0009-user-settings.md) records location compatibility and migration limits; [settings](../server/settings.py) uses streamed temporary copies and exclusive hard links. Settings stay outside registered document roots. The browser's [dialog helper](../web/dialogs.js) uses the existing modal lifecycle and text-only action status, with no new rendering injection path.
+
+| Invariant / behavior | Regression evidence |
+| --- | --- |
+| Default outside checkout; refuse roots enclosing settings; preserve originals and existing targets; copy once | `test_default_location_and_one_time_non_destructive_migration`, `test_xdg_override_existing_destination_and_symlinks` in [settings tests](../tests/test_settings.py) |
+| Failed copy leaves no partial target or completion marker and can retry | `test_failed_migration_preserves_source_and_can_retry` |
+| Truncated search deterministic under changed enumeration, including entry cap | `test_search_truncated_results_stable_under_changed_enumeration` |
+| Non-corruption reset errors never move files | `test_reset_rethrows_non_corruption_from_load_without_moving` |
+| Currency/code stay literal; mixed inline and display equations work | [extension tests](../tests/extensions.test.js), [release browser tests](../tests/release-browser.mjs) |
+| No native alerts/confirms; cancellation, trapped Tab, restored focus and action errors | Extension source scan and [dialog browser tests](../tests/dialog-browser.mjs) |
+
 Assets: displayed Markdown contents, local directory metadata, reader settings and browser execution context. Actors: the local user, a remote site attempting cross-origin/rebinding requests, malicious Markdown, and local processes. Trust boundaries: HTTP request to handler, root-relative path to filesystem, Markdown to DOM, and reader-owned settings to source documents.
 
 | Invariant / mitigation | Regression evidence |

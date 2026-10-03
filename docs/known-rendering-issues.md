@@ -2,6 +2,8 @@
 
 ## Current disposition
 
+Currency amounts now remain literal: inline math cannot start with whitespace or a digit, end with whitespace, or close before a digit. Display math and protected code are unchanged. MathML layout remains browser-dependent, and inline equations retain the existing scroll hints. Narrow screenshots show the existing sidebar overlay obscuring part of the document; this task does not redesign it.
+
 The original observations below are retained as the baseline. The current real-browser matrix checks every example at 1440, 1024 and 390px in light and dark.
 
 Ordinary diagram labels containing “image”, “click”, “href”, URL text and “Code style checks” pass both the input filter and renderer. The architecture fixture also verifies hostile label content remains inert and ER cardinality/attribute blocks render. Unterminated quotes/groups are refused. The filter is not a full grammar; unusual unquoted edge-label separators remain a documented limit. Root metadata now says Workspace; excess short-diagram space and stale-render cancellation remain in the backlog.

@@ -22,6 +22,7 @@ Open `rendering.md` for equations, footnotes and callouts. Follow the Chain from
 ![Synthetic narrow reading](docs/images/reading-390.png)
 
 These browser-generated images contain only synthetic examples, including deliberately hostile text displayed inertly to demonstrate escaping.
+At narrow widths the existing sidebar drawer overlays part of the document; close it to read the full width.
 
 ## Find and follow
 
@@ -36,6 +37,7 @@ Chain recognizes same-folder `PREFIX-kind.md` families and simple front-matter `
 Tables/code scroll locally with hints and keyboard focus. Flowchart/sequence/ER diagrams have isolated output, zoom/pan, source and fullscreen. Local PNG/JPEG images are bounded; SVG/GIF/WebP remain unsupported. Appearance offers light/dark/auto, serif/sans, text size, reading measure and focus mode.
 
 Math uses `$inline$` or `$$display$$`, with lazy vendored KaTeX producing native MathML and no remote fonts. Limits: 200 expressions, 4,000 characters each, 100 expansions and size 20. Resource/definition commands are refused; invalid/unavailable math shows source. Browser math appearance varies. These are not hard CPU timeouts.
+Inline opening dollars require a non-space, non-digit next character; closing dollars require a non-space preceding character and no following digit. Thus `$5 and $10` stays prose, while `$x^2$` renders. Numeric-leading equations need display delimiters or a nonnumeric TeX prefix. Code spans and fences remain literal.
 
 Footnotes use `[^key]` and single-line `[^key]: text`, with repeated-reference backlinks. Bodies are escaped plain text, not nested Markdown. Blockquote callouts support `[!NOTE]`, `[!TIP]`, `[!WARNING]`, `[!IMPORTANT]`, `[!CAUTION]`. Native details/summary are styled. Leading front matter becomes a collapsible escaped key/value panel, limited to 16 KiB/100 lines; complex YAML is not interpreted.
 
@@ -53,7 +55,11 @@ Server/document failures show an explanation and Retry or another-workspace guid
 
 IPv4 loopback only. Browsing authority is resolved home plus explicit startup roots; outside-home roots must be supplied at every launch. Markdown paths reject traversal, symlinks, skipped directories and non-`.md` suffixes. Reads are capped at 2 MiB. Metadata reads at most 16 KiB and uses a locked bounded cache. Large roots still cost enumeration/stat work.
 
-Host and supplied Origin are checked on all routes. Writes require Origin exactly matching Host and same-origin Fetch Metadata when supplied. Source documents never change; reader-owned settings are writable outside displayed roots. Defaults live in ignored `.state/roots.json`; `READER_SETTINGS` can relocate them. A folder containing settings cannot be registered.
+Host and supplied Origin are checked on all routes. Writes require Origin exactly matching Host and same-origin Fetch Metadata when supplied. Source documents never change; reader-owned settings are writable outside displayed roots. Defaults are `roots.json` and `reviews-*.json` under `$XDG_CONFIG_HOME/passage` (absolute XDG paths only), otherwise `~/.config/passage`. `READER_SETTINGS` overrides the roots filename, with reviews alongside it, and bypasses migration. A folder enclosing the settings directory cannot be registered; choose a narrower folder or relocate settings outside it.
+
+On first default startup, legacy checkout `.state/roots.json` and `reviews-*.json` are copied without overwriting destination files or deleting originals. Symlink sources are skipped. A `.legacy-migrated` marker prevents repeated copying; failures abort startup and can be retried. Copies are private temporary files linked into place only when complete. Defaults are shared across checkouts: use an explicit override for separate instances. Settings and migration markers must remain untracked. See [settings decision](docs/decisions/0009-user-settings.md).
+
+Folder removal and corrupt-review reset use in-page confirmations: Cancel or Escape leaves state unchanged, Tab stays inside the confirmation and closing restores focus. Browse/add/remove/reset errors appear beside their action, rather than in native alert boxes. Migration I/O failures appear in the startup terminal, before the reader opens.
 
 Markdown and generated math pass through DOMPurify; diagram frames have no permissions. This is a trusted-local reader, not an Internet server, hostile-filesystem sandbox or offline firewall: remote images in the live reader may contact external servers. Export omits them. See [security](SECURITY.md), [threat model/tests](docs/ARCHITECTURE.md), [known limits](docs/known-rendering-issues.md), [third-party notices](THIRD-PARTY-NOTICES.md).
 

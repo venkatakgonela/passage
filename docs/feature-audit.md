@@ -1,5 +1,7 @@
 # Verified feature audit
 
+Settings/currency update: user-scoped defaults with non-destructive one-time legacy copying and explicit override; settings-enclosing roots remain refused. Folder and corrupt-review actions use in-page confirmation/status with keyboard cancellation and restored focus. Currency-safe delimiters preserve prose; numeric-leading inline equations require a nonnumeric prefix or display math. Unit and browser regressions cover these changes. Full-window synthetic screenshots show existing chrome; narrow navigation remains an overlapping drawer, not a redesign.
+
 Release-preparation update: sorted search covers up to 5,000 files with scanned/total notices; corrupt review state has explicit backup/reset. Native sanitized math, minimal footnotes/callouts/metadata/details, reference copy, inert HTML export, commands and recovery states are implemented. Diagram graphics in export use explicit source placeholders. No publication or tag is implied. Older audit paragraphs below describe their historical delivery scope.
 
 Search/review update: scoped search, phrase/case/whole-word matching, retained results, bounded Chain metadata, full-rendered heading-aligned Compare, ordered lists and anchored notes are implemented. Review data writes only to bounded reader-owned settings with conflict and rollback checks. Export is selected-note text, not whole documents. See [usage and limits](../README.md) and [threat-to-test mapping](ARCHITECTURE.md).
