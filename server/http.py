@@ -33,9 +33,17 @@ def make_handler(workspace):
             super().send_header(keyword, value)
 
         def send_body(self, status, body, content_type='application/json'):
+            content_type = str(content_type)
+            if '\r' in content_type or '\n' in content_type:
+                raise Rejected('invalid response header', 500)
+            content_type = next((allowed for allowed in (
+                'application/json', 'text/markdown; charset=utf-8',
+                'text/javascript; charset=utf-8', 'text/html', 'text/css',
+                'image/png', 'image/jpeg',
+            ) if content_type == allowed), 'application/octet-stream')
             data = body if isinstance(body, bytes) else (body if isinstance(body, str) else json.dumps(body)).encode()
             self.send_response(status)
-            self.send_header('Content-Type', content_type)
+            self.send_header('Content-Type', content_type.replace('\r', '').replace('\n', ''))
             self.send_header('Content-Length', str(len(data)))
             self.send_header('Cache-Control', 'no-store')
             self.send_header('X-Content-Type-Options', 'nosniff')

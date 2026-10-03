@@ -8,4 +8,6 @@ Add failure-path and hostile-input tests for security boundaries. Significant de
 
 Publication, hosted CI and release tags are separate maintainer actions, not side effects of local verification.
 
+The history check accepts authors only at `60929222+venkatakgonela@users.noreply.github.com` or `49699333+dependabot[bot]@users.noreply.github.com`; committers must use the personal no-reply address or exactly `GitHub <noreply@github.com>`. These exact identity exceptions never exempt commit messages or file content from scanning; [checker tests](tests/test_prepublish.py) cover accepted combinations and rejected lookalikes.
+
 Start with [AGENTS.md](AGENTS.md) for repository engineering rules, regardless of which editor you use. `tools/pre-publish-check` is a local privacy/licence/history check, not a publishing command. Use the issue and pull-request templates, including a synthetic reproducer rather than private documents. [Media generation](docs/media.md) uses dev-only Chrome, Playwright and ffmpeg; it is not part of CI or the reader runtime.

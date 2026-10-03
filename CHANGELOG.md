@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Permit exact approved hosted-merge and dependency-update identities in the history checker without relaxing author, message or content validation.
+
+- Select Content-Type from a fixed allowlist at the header call site, retaining exact supported types, rejecting poisoned values and safely defaulting unknown types; keep strict rejection at the shared header writer.
+
 - Consolidate static, Markdown and review-anchor path checks with explicit canonical, separator-aware confinement while preserving traversal, symlink, suffix and size protections.
 - Reject carriage returns and line feeds at the response-header writer, with regression coverage for safe error responses and existing path boundaries.
 
