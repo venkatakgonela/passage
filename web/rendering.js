@@ -50,6 +50,25 @@ export async function openDocument(preserve = false) {
   const text = await response.text();
   if (current !== generation) return;
   const documentBody = select('#doc');
+  const rendering = renderArticle(documentBody, text, path);
+  const heading = documentBody.querySelector('h1');
+  document.title = heading ? heading.textContent.replace(/^#/, '') : path;
+  select('#crumb').innerHTML = path.split('/').map((part, index, parts) => index === parts.length - 1 ? `<b>${escapeHtml(part)}</b>` : escapeHtml(part)).join(' <span style="opacity:.5">/</span> ');
+  buildToc();
+  if (preserve !== true) select('#scroller').scrollTo({ top: 0, behavior: 'instant' });
+  await rendering;
+  if (current !== generation) return;
+  documentBody.dataset.ready = 'true';
+  if (preserve === true) {
+    select('#scroller').scrollTo({ top: oldScroll, behavior: 'instant' });
+    const anchor = document.getElementById(themeId);
+    if (anchor) select('#scroller').scrollTop += anchor.getBoundingClientRect().top - themeOffset;
+  }
+  else if (hashHeading()) document.getElementById(hashHeading())?.scrollIntoView({ block: 'start', behavior: 'instant' });
+  document.dispatchEvent(new Event('document-ready'));
+}
+
+export async function renderArticle(documentBody, text, path, prefix = '') {
   const template = document.createElement('template');
   template.innerHTML = DOMPurify.sanitize(marked.parse(text, { gfm: true }));
   template.content.querySelectorAll('img').forEach(image => {
@@ -60,11 +79,11 @@ export async function openDocument(preserve = false) {
   const words = (text.match(/\S+/g) || []).length;
   documentBody.insertAdjacentHTML('afterbegin', `<p class="meta">${escapeHtml(path.split('/').slice(0, -1).join(' / ') || 'Workspace')} · ${words.toLocaleString()} words · ${Math.max(1, Math.round(words / 220))} min read</p>`);
   const used = new Set();
-  selectAll('#doc h1,#doc h2,#doc h3,#doc h4').forEach(heading => {
-    heading.id = slug(heading.textContent, used);
+  documentBody.querySelectorAll('h1,h2,h3,h4').forEach(heading => {
+    heading.id = prefix + slug(heading.textContent, used);
     heading.insertAdjacentHTML('afterbegin', `<a class="a" href="#${heading.id}" data-h="${heading.id}" aria-label="Link to section">#</a>`);
   });
-  selectAll('#doc table').forEach(table => {
+  documentBody.querySelectorAll('table').forEach(table => {
     const wrapper = document.createElement('div');
     wrapper.className = 'tw';
     wrapper.dataset.scrollRegion = 'table';
@@ -77,7 +96,7 @@ export async function openDocument(preserve = false) {
     hint.textContent = 'Scroll table horizontally for more columns →';
     wrapper.after(hint);
   });
-  selectAll('#doc pre').forEach(pre => {
+  documentBody.querySelectorAll('pre').forEach(pre => {
     const code = pre.querySelector('code');
     if (code?.classList.contains('language-mermaid')) return;
     if (code) hljs.highlightElement(code);
@@ -105,9 +124,9 @@ export async function openDocument(preserve = false) {
     hint.textContent = 'Scroll code horizontally or choose Wrap →';
     frame.append(hint);
   });
-  selectAll('#doc input[type=checkbox]').forEach(checkbox => { checkbox.disabled = true; });
+  documentBody.querySelectorAll('input[type=checkbox]').forEach(checkbox => { checkbox.disabled = true; });
   const directory = path.includes('/') ? path.slice(0, path.lastIndexOf('/') + 1) : '';
-  selectAll('#doc a[href]').forEach(anchor => {
+  documentBody.querySelectorAll('a[href]').forEach(anchor => {
     const href = anchor.getAttribute('href');
     if (anchor.dataset.h) return;
     if (/^https?:/i.test(href)) { anchor.target = '_blank'; anchor.rel = 'noopener noreferrer'; }
@@ -121,19 +140,5 @@ export async function openDocument(preserve = false) {
       }
     }
   });
-  const heading = documentBody.querySelector('h1');
-  document.title = heading ? heading.textContent.replace(/^#/, '') : path;
-  select('#crumb').innerHTML = path.split('/').map((part, index, parts) => index === parts.length - 1 ? `<b>${escapeHtml(part)}</b>` : escapeHtml(part)).join(' <span style="opacity:.5">/</span> ');
-  buildToc();
-  if (preserve !== true) select('#scroller').scrollTo({ top: 0, behavior: 'instant' });
   await Promise.all([renderDiagrams(documentBody), renderImages(documentBody, path)]);
-  if (current !== generation) return;
-  documentBody.dataset.ready = 'true';
-  if (preserve === true) {
-    select('#scroller').scrollTo({ top: oldScroll, behavior: 'instant' });
-    const anchor = document.getElementById(themeId);
-    if (anchor) select('#scroller').scrollTop += anchor.getBoundingClientRect().top - themeOffset;
-  }
-  else if (hashHeading()) document.getElementById(hashHeading())?.scrollIntoView({ block: 'start', behavior: 'instant' });
-  document.dispatchEvent(new Event('document-ready'));
 }

@@ -9,6 +9,7 @@ import { setupIcons } from './icons.js';
 import { setupOrientation } from './orientation.js';
 import { setupContinuity } from './continuity.js';
 import { setupReadingTools } from './reading-tools.js';
+import { setupReviews } from './reviews.js';
 
 document.title = APP_NAME;
 select('#crumb').textContent = APP_NAME;
@@ -20,4 +21,5 @@ setupNavigation();
 setupOrientation();
 setupReadingTools();
 setupContinuity();
+setupReviews();
 loadRoots().then(openDocument);
