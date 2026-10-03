@@ -95,6 +95,8 @@ Caption: implemented shell composition. Legend: solid arrows are existing UI cal
 
 All response header values pass through `Handler.send_header`, which rejects CR or LF before the standard-library writer receives the value. Rejection discards buffered, unsent response headers so error handling cannot append a second status line to a partial success response. This applies to inherited Server/Date headers as well as Content-Type and future headers.
 
+At the Content-Type call site, `send_body` rejects CR/LF, selects from the exact JSON/Markdown/JavaScript/HTML/CSS/PNG/JPEG constants (unknown clean values fall back to `application/octet-stream`), and explicitly removes CR/LF for scanner visibility; [content-type tests](../tests/test_content_types.py) enforce fallback, rejection before the writer, exact response types and the structural replacement contract, while [image tests](../tests/test_images.py) enforce PNG/JPEG response types and bytes.
+
 | Boundary | Regression evidence |
 | --- | --- |
 | Reject traversal/absolute/skipped components before candidate probes; separator-aware lexical and canonical confinement; reject root itself | `ConfinedPathTests.test_relative_rules_before_filesystem_probes`, `test_lexical_boundary_before_component_probes`, `test_canonical_separator_boundary`, `test_root_separator_and_safe_missing_targets` in [boundary tests](../tests/test_path_headers.py) |

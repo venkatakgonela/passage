@@ -5,6 +5,14 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+PERSONAL_EMAIL = '60929222+venkatakgonela@users.noreply.github.com'
+
+
+def allowed_identity(author_email, committer_name, committer_email):
+    return author_email in {PERSONAL_EMAIL, '49699333+dependabot[bot]@users.noreply.github.com'} and (
+        committer_email == PERSONAL_EMAIL or
+        (committer_name == 'GitHub' and committer_email == 'noreply@github.com')
+    )
 
 
 def git(*arguments):
@@ -45,11 +53,11 @@ def main():
             failures.append('missing vendor licence: ' + component)
     seen = set()
     for commit in git('rev-list', 'HEAD').splitlines():
-        identity = git('show', '-s', '--format=%ae%n%ce%n%B', commit)
+        identity = git('show', '-s', '--format=%ae%n%cn%n%ce%n%B', commit)
         lines = identity.splitlines()
-        if any(address != '60929222+venkatakgonela@users.noreply.github.com' for address in lines[:2]):
+        if not allowed_identity(*lines[:3]):
             failures.append('identity: ' + commit)
-        if violations('\n'.join(lines[2:])):
+        if violations('\n'.join(lines[3:])):
             failures.append('commit message: ' + commit)
         for record in git('ls-tree', '-r', commit).splitlines():
             metadata, filename = record.split('\t', 1)
