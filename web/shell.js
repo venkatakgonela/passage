@@ -4,6 +4,7 @@ import { appearance, setAppearance } from './appearance.js';
 import { showMenu, showDialog } from './orientation.js';
 import { session, saveSession } from './session.js';
 import { renderList } from './tree.js';
+import { setupAppearancePopover } from './appearance-popover.js';
 
 const paths = {
   files: 'M3 6h7l2 3h9v11H3Z', search: 'M10 3a7 7 0 1 0 0 14 7 7 0 0 0 0-14Zm5 12 6 6',
@@ -131,14 +132,13 @@ export function setupShell() {
   };
   rightTabs.append(button('outline-close', 'Close outline', 'close', () => { right.classList.remove('open'); right.classList.add('collapsed'); right.removeAttribute('role'); right.removeAttribute('aria-modal'); returnFocus?.focus(); })); right.append(rightTabs, select('#toc')); select('.reading-area').append(right);
   const appearanceDialog = select('#appearance-dialog');
-  appearanceDialog.insertBefore(select('#theme'), appearanceDialog.lastElementChild); appearanceDialog.insertBefore(select('#focus'), appearanceDialog.lastElementChild);
-  select('#measure').min = '60'; select('#measure').max = '75';
-  appearanceButton.onclick = () => showDialog(appearanceDialog);
+  bank.append(select('#theme')); appearanceDialog.insertBefore(select('#focus'), select('#reset'));
+  setupAppearancePopover();
   const focusAction = select('#focus').onclick;
   select('#focus').onclick = () => { appearanceDialog.close(); focusAction(); };
   const exit = document.createElement('button'); exit.id = 'exit-focus'; exit.textContent = 'Exit focus · Esc'; exit.onclick = () => setAppearance({ focus: false }); document.body.append(exit);
   const hint = document.createElement('div'); hint.id = 'first-hint'; hint.hidden = store.get('discovery-dismissed') === 'true';
-  const hintText = document.createElement('span'); hintText.textContent = 'Search or jump opens files (Ctrl/Cmd+P). Commands (Ctrl/Cmd+K) lists every reader action.';
+  const hintText = document.createElement('span'); hintText.textContent = 'Jump to a file: Ctrl/Cmd+P · All commands: Ctrl/Cmd+K';
   const dismiss = document.createElement('button'); dismiss.textContent = 'Got it'; dismiss.onclick = () => { hint.hidden = true; store.set('discovery-dismissed', 'true'); }; hint.append(hintText, dismiss); headerSlot.after(hint);
   document.addEventListener('show-panel', event => {
     if (rightView) { rightView = false; const dialog = select(`#${event.detail}-dialog`); right.append(dialog); right.classList.add('open'); dialog.querySelector('[data-close-dialog]').onclick = () => { dialog.close(); rightTabs.querySelector('[data-right="outline"]').click(); }; }
@@ -167,7 +167,8 @@ export function setupShell() {
   scroller.addEventListener('scroll', () => { if (scroller.scrollTop < lastScroll) revealHeader(); lastScroll = scroller.scrollTop; header.classList.toggle('past-header', scroller.scrollTop > 90); }, { passive: true });
   document.addEventListener('pointermove', event => { if (event.clientY < 20) revealHeader(); }, { passive: true });
   header.addEventListener('focusin', revealHeader);
-  document.addEventListener('appearance-change', () => { if (appearance.focus) { header.classList.remove('revealed'); scroller.focus(); } });
+  let wasFocused = appearance.focus;
+  document.addEventListener('appearance-change', () => { if (appearance.focus && !wasFocused) { header.classList.remove('revealed'); scroller.focus(); } wasFocused = appearance.focus; });
   document.addEventListener('keydown', event => {
     if (select('dialog:modal')) return;
     if (event.key === 'Escape') {

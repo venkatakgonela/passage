@@ -9,6 +9,8 @@ export function setupTheme() {
   select('#focus').onclick = () => setAppearance({ focus: !appearance.focus });
   select('#font').onchange = event => setAppearance({ font: event.target.value });
   select('#measure').oninput = event => setAppearance({ measure: +event.target.value });
+  select('#fill-window').onchange = event => setAppearance({ fill: event.target.checked });
+  for (const control of document.querySelectorAll('[name="appearance-theme"]')) control.onchange = () => setAppearance({ theme: control.value });
   select('#text-size').oninput = event => setAppearance({ fs: +event.target.value });
   select('#reset').onclick = () => setAppearance(DEFAULTS);
   select('#appearance').onclick = () => select('#appearance-dialog').showModal();

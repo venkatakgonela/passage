@@ -8,7 +8,7 @@ export async function checkChrome(page, evidence) {
   const bounds = async label => {
     const failures = await page.evaluate(() => {
       const visible = element => element.getClientRects().length && getComputedStyle(element).visibility !== 'hidden' && getComputedStyle(element).display !== 'none';
-      return [...document.querySelectorAll('#rail button,#nav button,#nav input,#nav select,#page-header button,#right-panel button,dialog:modal button,dialog:modal input,dialog:modal select')].filter(visible).flatMap(element => {
+      return [...document.querySelectorAll('#rail button,#nav button,#nav input,#nav select,#page-header button,#right-panel button,dialog:modal button,dialog:modal input,dialog:modal select,#appearance-dialog[open] button,#appearance-dialog[open] input,#appearance-dialog[open] select')].filter(visible).flatMap(element => {
         const rect = element.getBoundingClientRect();
         const ancestor = element.closest('dialog,#nav,#right-panel');
         const box = ancestor?.getBoundingClientRect();
@@ -105,7 +105,7 @@ export async function publicScreenshots(browser, url) {
       await page.goto(url); await page.waitForFunction(() => document.querySelector('#doc').dataset.ready === 'true');
       await page.evaluate(async () => { (await import('/appearance.js')).setAppearance({ theme: 'light', focus: false }); (await import('/continuity.js')).visit('reading-guide.md'); });
       await page.waitForFunction(() => location.hash === '#reading-guide.md' && document.querySelector('#doc').dataset.ready === 'true');
-      await page.getByRole('button', { name: 'Got it', exact: true }).click();
+      if (await page.getByRole('button', { name: 'Got it', exact: true }).isVisible()) await page.getByRole('button', { name: 'Got it', exact: true }).click();
       await page.locator('#scroller').evaluate(element => element.scrollTop = 0);
       if (width < 1024) await page.locator('#navtog').click();
       assert.equal(await page.locator('.drawer-close:visible,#back-results:visible').count(), 0);

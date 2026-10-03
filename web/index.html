@@ -2,7 +2,7 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Markdown Reader</title>
 <link id="hl" rel="stylesheet" href="/vendor/hl-light.css">
-<link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/orientation.css"><link rel="stylesheet" href="/review.css"><link rel="stylesheet" href="/release.css"><link rel="stylesheet" href="/shell.css"></head>
+<link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/orientation.css"><link rel="stylesheet" href="/review.css"><link rel="stylesheet" href="/release.css"><link rel="stylesheet" href="/shell.css"><link rel="stylesheet" href="/polish.css"></head>
 <body>
 <header>
   <button class="ib" id="navtog" title="Toggle sidebar (b)" aria-label="Toggle sidebar">☰</button>
@@ -58,7 +58,7 @@
 <dialog id="peek-dialog" aria-labelledby="peek-title"><h2 id="peek-title">Peek section</h2><div id="peek-content"></div><button id="peek-open">Open here</button><button data-close-dialog>Return</button></dialog>
 <dialog id="dlg"><h3>Add a folder</h3><p id="bpath"></p><div id="blist"></div>
 <div class="dact"><button id="bcancel">Cancel</button><button class="pri" id="bok">Add this folder</button></div></dialog>
-<dialog id="appearance-dialog" aria-labelledby="appearance-title"><h2 id="appearance-title">Reading appearance</h2><label>Typeface <select id="font"><option value="serif">Serif</option><option value="sans">Sans</option></select></label><label>Text size <input id="text-size" type="range" min="13" max="24" value="18"></label><label>Reading width <input id="measure" type="range" min="65" max="90" value="72"></label><button id="reset">Reset appearance</button><button id="appearance-close">Close</button></dialog>
+<dialog id="appearance-dialog" aria-labelledby="appearance-title"><h2 id="appearance-title">Reading appearance</h2><fieldset><legend>Theme</legend><label><input type="radio" name="appearance-theme" value="light"> Light</label><label><input type="radio" name="appearance-theme" value="dark"> Dark</label><label><input type="radio" name="appearance-theme" value="auto"> Auto</label></fieldset><label>Typeface <select id="font"><option value="serif">Serif</option><option value="sans">Sans</option></select></label><label>Text size <output id="size-value" for="text-size">18px</output><input id="text-size" type="range" min="13" max="24" value="18"></label><label>Reading width <output id="measure-value" for="measure">80 characters</output><input id="measure" type="range" min="60" max="140" value="80"></label><label class="fill-control"><input id="fill-window" type="checkbox"> Fill window</label><button id="reset">Reset appearance</button><button id="appearance-close">Close</button></dialog>
 <div class="toast" id="toast" role="status"></div>
 <script src="/vendor/marked.min.js"></script><script src="/vendor/purify.min.js"></script><script src="/vendor/highlight.min.js"></script>
 <script type="module" src="/app.js"></script>

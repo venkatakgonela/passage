@@ -9,6 +9,7 @@ import { checkOrientation } from './orientation-browser.mjs';
 import { checkReviews } from './review-browser.mjs';
 import { checkRelease } from './release-browser.mjs';
 import { checkChrome, publicScreenshots } from './chrome-browser.mjs';
+import { checkPolish } from './polish-browser.mjs';
 
 const temporary = await mkdtemp(join(tmpdir(), 'reader-browser-'));
 const executablePath = process.env.BROWSER_EXECUTABLE || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
@@ -241,6 +242,7 @@ try {
   await checkReviews(page, fixtureRoot, evidence);
   await checkRelease(page, evidence);
   await checkChrome(page, evidence);
+  await checkPolish(page, fixtureRoot, evidence);
   if (process.env.READER_PUBLIC_IMAGES) await publicScreenshots(browser, url);
   assert.deepEqual(dialogs, [], 'No native dialogs during any browser interactions');
   assert.deepEqual(popups, [], 'No popups during any browser interactions');

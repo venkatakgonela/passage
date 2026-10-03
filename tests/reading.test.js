@@ -12,6 +12,12 @@ test('appearance values are bounded and defaults are predictable', () => {
   assert.equal(values.measure, 60);
   assert.equal(values.theme, 'auto');
   assert.equal(values.focus, false);
+  assert.equal(normalizeAppearance({}).measure, 80);
+  assert.equal(normalizeAppearance({ measure: 68 }).measure, 68);
+  assert.equal(normalizeAppearance({ measure: 140 }).measure, 140);
+  assert.equal(normalizeAppearance({ measure: 200 }).measure, 140);
+  assert.equal(normalizeAppearance({ fill: true }).fill, true);
+  assert.equal(normalizeAppearance({ fill: 'true' }).fill, false);
 });
 
 test('diagram source rejects configuration and unbounded input', () => {

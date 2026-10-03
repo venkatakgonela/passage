@@ -35,7 +35,7 @@ export async function peek(link) {
 }
 export function decoratePeek() {
   selectAll('#doc a[data-md],#doc a[data-h]:not(.a)').filter(anchor => !anchor.nextElementSibling?.classList.contains('peek-button')).forEach(anchor => {
-    const button = document.createElement('button'); button.className = 'peek-button'; button.textContent = 'Peek'; button.setAttribute('aria-label', `Peek ${anchor.textContent}`); button.onclick = () => peek(anchor); anchor.after(button);
+    const button = document.createElement('button'); button.className = 'peek-button'; button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>'; button.title = `Peek ${anchor.textContent}`; button.setAttribute('aria-label', button.title); button.onclick = () => peek(anchor); anchor.after(button);
   });
 }
 let matches = []; let matchIndex = -1;

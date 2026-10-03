@@ -1,0 +1,25 @@
+.reader-shell .wrap,.reader-shell.focus-mode .wrap{max-width:1464px;width:100%;box-sizing:border-box}
+.reader-shell #doc{max-width:1400px;width:100%;margin-inline:auto;--block-measure:var(--reading-measure,720px)}
+.reader-shell.fill-reading #doc{--block-measure:100%}
+.reader-shell #doc>*{margin-left:0;margin-right:0;box-sizing:border-box}
+.reader-shell #doc>:not(.wide-block){width:100%;max-width:var(--block-measure)}
+.reader-shell #doc>.wide-block{width:100%;max-width:100%}
+.reader-shell #doc>.technical-block>.image-frame,.reader-shell #doc>.technical-block>.math-block{width:100%;max-width:100%;margin-inline:0;box-sizing:border-box}
+.reader-shell #doc :is(h1,h2,h3,h4,h5,h6){position:relative}
+.reader-shell #doc .a{position:absolute;left:-19px;top:.3em;width:16px;margin:0;opacity:0}
+.reader-shell #doc :is(h1,h2,h3,h4,h5,h6):hover>.a,.reader-shell #doc .a:focus-visible{opacity:1}
+.reader-shell #appearance-dialog{position:fixed;inset:auto;margin:0;width:320px;box-sizing:border-box;padding:20px;z-index:50;max-height:calc(100dvh - 16px)}
+.reader-shell #appearance-dialog::backdrop{background:transparent}
+.reader-shell #appearance-dialog fieldset{border:1px solid var(--bd);border-radius:6px;display:flex;gap:12px;padding:8px}
+.reader-shell #appearance-dialog fieldset label,.reader-shell #appearance-dialog .fill-control{display:flex;align-items:center;gap:4px;margin:0}
+.reader-shell #appearance-dialog input[type=radio],.reader-shell #appearance-dialog input[type=checkbox]{min-height:0;width:auto;padding:0}
+.reader-shell #appearance-dialog input[type=range]{display:block;width:100%;padding-inline:0}
+.reader-shell #appearance-dialog output{float:right;color:var(--mut);font-variant-numeric:tabular-nums}
+.reader-shell #appearance-dialog #focus{display:block;margin-block:12px;border-color:var(--bd)}
+.reader-shell #first-hint{white-space:nowrap;padding-block:4px;gap:8px}
+.reader-shell #first-hint span{overflow:hidden;text-overflow:ellipsis}
+.reader-shell #first-hint button{font-size:11px;min-height:24px;padding:2px 6px}
+.reader-shell .peek-button{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;padding:2px;min-height:24px;width:24px;margin-left:4px}
+.reader-shell .peek-button svg{width:15px;height:15px}
+@media(max-width:1023px){.reader-shell #first-hint{display:none}.reader-shell .reading-area{height:calc(100% - 68px)}.reader-shell .layout::after{content:'';position:fixed;left:0;right:0;bottom:0;height:67px;background:var(--bg);border-top:1px solid var(--bd)}.reader-shell .peek-button{min-height:44px;width:44px}}
+@media print{.reader-shell .wrap{max-width:none}.reader-shell #doc>:not(.wide-block){max-width:none}.reader-shell .layout::after{display:none}}

@@ -105,6 +105,7 @@ async function renderOne(code) {
     const svg = parsed.querySelector('svg');
     const box = svg?.getAttribute('viewBox')?.split(/[ ,]+/).map(Number);
     if (!box || box.length !== 4 || !box.every(Number.isFinite) || box[2] <= 0 || box[3] <= 0) throw new Error('Invalid diagram dimensions');
+    shell.dataset.intrinsicWidth = String(box[2]);
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
     svg.style.maxWidth = 'none';

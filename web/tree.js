@@ -25,7 +25,7 @@ export function renderNode(node, open) {
   for (const file of sortEntries(node.files.map(file => ({ ...file, ...state.catalog.find(item => item.path === file.path) })), session)) {
     const filename = session.extensions ? file.name : file.name.replace(/\.md$/i, '');
     const title = session.titles && file.title ? file.title : filename;
-    html += `<a class="f" href="#${encodeURIComponent(file.path)}" data-p="${escapeHtml(file.path)}" title="${escapeHtml(file.path)}">${icon('file')}<span>${escapeHtml(title)}${title !== filename ? `<small>${escapeHtml(filename)}</small>` : ''}</span></a>`;
+    html += `<a class="f" href="#${encodeURIComponent(file.path)}" data-p="${escapeHtml(file.path)}" title="${escapeHtml(title)} — ${escapeHtml(file.path)}">${icon('file')}<span>${escapeHtml(title)}${title !== filename ? `<small>${escapeHtml(filename)}</small>` : ''}</span></a>`;
   }
   return html;
 }

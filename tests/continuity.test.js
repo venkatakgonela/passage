@@ -17,6 +17,7 @@ test('fuzzy title and path search is bounded', () => {
   assert.equal(fuzzyEntries(entries, 'zzz').length, 0);
 });
 test('session data rejects stale and hostile paths and bounds collections', () => {
+  assert.equal(validateSession({}, []).navWidth, 280);
   const files = Array.from({ length: 120 }, (_, index) => `${index}.md`);
   const result = validateSession({ version: 1, path: 'gone.md', pins: [...files, '../secret.md'], history: files.map(path => ({ path })), navWidth: 9000 }, files);
   assert.equal(result.path, ''); assert.equal(result.pins.length, 30); assert.equal(result.history.length, 100); assert.equal(result.navWidth, 420);
