@@ -56,6 +56,7 @@ export async function checkRelease(page, evidence) {
     assert.ok(analysis.csp.includes("default-src 'none'"));
     const hostile = await page.evaluate(async () => (await import('/export.js')).exportMarkup('<script>alert(1)</script><iframe src="https://example.invalid"></iframe><svg onload="alert(1)"></svg><p style="background:url(https://example.invalid)" onclick="alert(1)">safe</p>'));
     assert.equal(hostile, '<p>safe</p>');
+    assert.equal(await page.evaluate(async () => (await import('/export.js')).exportMarkup('<video src="https://example.invalid"><source src="https://example.invalid"></video>')), '');
     if (evidence) {
       await writeFile(join(evidence, `export-${width}.html`), html);
       await page.locator('#scroller').evaluate(element => { element.scrollTop = 0; });

@@ -4,7 +4,7 @@ import { resolvePath } from './paths.js';
 export const EXPORT_LIMIT = 8 * 1024 * 1024;
 
 export function exportMarkup(markup) {
-  return DOMPurify.sanitize(markup, { FORBID_TAGS: ['script', 'iframe', 'object', 'embed', 'form', 'input', 'button', 'link', 'meta', 'base', 'style', 'svg'], FORBID_ATTR: ['srcset', 'action', 'formaction', 'style'] });
+  return DOMPurify.sanitize(markup, { FORBID_TAGS: ['script', 'iframe', 'object', 'embed', 'form', 'input', 'button', 'link', 'meta', 'base', 'style', 'svg', 'audio', 'video', 'source', 'track'], FORBID_ATTR: ['srcset', 'action', 'formaction', 'style', 'poster', 'background'] });
 }
 
 export async function buildExport(container, path, root = state.root) {
