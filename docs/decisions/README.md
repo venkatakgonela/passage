@@ -10,6 +10,7 @@
 | [0006: Reader-owned review records](0006-review-storage.md) | Accepted | 2026-10-03 |
 | [0007: Heading-aligned comparison](0007-heading-aligned-compare.md) | Accepted | 2026-10-03 |
 | [0008: Sanitized math and inert export](0008-safe-math-and-export.md) | Accepted | 2026-10-03 |
+| [0009: User-scoped settings](0009-user-settings.md) | Accepted | 2026-10-03 |
 
 ## Pending decisions
 

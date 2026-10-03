@@ -93,8 +93,8 @@ class Workspace:
             raise Rejected('folder outside allowed boundaries', 403)
         if all(any(part.startswith('.') or part in SKIP for part in path.relative_to(boundary).parts) for boundary in allowed):
             raise Rejected('folder unavailable', 403)
-        if within(self.settings, path):
-            raise Rejected('folder contains reader settings', 403)
+        if within(self.settings.parent, path):
+            raise Rejected('Folder overlaps the reader settings directory. Choose another folder or relocate READER_SETTINGS.', 403)
         if not path.is_dir():
             raise Rejected('not a folder', 404)
         return path

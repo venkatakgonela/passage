@@ -4,3 +4,6 @@ __pycache__/
 .env
 .DS_Store
 node_modules/
+roots.json
+reviews-*.json
+.legacy-migrated

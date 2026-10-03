@@ -31,6 +31,8 @@ def main():
             failures.append('missing ' + required)
     for filename in files:
         path = ROOT / filename
+        if path.name == 'roots.json' or path.match('reviews-*.json') or path.name == '.legacy-migrated':
+            failures.append('tracked runtime settings: ' + filename)
         if path.stat().st_size > 6 * 1024 * 1024:
             failures.append('large tracked file: ' + filename)
         if filename.startswith('vendor/'):

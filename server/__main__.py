@@ -1,9 +1,9 @@
 import argparse
-import os
 from pathlib import Path
 
 from .http import PROJECT, make_server
 from .policy import Workspace
+from .settings import default_settings
 
 
 def main():
@@ -11,7 +11,7 @@ def main():
     parser.add_argument('--port', type=int, default=8765)
     parser.add_argument('--root', action='append', default=[])
     arguments = parser.parse_args()
-    settings = Path(os.environ.get('READER_SETTINGS', PROJECT / '.state' / 'roots.json'))
+    settings = default_settings(PROJECT)
     startup = arguments.root or [str(PROJECT / 'examples')]
     workspace = Workspace(Path.home(), startup, settings)
     workspace.save()
