@@ -88,7 +88,14 @@ export function setupReviews() {
         select('#note-anchor').textContent = `Anchor: ${anchor.path} — ${anchor.heading || 'passage'}`;
         select('#list-status').textContent = ''; select('#note-status').textContent = '';
         render(); showDialog(select(dialog));
-      } catch (error) { toast(error.message); }
+      } catch (error) {
+        if (confirm(`${error.message}. If review settings are corrupt, move them aside and start empty? Valid settings will not be reset.`)) {
+          try {
+            const response = await requestJson(`/api/reviews/reset?root=${openedRoot}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+            toast(response.notice);
+          } catch (failure) { toast(`${failure.message}. Check the server and settings permissions, then retry.`); }
+        }
+      }
     };
   }
   select('#list-select').onchange = lists;

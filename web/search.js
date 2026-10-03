@@ -21,7 +21,7 @@ export async function search(query) {
   catch (error) { select('#hint').textContent = error.message; return; }
   if (sequence !== state.searchSequence) return;
   const hits = result.hits || [];
-  saved = { query, hits, truncated: result.truncated, scroll: 0 };
+  saved = { query, hits, truncated: result.truncated, scanned: result.scanned, total: result.total, scroll: 0 };
   select('#back-results').hidden = false;
   select('#hint').textContent = `${hits.length} result${hits.length === 1 ? '' : 's'} for “${query}”`;
   select('#list').innerHTML = hits.length ? hits.map(hit =>
@@ -29,12 +29,13 @@ export async function search(query) {
   ).join('') : '<p class="empty">Nothing found.</p>';
   markCurrent();
   select('#hint').textContent += result.truncated ? ' · Results truncated (work or hit limit)' : '';
+  select('#hint').textContent += ` · scanned ${result.scanned} of ${result.total} files`;
 }
 
 function showResults() {
   if (!saved) return;
   const container = select('#search-results');
-  container.innerHTML = `<p>${saved.hits.length} results for ${escapeHtml(saved.query)}${saved.truncated ? ' · Results truncated' : ''}. Ranking: filename matches, content count, then path.</p>`;
+  container.innerHTML = `<p>${saved.hits.length} results for ${escapeHtml(saved.query)}${saved.truncated ? ' · Results truncated' : ''} · scanned ${saved.scanned} of ${saved.total} files. Ranking: filename matches, content count, then path.</p>`;
   for (const hit of saved.hits) {
     const button = document.createElement('button');
     button.innerHTML = `${highlight(hit.path, saved.query)}<small>${highlight(hit.snippet, saved.query)}</small>`;

@@ -142,7 +142,7 @@ def make_handler(workspace):
 
         def post(self):
             path, query = self.request_parts()
-            if path not in {'/api/roots', '/api/reviews'}:
+            if path not in {'/api/roots', '/api/reviews', '/api/reviews/reset'}:
                 raise Rejected()
             lengths = self.headers.get_all('Content-Length', [])
             if self.headers.get('Transfer-Encoding') or len(lengths) != 1 or not lengths[0].isascii() or not lengths[0].isdigit():
@@ -154,6 +154,8 @@ def make_handler(workspace):
             if len(raw) != length:
                 raise Rejected('incomplete request', 400)
             payload = json.loads(raw)
+            if path == '/api/reviews/reset':
+                return self.send_body(200, reviews.reset_corrupt(workspace, query('root'), payload))
             if path == '/api/reviews':
                 return self.send_body(200, reviews.save(workspace, query('root'), payload))
             if not isinstance(payload, dict) or not isinstance(payload.get('path'), str):

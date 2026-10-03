@@ -4,7 +4,7 @@ from pathlib import Path
 
 from . import policy
 
-MAX_SCAN = 300
+MAX_SCAN = policy.MAX_FILES
 MAX_ENTRIES = 10000
 MAX_BYTES = 16 * 1024 * 1024
 
@@ -15,7 +15,8 @@ def candidates(root):
     while pending:
         directory = pending.pop()
         try:
-            with os.scandir(directory) as entries:
+            with os.scandir(directory) as stream:
+                entries = sorted(stream, key=lambda entry: entry.name)
                 for entry in entries:
                     visited += 1
                     if visited > MAX_ENTRIES:
@@ -46,7 +47,15 @@ def search(root, query, scope='workspace', path='', phrase=False, case=False, wo
         policy.markdown_target(root, path)
     folder = str(Path(path).parent)
     hits, scanned, consumed, truncated = [], 0, 0, False
-    paths = [path] if scope == 'document' else candidates(root)
+    enumerated = [path] if scope == 'document' else list(candidates(root))
+    truncated = None in enumerated
+    paths = sorted(relative for relative in enumerated if relative is not None)
+    if scope == 'folder' and folder != '.':
+        paths = [relative for relative in paths if relative.startswith(folder + '/')]
+    if len(paths) > policy.MAX_FILES:
+        truncated = True
+        paths = paths[:policy.MAX_FILES]
+    total = len(paths)
     for relative in paths:
         if relative is None or scanned >= MAX_SCAN or consumed >= MAX_BYTES or len(hits) >= policy.MAX_HITS:
             truncated = True
@@ -72,4 +81,4 @@ def search(root, query, scope='workspace', path='', phrase=False, case=False, wo
                      'count': sum(sum(1 for unused in pattern.finditer(text)) for pattern in matchers),
                      'filename': all(pattern.search(relative) is not None for pattern in matchers)})
     hits.sort(key=lambda hit: (-hit['filename'], -hit['count'], hit['path']))
-    return {'hits': hits, 'truncated': truncated, 'scanned': scanned}
+    return {'hits': hits, 'truncated': truncated, 'scanned': scanned, 'total': total}

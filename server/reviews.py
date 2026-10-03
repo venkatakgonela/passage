@@ -1,6 +1,7 @@
 import json
 import os
 import tempfile
+import uuid
 from pathlib import Path
 from threading import RLock
 
@@ -105,3 +106,18 @@ def save(workspace, identifier, value):
             if temporary and temporary.exists():
                 temporary.unlink()
         return updated
+
+
+def reset_corrupt(workspace, identifier, payload):
+    shape(payload, [])
+    with lock:
+        target = storage(workspace, identifier)
+        try:
+            load(workspace, identifier)
+        except (ValueError, UnicodeError) as error:
+            if isinstance(error, policy.Rejected) and error.status not in {400, 413}:
+                raise
+            backup = target.with_name(target.name + '.corrupt-' + uuid.uuid4().hex)
+            os.rename(target, backup)
+            return {'notice': 'Corrupt review settings moved aside. Reopen to start empty; the original is retained beside settings.'}
+        raise policy.Rejected('settings are valid; reset refused', 409)
