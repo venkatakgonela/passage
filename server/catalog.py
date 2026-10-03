@@ -1,5 +1,6 @@
 from collections import OrderedDict
 import re
+from threading import RLock
 
 from . import policy
 
@@ -7,6 +8,7 @@ TITLE_BYTES = 16384
 PAGE_SIZE = 100
 CACHE_SIZE = 1000
 cache = OrderedDict()
+cache_lock = RLock()
 
 
 def title_from_text(text, filename):
@@ -29,14 +31,15 @@ def entry(root, relative, read_title=False):
     if stat.st_size > policy.MAX_FILE_BYTES:
         raise policy.Rejected('file too large', 413)
     key = (str(root), relative, stat.st_mtime_ns, stat.st_size)
-    title = cache.get(key)
-    if title is None and read_title:
-        with target.open('rb') as stream:
-            text = stream.read(TITLE_BYTES).decode('utf-8', errors='replace')
-        title = title_from_text(text, target.name)
-        cache[key] = title
-        while len(cache) > CACHE_SIZE:
-            cache.popitem(last=False)
+    with cache_lock:
+        title = cache.get(key)
+        if title is None and read_title:
+            with target.open('rb') as stream:
+                text = stream.read(TITLE_BYTES).decode('utf-8', errors='replace')
+            title = title_from_text(text, target.name)
+            cache[key] = title
+            while len(cache) > CACHE_SIZE:
+                cache.popitem(last=False)
     return {'path': relative, 'modified': stat.st_mtime_ns // 1000000, 'size': stat.st_size, 'title': title or target.name}
 
 

@@ -12,6 +12,42 @@ class CatalogTests(unittest.TestCase):
     tearDown = test_server.ServerTests.tearDown
     request = test_server.ServerTests.request
 
+    def test_title_truncation(self):
+        for text in ['# ' + 'x' * 201, '---\ntitle: ' + 'x' * 201 + '\n---']:
+            self.assertEqual(catalog.title_from_text(text, 'file.md'), 'x' * 200)
+
+    def test_page_skips_bad_entry(self):
+        original = catalog.entry
+        def broken_entry(root, relative, titles):
+            if relative == 'bad.md':
+                raise OSError('unavailable')
+            return original(root, relative, titles)
+        with patch.object(policy, 'markdown_files', return_value=['bad.md', 'hello.md']), patch.object(catalog, 'entry', broken_entry):
+            result = catalog.page(self.root)
+        self.assertEqual([item['path'] for item in result['entries']], ['hello.md'])
+
+    def test_titles_false_never_reads_uncached_content(self):
+        from pathlib import Path
+        catalog.cache.clear()
+        with patch.object(Path, 'open', side_effect=AssertionError('unexpected content read')):
+            response = self.request('GET', '/api/catalog?root=' + self.identifier + '&titles=false')
+        self.assertEqual(response[0], 200)
+        self.assertEqual(json.loads(response[1])['entries'][0]['title'], 'hello.md')
+
+    def test_cache_operations_hold_lock(self):
+        class CheckedCache(dict):
+            def get(inner, key):
+                self.assertTrue(catalog.cache_lock._is_owned())
+                return super().get(key)
+
+            def __setitem__(inner, key, value):
+                self.assertTrue(catalog.cache_lock._is_owned())
+                super().__setitem__(key, value)
+        from concurrent.futures import ThreadPoolExecutor
+        with patch.object(catalog, 'cache', CheckedCache()), ThreadPoolExecutor(max_workers=8) as pool:
+            results = list(pool.map(lambda unused: catalog.entry(self.root, 'hello.md', True), range(40)))
+        self.assertTrue(all(item['title'] == 'Hello' for item in results))
+
     def metadata(self, path='hello.md', headers=None):
         return self.request('GET', '/api/metadata?' + urlencode({'root': self.identifier, 'path': path}), headers=headers)
 
