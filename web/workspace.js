@@ -39,6 +39,8 @@ export async function loadRoots() {
 async function browse(path) {
   const result = await requestJson(`/api/browse?path=${encodeURIComponent(path || '')}`);
   state.browsePath = result.path;
+  select('#bok').disabled = result.can_register === false;
+  actionStatus(select('#dlg'), result.registration_error || '');
   select('#bpath').textContent = result.path;
   select('#blist').innerHTML = ((result.parent ? `<a data-p="${escapeHtml(result.parent)}">⬆︎  Up</a>` : '')
     + result.dirs.map(directory => `<a data-p="${escapeHtml(`${result.path}/${directory}`)}">📁  ${escapeHtml(directory)}</a>`).join(''))
@@ -59,7 +61,7 @@ export function setupWorkspace() {
       } catch (error) { actionStatus(select('.nav-top'), error.message); }
     }
   };
-  const browseSafely = path => { actionStatus(select('#dlg'), ''); return browse(path).catch(error => actionStatus(select('#dlg'), error.message)); };
+  const browseSafely = path => { select('#bok').disabled = true; actionStatus(select('#dlg'), ''); return browse(path).catch(error => actionStatus(select('#dlg'), error.message)); };
   select('#blist').onclick = event => { const anchor = event.target.closest('a'); if (anchor) browseSafely(anchor.dataset.p); };
   select('#add').onclick = () => { showDialog(select('#dlg')); browseSafely(state.browsePath || ''); };
   select('#bcancel').onclick = () => select('#dlg').close();

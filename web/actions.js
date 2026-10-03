@@ -29,7 +29,7 @@ export function setupActions() {
   const shortcuts = { navtog: 'b', q: '/', 'quick-dialog': 'Ctrl/Cmd+P', 'find-query': 'Ctrl/Cmd+F', 'commands-open': 'Ctrl/Cmd+K', 'trail-return': 'Alt+Left' };
   const show = () => {
     const input = select('#palette-query'); input.value = '';
-    const actions = [...document.querySelectorAll('header button,#review-tools button,#chain button,#nav button,#trail-bar button')].filter(button => button !== trigger && !button.hidden && !button.disabled);
+    const actions = [...document.querySelectorAll('header button,#review-tools button,#chain button,#nav button,#trail-bar button,#rail button,#action-bank>button')].filter(button => button !== trigger && !button.hidden && !button.disabled);
     const menuActions = [
       ['file-menu', 'Add workspace'], ['file-menu', 'Remove workspace from reader'], ['file-menu', 'Print'],
       ['view-menu', 'Sort by name'], ['view-menu', 'Sort by last modified'], ['view-menu', 'Ascending order', 'Descending order'],

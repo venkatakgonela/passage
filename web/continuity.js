@@ -133,7 +133,7 @@ export function setupContinuity() {
     const link = event.target.closest('a');
     if (!link || event.defaultPrevented || event.ctrlKey || event.metaKey) return;
     if (link.dataset.md && link.closest('#doc')) { event.preventDefault(); event.stopImmediatePropagation(); visit(link.dataset.md, link.dataset.frag || '', null, true); }
-    else if (link.dataset.p && link.closest('#list')) { event.preventDefault(); visit(link.dataset.p); }
+    else if (link.dataset.p && link.closest('#list')) { event.preventDefault(); visit(link.dataset.p); if (innerWidth < 1024) document.querySelector('#panel-close')?.click(); }
     else if (link.dataset.h && link.closest('#doc,#toc')) { event.preventDefault(); event.stopImmediatePropagation(); visit(state.currentPath, link.dataset.h); }
   }, true);
   select('#trail-return').onclick = returnTrail;

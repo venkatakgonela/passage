@@ -12,6 +12,7 @@ import { setupReadingTools } from './reading-tools.js';
 import { setupReviews } from './reviews.js';
 import { setupActions } from './actions.js';
 import { recovery } from './recovery.js';
+import { setupShell } from './shell.js';
 
 document.title = APP_NAME;
 select('#crumb').textContent = APP_NAME;
@@ -25,5 +26,6 @@ setupReadingTools();
 setupContinuity();
 setupReviews();
 setupActions();
+setupShell();
 const start = () => loadRoots().then(openDocument).catch(() => recovery(select('#doc'), 'Workspace unavailable or server unreachable.', start));
 start();

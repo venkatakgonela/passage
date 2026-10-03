@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
-import { mkdir, writeFile } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { checkDialogs } from './dialog-browser.mjs';
+import { menuAction } from './shell-access.mjs';
 
 export async function checkRelease(page, evidence) {
   await checkDialogs(page);
@@ -67,17 +68,8 @@ export async function checkRelease(page, evidence) {
       await page.locator('#scroller').evaluate(element => { element.scrollTop = 0; });
       await page.screenshot({ path: join(evidence, `release-${width}.png`) });
     }
-    if (process.env.READER_PUBLIC_IMAGES) {
-      const directory = resolve('docs/images'); await mkdir(directory, { recursive: true });
-      await page.evaluate(async () => (await import('/appearance.js')).setAppearance({ theme: 'light', focus: false }));
-      if (await page.locator('nav').evaluate(element => element.classList.contains('hide'))) await page.locator('#navtog').click();
-      await page.locator('#scroller').evaluate(element => { element.scrollTop = 0; });
-      await page.locator('#toast.on').waitFor({ state: 'hidden' });
-      await page.screenshot({ path: join(directory, `reading-${width}.png`) });
-      if (width < 821) await page.locator('#navtog').click();
-    }
     const downloadPromise = page.waitForEvent('download');
-    await page.locator('#export-document').click();
+    await menuAction(page, 'Export HTML');
     const download = await downloadPromise;
     assert.equal(download.suggestedFilename(), 'rendering.html');
     results.push({ width, math: analysis.math, exportedActiveElements: analysis.forbidden, palette: 'keyboard opened/filtered/closed', footnotes: 'forward/return' });

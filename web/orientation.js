@@ -6,21 +6,33 @@ import { documentHash } from './paths.js';
 
 export function showDialog(dialog) {
   const focused = document.activeElement;
-  dialog.showModal();
+  if (dialog.dataset.panel) {
+    document.dispatchEvent(new CustomEvent('show-panel', { detail: dialog.dataset.panel }));
+    if (!dialog.open) dialog.show();
+  } else dialog.showModal();
   dialog.addEventListener('close', () => {
     if (document.activeElement === document.body || dialog.contains(document.activeElement)) focused?.focus();
   }, { once: true });
 }
 export function showMenu(title, actions) {
+  const trigger = document.activeElement;
   const dialog = select('#reader-menu');
   select('#reader-menu-title').textContent = title;
   const content = select('#reader-menu-items'); content.replaceChildren();
   for (const [label, action] of actions) {
     const button = document.createElement('button'); button.textContent = label;
-    button.onclick = () => { dialog.close(); action(); };
+    button.onclick = () => { dialog.close(); trigger?.focus(); action(); };
     content.append(button);
   }
   showDialog(dialog);
+  content.querySelector('button')?.focus();
+  content.onkeydown = event => {
+    if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const buttons = [...content.querySelectorAll('button')];
+    const index = buttons.indexOf(document.activeElement);
+    buttons[event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length - 1 : (index + (event.key === 'ArrowDown' ? 1 : -1) + buttons.length) % buttons.length]?.focus();
+  };
 }
 export function updateContext() {
   const crumb = select('#crumb'); crumb.replaceChildren();
@@ -40,9 +52,10 @@ export function updateContext() {
   if (meta && metadata) meta.textContent = meta.textContent.split(' · Modified ')[0] + ` · Modified ${new Date(metadata.modified).toLocaleString()}`;
 }
 export function applyPanels() {
+  session.navWidth = Math.max(240, Math.min(280, session.navWidth));
   document.documentElement.style.setProperty('--nav-width', `${session.navWidth}px`);
   document.documentElement.style.setProperty('--toc-width', `${session.tocWidth}px`);
-  for (const [identifier, width, minimum, maximum] of [['nav-resizer', session.navWidth, 200, 420], ['toc-resizer', session.tocWidth, 160, 320]]) {
+  for (const [identifier, width, minimum, maximum] of [['nav-resizer', session.navWidth, 240, 280], ['toc-resizer', session.tocWidth, 160, 320]]) {
     const element = select('#' + identifier);
     if (element) { element.setAttribute('aria-valuenow', width); element.setAttribute('aria-valuemin', minimum); element.setAttribute('aria-valuemax', maximum); }
   }
@@ -74,8 +87,8 @@ export function setupOrientation() {
   select('#tree-filter').oninput = renderList;
   select('#reveal-current').onclick = () => { select('#tree-filter').value = ''; renderList(); markCurrent(); select('#list a.on')?.focus(); select('#list a.on')?.scrollIntoView({ block: 'nearest' }); };
   select('#collapse-all').onclick = () => selectAll('#list details:not(.workspace-root)').forEach(element => { element.open = false; });
-  setupResizer(select('#nav-resizer'), 'navWidth', 1, 200, 420);
-  document.addEventListener('workspace-loaded', () => { applyPanels(); if (innerWidth > 820) select('#nav').classList.toggle('hide', session.navHidden); });
+  setupResizer(select('#nav-resizer'), 'navWidth', 1, 240, 280);
+  document.addEventListener('workspace-loaded', () => { applyPanels(); if (innerWidth >= 1024) select('#nav').classList.toggle('hide', session.navHidden); });
   select('#navtog').addEventListener('click', () => { session.navHidden = select('#nav').classList.contains('hide'); saveSession(); });
   select('#view-menu').onclick = () => showMenu('View', [
     ['Sort by name', () => { session.sort = 'name'; saveSession(); renderList(); }],

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile, writeFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
+import { section, menuAction } from './shell-access.mjs';
 
 export async function checkOrientation(page, fixtureRoot, evidence) {
   const results = [];
@@ -14,7 +15,7 @@ export async function checkOrientation(page, fixtureRoot, evidence) {
     await page.setViewportSize({ width, height: 1000 });
     await page.evaluate(async theme => { const { setAppearance } = await import('/appearance.js'); setAppearance({ theme, focus: false }); }, theme);
     await open('notes/detail.md');
-    if (width <= 820) { await page.locator('#navtog').focus(); await page.keyboard.press('Enter'); }
+    await section(page, 'files');
     await page.locator('#tree-filter').fill('detail');
     assert.equal(await page.locator('#list a.f').count(), 1);
     assert.ok(await page.locator('#list summary').filter({ hasText: 'notes' }).isVisible());
@@ -25,9 +26,10 @@ export async function checkOrientation(page, fixtureRoot, evidence) {
     else {
       const resizer = page.locator('#nav-resizer'); const before = Number(await resizer.getAttribute('aria-valuenow'));
       await resizer.focus(); await page.keyboard.press('ArrowRight');
-      assert.equal(Number(await resizer.getAttribute('aria-valuenow')), Math.min(420, before + 10));
+      assert.equal(Number(await resizer.getAttribute('aria-valuenow')), Math.min(280, before + 10));
     }
-    await page.locator('#view-menu').press('Enter');
+    await section(page, 'files');
+    await page.locator('#tree-preferences').press('Enter');
     await page.getByRole('button', { name: 'Sort by last modified', exact: true }).press('Enter');
     if (width === 1440) {
       const resizer = page.locator('#toc-resizer');
@@ -35,10 +37,12 @@ export async function checkOrientation(page, fixtureRoot, evidence) {
       await resizer.focus(); await page.keyboard.press('ArrowLeft');
       assert.equal(Number(await resizer.getAttribute('aria-valuenow')), Math.min(320, before + 10));
     }
-    await page.locator('#file-menu').press('Enter');
-    assert.ok(await page.getByRole('button', { name: 'Add workspace', exact: true }).isVisible());
+    await section(page, 'files');
+    await page.locator('#workspace-actions').press('Enter');
+    assert.ok(await page.getByRole('button', { name: 'Add folder', exact: true }).isVisible());
     await page.keyboard.press('Escape');
-    await page.waitForFunction(() => !document.querySelector('dialog[open]') && document.activeElement === document.querySelector('#file-menu'));
+    await page.waitForFunction(() => !document.querySelector('dialog:modal') && document.activeElement === document.querySelector('#workspace-actions'));
+    if (width < 1024) await page.keyboard.press('Escape');
     await page.locator('#crumb button').filter({ hasText: 'notes' }).press('Enter');
     await page.locator('#reader-menu-items button').filter({ hasText: 'detail.md' }).press('Enter');
     await page.locator('#scroller').focus();
@@ -46,7 +50,7 @@ export async function checkOrientation(page, fixtureRoot, evidence) {
     await page.locator('#quick-query').fill('plan');
     await page.keyboard.press('ArrowDown'); await page.keyboard.press('Enter');
     await page.waitForFunction(() => location.hash === '#plan.md' && document.querySelector('#doc').dataset.ready === 'true');
-    await page.locator('#navigate-menu').press('Enter');
+    await menuAction(page, 'History and navigation');
     const pin = page.getByRole('button', { name: 'Pin current file', exact: true });
     if (await pin.count()) await pin.press('Enter'); else await page.keyboard.press('Escape');
     assert.ok(await page.evaluate(async () => (await import('/session.js')).session.pins.includes('plan.md')), `Pin action ${theme}/${width}`);

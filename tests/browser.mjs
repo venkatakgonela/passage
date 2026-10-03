@@ -8,6 +8,7 @@ import { validateDiagram } from '../web/diagrams.js';
 import { checkOrientation } from './orientation-browser.mjs';
 import { checkReviews } from './review-browser.mjs';
 import { checkRelease } from './release-browser.mjs';
+import { checkChrome, publicScreenshots } from './chrome-browser.mjs';
 
 const temporary = await mkdtemp(join(tmpdir(), 'reader-browser-'));
 const executablePath = process.env.BROWSER_EXECUTABLE || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
@@ -73,7 +74,8 @@ try {
           }
           const regions = [...document.querySelectorAll('[data-scroll-region]')].filter(visible).filter(element => {
             const rectangle = element.getBoundingClientRect();
-            return rectangle.right > innerWidth + 1 || rectangle.left < -1 || element.tabIndex < 0 || !['auto', 'scroll'].includes(getComputedStyle(element).overflowX) || !(element.parentElement.querySelector('.scroll-hint') || element.nextElementSibling?.classList.contains('scroll-hint'));
+            const hint = element.dataset.scrollRegion === 'math' ? element.getAttribute('aria-label')?.includes('Scroll horizontally') : element.parentElement.querySelector('.scroll-hint') || element.nextElementSibling?.classList.contains('scroll-hint');
+            return rectangle.right > innerWidth + 1 || rectangle.left < -1 || element.tabIndex < 0 || !['auto', 'scroll'].includes(getComputedStyle(element).overflowX) || !hint;
           }).map(element => element.dataset.scrollRegion);
           return { page: document.documentElement.scrollWidth > innerWidth + 1, outside, regions, raw: document.querySelectorAll('pre > code.language-mermaid').length, diagramErrors: [...document.querySelectorAll('[data-diagram=error]')].map(element => element.innerText) };
         });
@@ -172,7 +174,7 @@ try {
   await page.keyboard.press('Escape');
   await page.locator('#appearance').click();
   await page.locator('#font').selectOption('sans');
-  await page.locator('#measure').fill('90');
+  await page.locator('#measure').fill('75');
   await page.locator('#appearance-close').click();
   await page.reload();
   await page.waitForFunction(() => document.querySelector('#doc').dataset.ready === 'true');
@@ -181,9 +183,10 @@ try {
   await page.locator('#reset').click();
   await page.locator('#appearance-close').click();
   assert.equal(await page.locator('html').getAttribute('data-font'), 'serif');
+  await page.locator('#appearance').click();
   await page.locator('#focus').click();
   assert.ok(await page.locator('body').evaluate(element => element.classList.contains('focus-mode')));
-  await page.locator('#focus').click();
+  await page.locator('#exit-focus').click();
   await page.setViewportSize({ width: 390, height: 1000 });
   await page.locator('#nav.hide').waitFor({ state: 'attached' });
   await page.locator('#navtog').click();
@@ -237,6 +240,8 @@ try {
   await checkOrientation(page, fixtureRoot, evidence);
   await checkReviews(page, fixtureRoot, evidence);
   await checkRelease(page, evidence);
+  await checkChrome(page, evidence);
+  if (process.env.READER_PUBLIC_IMAGES) await publicScreenshots(browser, url);
   assert.deepEqual(dialogs, [], 'No native dialogs during any browser interactions');
   assert.deepEqual(popups, [], 'No popups during any browser interactions');
   assert.deepEqual(errors, [], 'No JavaScript errors during orientation interactions');

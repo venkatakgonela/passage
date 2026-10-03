@@ -9,7 +9,7 @@ test('appearance values are bounded and defaults are predictable', () => {
   assert.deepEqual(normalizeAppearance(DEFAULTS), DEFAULTS);
   const values = normalizeAppearance({ theme: 'unsafe', fs: 200, measure: 0, font: 'unknown', focus: 'true' });
   assert.equal(values.fs, 24);
-  assert.equal(values.measure, 65);
+  assert.equal(values.measure, 60);
   assert.equal(values.theme, 'auto');
   assert.equal(values.focus, false);
 });

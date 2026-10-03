@@ -13,11 +13,12 @@ let generation = 0;
 
 function buildToc() {
   const headings = selectAll('#doc h2,#doc h3');
+  const headingLabel = heading => { const copy = heading.cloneNode(true); copy.querySelectorAll('button,.a').forEach(element => element.remove()); return copy.textContent; };
   const toc = select('#toc');
   if (state.observer) state.observer.disconnect();
   if (headings.length < 2) { toc.innerHTML = ''; return; }
   toc.innerHTML = '<h4>On this page</h4>' + headings.map(heading =>
-    `<a class="${heading.tagName === 'H3' ? 'l3' : ''}" href="#${heading.id}" data-h="${heading.id}">${escapeHtml(heading.textContent.replace(/^#/, ''))}</a>`).join('');
+    `<a class="${heading.tagName === 'H3' ? 'l3' : ''}" href="#${heading.id}" data-h="${heading.id}">${escapeHtml(headingLabel(heading))}</a>`).join('');
   state.observer = new IntersectionObserver(entries => {
     for (const entry of entries) {
       if (entry.isIntersecting) selectAll('#toc a').forEach(anchor => anchor.classList.toggle('on', anchor.dataset.h === entry.target.id));
@@ -40,16 +41,19 @@ export async function openDocument(preserve = false) {
   const themeOffset = themeAnchor?.getBoundingClientRect().top;
   const themeId = themeAnchor?.id;
   select('#doc').dataset.ready = 'false';
+  select('#doc').dataset.loading = 'true';
   cleanDiagrams(select('#doc'));
   state.currentPath = path;
   markCurrent();
   let response;
   try { response = await fetch(`/api/file?root=${state.root}&path=${encodeURIComponent(path)}`); }
   catch {
+    select('#doc').dataset.loading = 'false';
     recovery(select('#doc'), 'Server unreachable. Start the local reader and retry.', () => openDocument(true));
     select('#doc').dataset.ready = 'true'; return;
   }
   if (!response.ok) {
+    select('#doc').dataset.loading = 'false';
     recovery(select('#doc'), response.status === 413 ? 'Document exceeds the 2 MiB reading limit. Choose a smaller file.' : 'Document or workspace is missing or unavailable.', () => openDocument(true));
     select('#toc').innerHTML = '';
     select('#doc').dataset.ready = 'true';
@@ -58,6 +62,7 @@ export async function openDocument(preserve = false) {
   const text = await response.text();
   if (current !== generation) return;
   const documentBody = select('#doc');
+  documentBody.dataset.loading = 'false';
   const rendering = renderArticle(documentBody, text, path);
   const heading = documentBody.querySelector('h1');
   document.title = heading ? heading.textContent.replace(/^#/, '') : path;

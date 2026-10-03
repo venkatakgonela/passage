@@ -1,11 +1,11 @@
 import { store } from './state.js';
 
-export const DEFAULTS = { theme: 'auto', fs: 18, measure: 72, font: 'serif', focus: false, wrap: false };
+export const DEFAULTS = { theme: 'auto', fs: 18, measure: 68, font: 'serif', focus: false, wrap: false };
 export function normalizeAppearance(value) {
   return {
     theme: ['auto', 'light', 'dark'].includes(value.theme) ? value.theme : 'auto',
     fs: Number.isFinite(+value.fs) ? Math.min(24, Math.max(13, +value.fs)) : 18,
-    measure: Number.isFinite(+value.measure) ? Math.min(90, Math.max(65, +value.measure)) : 72,
+    measure: Number.isFinite(+value.measure) ? Math.min(75, Math.max(60, +value.measure)) : 68,
     font: value.font === 'sans' ? 'sans' : 'serif',
     focus: value.focus === true,
     wrap: value.wrap === true,
@@ -33,8 +33,10 @@ export function applyAppearance() {
   document.documentElement.dataset.font = appearance.font;
   document.documentElement.style.setProperty('--fs', `${appearance.fs}px`);
   document.documentElement.style.setProperty('--measure', `${appearance.measure}ch`);
+  document.documentElement.style.setProperty('--reading-measure', `${appearance.measure * appearance.fs / 2}px`);
   document.body.classList.toggle('focus-mode', appearance.focus);
   document.body.classList.toggle('code-wrap', appearance.wrap);
+  document.dispatchEvent(new Event('appearance-change'));
   document.querySelector('#hl').href = `/vendor/hl-${theme}.css`;
   document.querySelector('#focus').textContent = appearance.focus ? 'Exit focus' : 'Focus';
   document.querySelector('#theme').setAttribute('aria-label', `Theme: ${appearance.theme}. Change theme`);

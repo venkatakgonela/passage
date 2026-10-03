@@ -129,4 +129,9 @@ class Workspace:
         except OSError as error:
             raise Rejected('folder unavailable', 403) from error
         parent = str(path.parent) if any(within(path.parent, boundary) for boundary in self.boundaries) else None
-        return {'path': str(path), 'parent': parent, 'dirs': sorted(directories)}
+        reason = ''
+        try:
+            self.folder(path)
+        except Rejected as error:
+            reason = str(error)
+        return {'path': str(path), 'parent': parent, 'dirs': sorted(directories), 'can_register': not reason, 'registration_error': reason}

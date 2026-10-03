@@ -51,6 +51,13 @@ export function setupNavigation() {
   addEventListener('hashchange', openDocument);
   document.addEventListener('reader-theme-change', () => openDocument(true));
   addEventListener('keydown', event => {
+    if (document.body.classList.contains('reader-shell')) {
+      if (select('dialog:modal')) return;
+      const typing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
+      if (event.key === '/' && !typing) { event.preventDefault(); document.dispatchEvent(new CustomEvent('reader-panel', { detail: 'search' })); }
+      else if (event.key === 'b' && !typing && !event.metaKey && !event.ctrlKey) select('#navtog').click();
+      return;
+    }
     if (activeDrawer && event.key === 'Tab') {
       const controls = [...activeDrawer.querySelectorAll('button,a[href],input,select')].filter(element => element.getClientRects().length);
       const first = controls[0]; const last = controls.at(-1);
@@ -68,6 +75,7 @@ export function setupNavigation() {
   let narrow = innerWidth <= 820;
   select('#nav').classList.toggle('hide', narrow);
   addEventListener('resize', () => {
+    if (document.body.classList.contains('reader-shell')) return;
     const next = innerWidth <= 820;
     if (next !== narrow) { narrow = next; select('#nav').classList.toggle('hide', next && activeDrawer !== select('#nav')); }
   });

@@ -55,6 +55,7 @@ export function setupSearch() {
   };
   let timer;
   select('#q').oninput = () => {
+    if (select('#results-dialog').open) select('#results-dialog').close();
     clearTimeout(timer);
     const query = select('#q').value.trim();
     if (query.length < 2) {

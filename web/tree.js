@@ -34,6 +34,7 @@ export function markCurrent() {
   selectAll('#list details').forEach(element => element.classList.remove('ancestor'));
   selectAll('#list a.f').forEach(anchor => anchor.classList.toggle('on', anchor.dataset.p === state.currentPath));
   const current = select('#list a.f.on');
+  selectAll('#list summary,#list a.f').forEach(element => element.tabIndex = element === (current || select('#list summary')) ? 0 : -1);
   if (!current) return;
   for (let ancestor = current.parentElement; ancestor && ancestor.id !== 'list'; ancestor = ancestor.parentElement) {
     if (ancestor.tagName === 'DETAILS') { ancestor.open = true; ancestor.classList.add('ancestor'); }
