@@ -6,6 +6,7 @@ import { join, resolve } from 'node:path';
 import { spawn } from 'node:child_process';
 import { validateDiagram } from '../web/diagrams.js';
 import { checkOrientation } from './orientation-browser.mjs';
+import { checkReviews } from './review-browser.mjs';
 
 const temporary = await mkdtemp(join(tmpdir(), 'reader-browser-'));
 const executablePath = process.env.BROWSER_EXECUTABLE || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
@@ -232,6 +233,7 @@ try {
     await writeFile(join(evidence, 'browser-results.json'), JSON.stringify({ browser: browser.version(), results, errors, outbound, dialogs, popups, labelAgreement: 'All shared Node-accepted architecture diagrams ready in every matrix combination; hostile label inert', contrast, interactions: 'zoom, fit, source, fullscreen, fragment history, image enlargement, persistence/reset, focus, drawer keyboard, reduced motion' }, null, 2));
   }
   await checkOrientation(page, fixtureRoot, evidence);
+  await checkReviews(page, fixtureRoot, evidence);
   assert.deepEqual(errors, [], 'No JavaScript errors during orientation interactions');
   assert.deepEqual(outbound, [], 'No external requests during orientation interactions');
   console.log(`PASS ${results.length} document/theme/viewport cases and six orientation interaction configurations; browser ${browser.version()}`);
