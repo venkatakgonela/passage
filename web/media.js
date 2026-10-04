@@ -2,7 +2,7 @@ import { state } from './state.js';
 import { resolvePath } from './paths.js';
 import { stableChange } from './layout.js';
 
-export function enlarge(element, title) {
+export function enlarge(element, title, restore) {
   const previous = document.activeElement;
   const dialog = document.createElement('dialog');
   dialog.className = 'media-dialog';
@@ -12,9 +12,10 @@ export function enlarge(element, title) {
   close.onclick = () => dialog.close();
   dialog.append(close, element);
   document.body.append(dialog);
-  dialog.addEventListener('close', () => { dialog.remove(); previous?.focus(); });
+  dialog.addEventListener('close', () => { restore?.(); dialog.remove(); previous?.focus({ preventScroll: true }); });
   dialog.showModal();
   close.focus();
+  return dialog;
 }
 
 export async function renderImages(container, path) {

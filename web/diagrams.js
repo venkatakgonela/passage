@@ -119,23 +119,47 @@ async function renderOne(code) {
     surface.append(frame);
     viewport.append(surface);
     let scale = 1;
-    const fitScale = () => Math.min(1, Math.max(100, viewport.clientWidth - 24) / box[2], 350 / box[3]);
+    const fullscreen = () => Boolean(shell.closest('dialog[open]'));
+    const fitScale = () => fullscreen()
+      ? Math.min(4, Math.max(1, viewport.clientWidth - 24) / box[2], Math.max(1, viewport.clientHeight - 24) / box[3])
+      : Math.min(1, Math.max(100, viewport.clientWidth - 24) / box[2], 350 / box[3]);
     const apply = () => { frame.style.width = `${box[2] * scale}px`; frame.style.height = `${box[3] * scale}px`; surface.style.width = `${Math.max(viewport.clientWidth - 24, box[2] * scale)}px`; };
     const fit = () => { scale = fitScale(); apply(); viewport.scrollTo(0, 0); };
     toolbar.append(button('Zoom in', () => { scale = Math.min(4, scale * 1.4); apply(); }), button('Zoom out', () => { scale = Math.max(.02, scale / 1.4); apply(); }), button('Fit', fit), button('Reset', fit), button('Fullscreen', () => {
-      const placeholder = document.createElement('span');
+      if (fullscreen()) return;
+      const placeholder = document.createElement('div');
+      const inlineHeight = shell.getBoundingClientRect().height;
+      placeholder.style.height = `${inlineHeight}px`;
+      placeholder.style.margin = getComputedStyle(shell).margin;
+      const scroller = document.querySelector('#scroller');
+      const scroll = scroller.scrollTop;
+      const overflow = scroller.style.overflow;
+      const sourceWasOpen = !sourceView.hidden;
+      const inlineViewportHeight = viewport.style.height;
       shell.before(placeholder);
-      enlarge(shell, 'Fullscreen diagram');
-      const dialog = shell.closest('dialog');
-      dialog.addEventListener('close', () => { placeholder.replaceWith(shell); fit(); });
+      const dialog = enlarge(shell, 'Fullscreen diagram', () => {
+        shell.append(sourceView);
+        sourceView.hidden = !sourceWasOpen;
+        viewport.classList.remove('show-source');
+        viewport.style.height = inlineViewportHeight;
+        placeholder.replaceWith(shell);
+        scroller.style.overflow = overflow;
+        scroller.scrollTop = scroll;
+        fit();
+      });
+      dialog.classList.add('diagram-dialog');
+      viewport.style.height = '';
+      viewport.append(sourceView);
+      viewport.classList.toggle('show-source', !sourceView.hidden);
+      scroller.style.overflow = 'hidden';
       fit();
-    }), button('Source', () => { sourceView.hidden = !sourceView.hidden; }), button('Copy source', async () => { await navigator.clipboard.writeText(source); hint.textContent = 'Source copied. Scroll or drag to pan.'; }));
+    }), button('Source', () => { sourceView.hidden = !sourceView.hidden; viewport.classList.toggle('show-source', fullscreen() && !sourceView.hidden); if (fullscreen() && sourceView.hidden) fit(); }), button('Copy source', async () => { await navigator.clipboard.writeText(source); hint.textContent = 'Source copied. Scroll or drag to pan.'; }));
     let drag;
     viewport.onpointerdown = event => { drag = { x: event.clientX, y: event.clientY, left: viewport.scrollLeft, top: viewport.scrollTop }; viewport.setPointerCapture(event.pointerId); };
     viewport.onpointermove = event => { if (drag) { viewport.scrollLeft = drag.left + drag.x - event.clientX; viewport.scrollTop = drag.top + drag.y - event.clientY; } };
     viewport.onpointerup = viewport.onpointercancel = () => { drag = null; };
     viewport.onkeydown = event => { const delta = { ArrowLeft: [-40, 0], ArrowRight: [40, 0], ArrowUp: [0, -40], ArrowDown: [0, 40] }[event.key]; if (delta) { event.preventDefault(); viewport.scrollBy(...delta); } };
-    const observer = new ResizeObserver(() => { if (shell.isConnected && scale <= fitScale() * 1.05) fit(); });
+    const observer = new ResizeObserver(() => { if (shell.isConnected && (fullscreen() || scale <= fitScale() * 1.05)) fit(); });
     observer.observe(viewport);
     shell.cleanup = () => observer.disconnect();
     shell.fit = fit;

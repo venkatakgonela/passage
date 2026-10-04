@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Diagram fullscreen fills the available dialog, fits up to 4× using the actual viewport, and refits on resize while restoring inline layout, reading position and focus on close.
+
 ## 0.1.1 — 2026-10-03
 
 Security hardening and maintenance release. No change to how the reader looks or behaves.
