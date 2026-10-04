@@ -1,8 +1,12 @@
 # Changelog
 
-## Unreleased
+## 0.1.2 — 2026-10-04
 
-- Diagram fullscreen fills the available dialog, fits up to 4× using the actual viewport, and refits on resize while restoring inline layout, reading position and focus on close.
+Bug-fix release.
+
+- **Diagram fullscreen:** the fullscreen view now fills the available window, fits the diagram to the real space (up to 4×) and re-fits when you resize; closing it restores the inline size, your reading position and focus. Before, the diagram stayed a small canvas with empty space around it.
+
+See the [release notes](docs/release-notes-0.1.2.md).
 
 ## 0.1.1 — 2026-10-03
 
